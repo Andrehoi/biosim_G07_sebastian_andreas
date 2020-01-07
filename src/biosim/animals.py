@@ -6,23 +6,51 @@
 __author__ = "Sebastian Kihle & Andreas Hoeimyr"
 __email__ = "sebaskih@nmbu.no & andrehoi@nmbu.no"
 
+from math import exp
+
 
 class Animal:
     """
     Class Animal contains characteristics the animals on Rossoya has in
     common as well as actions.
-
     """
+    w_birth = 0
+    sigma_birth = 0
+    beta = 0
+    eta = 0
+    a_half = 0
+    phi_age = 0
+    w_half = 0
+    phi_weight = 0
+    mu = 0
+    lambda_herbivore = 0
+    gamma = 0
+    zeta = 0
+    xi = 0
+    omega = 0
+    F = 0
+
     def __init__(self, parameters_animal):
         self.parameters = parameters_animal
-        pass
+        self.age = parameters_animal['age']
+        self.w = parameters_animal['weight']
+        self.phi = 0
+        self.calculate_fitness()
 
     def ageing(self):
         """
         Ages the animal by one year.
         :return:
         """
-        pass
+        self.age += 1
+
+    def _sigmodial_plus(self, x, x_half, phi):
+        """ Used to calculated fitness """
+        return 1/(1 + exp(phi * (x - x_half)))
+
+    def _sigmodial_minus(self, x, x_half, phi):
+        """ Used to calculate fitness """
+        return 1 / (1 + exp(-phi * (x - x_half)))
 
     def calculate_fitness(self):
         """
@@ -31,7 +59,13 @@ class Animal:
         Otherwise it is calculated by the following function:
         :return:
         """
-        pass
+        if self.weight == 0:
+            self.phi = 0
+        else:
+            self.phi = self._sigmodial_plus(self.age, self.a_half,
+                                            self.phi_age) * \
+                       self._sigmodial_minus(self.w, self.w_half,
+                                             self.phi_weight)
 
     def migrate(self):
         """
@@ -56,7 +90,7 @@ class Animal:
         constant eta.
         :return:
         """
-        pass
+        self.w -= eta * self.w
 
     def potential_death(self):
         """
@@ -97,28 +131,28 @@ class Herbivore(Animal):
         input raise ValueError.
 
         :param parameters:
-             w_birth: Average weight of offspring.
-            sigma_birth: standard deviation of w_birth.
+            w_birth: Average weight of offspring.
+            sigma_birth: Standard deviation of w_birth.
             beta: Constant that defines gained weight from food.
-            eta: weigh loss constant
-            a_half:
-            phi_age:
-            w_half:
-            phi_weight:
-            mu:
-            lambda_herbivore:
-            gamma:
-            zeta:
-            xi:
-            omega:
-            F:
+            eta: Weigh loss constant.
+            a_half: Age component of fitness calculation.
+            phi_age: Age component of fitness calculation.
+            w_half: Weight component of fitness calculation.
+            phi_weight: Weight component of fitness calculation.
+            mu: Probability of migrating constant.
+            lambda_herbivore: Direction preference dependent on food.
+            gamma: Probability of birth constant.
+            zeta: Birth possibility constant relative to weight.
+            xi: Fraction of offspring weight the mother loses at birth.
+            omega: Death probability factor.
+            F: Maximum food capacity.
 
         :return:
         """
 
     def __init__(self, parameters_herbivore):
 
-        super().__init__()
+        super().__init__(parameters_animal)
 
     def migrate(self):
         """
@@ -160,6 +194,33 @@ class Carnivore(Animal):
     omega = 0.9
     F = 50
     DeltaPhiMax = 10.0
+
+    @classmethod
+    def new_parameters(cls, parameters):
+        """
+        Takes a dictionary of parameters as input. Overrides default
+        parameter values. If illegal parameters of parameter values are
+        input raise ValueError.
+
+        :param parameters:
+            w_birth: Average weight of offspring.
+            sigma_birth: Standard deviation of w_birth.
+            beta: Constant that defines gained weight from food.
+            eta: Weigh loss constant.
+            a_half: Age component of fitness calculation.
+            phi_age: Age component of fitness calculation.
+            w_half: Weight component of fitness calculation.
+            phi_weight: Weight component of fitness calculation.
+            mu: Probability of migrating constant.
+            lambda_carnivore: Direction preference dependent on food.
+            gamma: Probability of birth constant.
+            zeta: Birth possibility constant relative to weight.
+            xi: Fraction of offspring weight the mother loses at birth.
+            omega: Death probability factor.
+            F: Maximum food capacity.
+
+        :return:
+        """
 
     def __init__(self, parameters_carnivore):
         super().__init__()

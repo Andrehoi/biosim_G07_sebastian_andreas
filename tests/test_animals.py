@@ -4,14 +4,14 @@ class TestAnimals:
     """
     def test_fitness(self):
         """
-        Test that the fitness is calculated porperly
+        Test that the fitness is calculated properly
         :return:
         """
         pass
 
     def test_move(self):
         """
-        Test that both animal types can move porperly
+        Test that both animal types can move properly
         :return:
         """
         pass
