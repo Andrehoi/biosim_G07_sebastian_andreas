@@ -69,7 +69,8 @@ class Animal:
 
 class Herbivore(Animal):
     """
-    Class describing herbivore behaviour
+    Class describing herbivore behaviour.
+    Cannot move into mountain boimes or ocean biomes.
     """
     def __init__(self, parameters_herbi):
 
@@ -86,7 +87,8 @@ class Herbivore(Animal):
 
 class Carnivore(Animal):
     """
-    Class describing carnivore behaviour
+    Class describing carnivore behaviour.
+    Cannot move into mountain boimes or ocean biomes.
     """
     def __init__(self, parameters_carni):
         super().__init__()
