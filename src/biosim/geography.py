@@ -34,10 +34,13 @@ class Mountain(Area):
 
 class Jungle(Area):
     """
-    Doescribes jungle biome. Has f_max_j amount of food, and maximum regrowth.
+    Describes jungle biome. Has f_max_j amount of food, and maximum regrowth.
     """
     def __init__(self):
         super().__init__()
+
+    def regrow(self):
+        pass
 
 
 class Savannah(Area):
@@ -48,6 +51,9 @@ class Savannah(Area):
     """
     def __init__(self):
         super().__init__()
+
+    def regrow(self):
+        pass
 
 
 class Dessert(Area):
