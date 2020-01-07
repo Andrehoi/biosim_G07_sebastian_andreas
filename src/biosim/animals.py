@@ -123,6 +123,11 @@ class Herbivore(Animal):
     omega = 0.4
     F = 10
 
+    list_of_acceptable_variables = ["w_birth", "sigma_birth", "beta", "eta",
+                                    "a_half", "phi_age", "w_half",
+                                    "phi_weight", "mu", "lambda_herbivore",
+                                    "gamma", "zeta", "xi", "omega", "F"]
+
     @classmethod
     def new_parameters(cls, parameters):
         """
@@ -149,6 +154,12 @@ class Herbivore(Animal):
 
         :return:
         """
+        for key in parameters.keys:
+            if key in cls.list_of_acceptable_variables:
+                cls.key = parameters[key]
+            else:
+                raise ValueError("This parameter is not defined for this "
+                                 "animal")
 
     def __init__(self, parameters_herbivore):
 
