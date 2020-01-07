@@ -30,10 +30,10 @@ class Animal:
     omega = 0
     F = 0
 
-    def __init__(self, parameters_animal):
-        self.parameters = parameters_animal
-        self.age = parameters_animal['age']
-        self.w = parameters_animal['weight']
+    def __init__(self, age_and_weight):
+        self.parameters = age_and_weight
+        self.age = age_and_weight['age']
+        self.w = age_and_weight['weight']
         self.phi = 0
         self.calculate_fitness()
 
@@ -90,7 +90,7 @@ class Animal:
         constant eta.
         :return:
         """
-        self.w -= eta * self.w
+        self.w -= self.eta * self.w
 
     def potential_death(self):
         """
@@ -161,9 +161,9 @@ class Herbivore(Animal):
                 raise ValueError("This parameter is not defined for this "
                                  "animal")
 
-    def __init__(self, parameters_herbivore):
+    def __init__(self, age_and_weight):
 
-        super().__init__(parameters_animal)
+        super().__init__(age_and_weight)
 
     def migrate(self):
         """
