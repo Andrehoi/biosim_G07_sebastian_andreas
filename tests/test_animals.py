@@ -1,3 +1,7 @@
+
+from biosim.animals import Herbivore
+
+
 class TestAnimals:
     """
     Test class for animal properties
