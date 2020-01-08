@@ -1,3 +1,5 @@
+from biosim.animals import Animal
+
 class TestAnimals:
     """
     Test class for animal properties
