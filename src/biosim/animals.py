@@ -7,6 +7,7 @@ __author__ = "Sebastian Kihle & Andreas Hoeimyr"
 __email__ = "sebaskih@nmbu.no & andrehoi@nmbu.no"
 
 from math import exp
+import random
 
 
 class Animal:
@@ -76,13 +77,26 @@ class Animal:
         """
         pass
 
-    def breeding(self):
+    def breeding(self, n_animals_in_cell):
         """
         Calculates the probability of animal having an offspring if multiple
-        animals are in the cell. Potentially creates a new animal.
+        animals are in the cell. Potentially creates a new animal with
+        weight decided from a gaussian distribution. The mother animal loses
+        weight relative to the wight of the offspring times a constant xi.
         :return:
         """
-        pass
+
+        if self.weight < self.zeta * (self.w_birth + self.sigma_birth):
+            return
+
+        else:
+            prob_of_birth = self.gamma * self.phi * (n_animals_in_cell - 1)
+
+            if random.random() <= prob_of_birth:
+                birth_weight = random.gauss(self.w_birth, self.sigma_birth)
+                self.weight -= birth_weight * self.xi
+                # create newborn animal with weight = birth_weight and age = 0
+
 
     def lose_weight(self):
         """
@@ -98,8 +112,14 @@ class Animal:
         fitness. Potentially kills the animal.
         :return:
         """
-        pass
+        if self.phi == 0:
+            self.alive = False
 
+        else:
+            death_probability = self.omega * (1 - self.phi)
+            rng = random.random()
+
+            self.alive = rng <= death_probability
 
 
 class Herbivore(Animal):
@@ -117,7 +137,7 @@ class Herbivore(Animal):
     w_half = 10
     phi_weight = 0.1
     mu = 0.25
-    lambda_herbivore = 1.0
+    lambda_animal = 1.0
     gamma = 0.2
     zeta = 3.5
     xi = 1.2
@@ -126,7 +146,7 @@ class Herbivore(Animal):
 
     list_of_acceptable_variables = ["w_birth", "sigma_birth", "beta", "eta",
                                     "a_half", "phi_age", "w_half",
-                                    "phi_weight", "mu", "lambda_herbivore",
+                                    "phi_weight", "mu", "lambda_animal",
                                     "gamma", "zeta", "xi", "omega", "F"]
 
     @classmethod
@@ -198,7 +218,7 @@ class Carnivore(Animal):
     w_half = 4.0
     phi_weight = 0.4
     mu = 0.4
-    lambda_carnivore = 1
+    lambda_animal = 1
     gamma = 0.8
     zeta = 3.5
     xi = 1.1
@@ -207,7 +227,7 @@ class Carnivore(Animal):
     DeltaPhiMax = 10.0
     list_of_acceptable_variables = ["w_birth", "sigma_birth", "beta", "eta",
                                     "a_half", "phi_age", "w_half",
-                                    "phi_weight", "mu", "lambda_herbivore",
+                                    "phi_weight", "mu", "lambda_animal",
                                     "gamma", "zeta", "xi", "omega", "F",
                                     "DeltaPhiMax"]
 
