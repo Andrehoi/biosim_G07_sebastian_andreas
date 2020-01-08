@@ -1,25 +1,51 @@
-class TestGeography:
+# -*- coding: utf-8 -*-
+
+__author__ = "Sebastian Kihle & Andreas Hoeimyr"
+__email__ = "sebaskih@nmbu.no & andrehoi@nmbu.no"
+
+"""
+Test file for the geography of the landscape
+"""
+
+from biosim.geography import Biome, Mountain, Ocean, Desert, Savannah, Jungle
+import numpy as np
+
+
+def test_init():
     """
-    Test class for the geography of the landscape
+    Tests the init of the geography class
+    :return:
+    """
+    pass
+
+
+def test_create_island_map():
+    """
+    Tests that the create_island_map method converts a string into a numpy
+    ndarray with string values. Also verifies coordinate positions.
+    :return:
     """
 
-    def test_init(self):
-        """
-        Tests the init of the geography class
-        :return:
-        """
-        pass
+    b = Biome(island_map="OMO\nOJO\nOSO\nOOO")
+    map = b.create_island_map()
 
-    def test_locations(self):
-        """
-        Test that the tiles are in the right place
-        :return:
-        """
-        pass
+    assert isinstance(type(map), type(np.ndarray))
 
-    def test_no_food_in_mountains_or_desert(self):
-        """
-        Test if there is any food in the mountains or in the desert
-        :return:
-        """
-        pass
+    assert map[0, 1] == "M"
+    assert map[2, 1] == "S"
+
+
+def test_locations():
+    """
+    Test that the tiles are in the right place
+    :return:
+    """
+    pass
+
+
+def test_no_food_in_mountains_or_desert():
+    """
+    Test if there is any food in the mountains or in the desert
+    :return:
+    """
+    pass

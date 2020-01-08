@@ -15,17 +15,14 @@ class Biome:
     Each cell contains food, and has a regrow capability.
     """
     def __init__(self, island_map):
-        self.island_map = island_map
-
-    def create_island_map(self):
         """
         Converts the multiline string input into a numpy array of same
         dimensions.
-        :return:
+        :param island_map:
         """
-        area = self.island_map.split()
-        map = [[cell for cell in string] for string in area]
-        return np.array(map)
+        area = island_map.split()
+        string_map = [[cell for cell in string] for string in area]
+        self.array_map = np.array(string_map)
 
     def regrow(self):
         """
@@ -68,7 +65,7 @@ class Savannah(Biome):
         pass
 
 
-class Dessert(Biome):
+class Desert(Biome):
     """
     Describes the desert biome. Has no food and no regrowth.
     """

@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
 
-"""
-"""
-
 __author__ = "Sebastian Kihle & Andreas Hoeimyr"
 __email__ = "sebaskih@nmbu.no & andrehoi@nmbu.no"
 
 from biosim.animals import Animal, Herbivore, Carnivore
 
 """
-Test class for animal properties
+Test file for animal properties
 """
 
 
