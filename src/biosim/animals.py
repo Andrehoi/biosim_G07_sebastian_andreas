@@ -35,6 +35,7 @@ class Animal:
         self.weight = weight
         self.phi = 0
         self.calculate_fitness()
+        self.alive = True
 
     def ageing(self):
         """
@@ -98,6 +99,7 @@ class Animal:
         :return:
         """
         pass
+
 
 
 class Herbivore(Animal):
