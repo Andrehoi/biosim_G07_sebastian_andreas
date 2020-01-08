@@ -16,18 +16,8 @@ def test_init():
     Tests the init of the geography class
     :return:
     """
-    pass
-
-
-def test_create_island_map():
-    """
-    Tests that the create_island_map method converts a string into a numpy
-    ndarray with string values. Also verifies coordinate positions.
-    :return:
-    """
-
     b = Biome(island_map="OMO\nOJO\nOSO\nOOO")
-    map = b.create_island_map()
+    map = b.array_map
 
     assert isinstance(type(map), type(np.ndarray))
 

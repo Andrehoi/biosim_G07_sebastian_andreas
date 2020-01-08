@@ -22,12 +22,9 @@ class Biome:
         """
         self.island_map = island_map
 
-    def create_island_map(self):
         area = self.island_map.split()
         string_map = [[cell for cell in string] for string in area]
-        array_map = np.array(string_map)
-        return array_map
-
+        self.array_map = np.array(string_map)
 
     def regrow(self):
         """
