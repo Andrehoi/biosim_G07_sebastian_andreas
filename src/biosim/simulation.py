@@ -6,6 +6,10 @@
 __author__ = "Sebastian Kihle & Andreas Hoeimyr"
 __email__ = "sebaskih@nmbu.no & andrehoi@nmbu.no"
 
+import numpy as np
+
+from biosim.geography import Mountain, Savannah, Jungle, Desert, Ocean
+
 
 class BioSim:
     def __init__(
@@ -41,6 +45,26 @@ class BioSim:
         where img_no are consecutive image numbers starting from 0.
         img_base should contain a path and beginning of a file name.
         """
+        """
+                Converts the multiline string input into a numpy array of same
+                dimensions.
+                :param island_map:
+                """
+        self.island_map = island_map
+
+        area = self.island_map.split()
+        string_map = [[cell for cell in string] for string in area]
+        self.array_map = np.array(string_map, dtype=object)
+        self.biome_map = np.array(string_map)
+
+        biome_dict = {'O': Ocean, 'D': Desert, 'J': Jungle, 'M': Mountain,
+                      'S': Savannah}
+
+        for row in range(self.array_map.shape[0]):
+            for col in range(self.array_map.shape[1]):
+                self.array_map[row, col] = biome_dict[self.array_map[row,
+                                                                     col]]()
+        print(self.array_map)
 
     def set_animal_parameters(self, species, params):
         """
@@ -49,6 +73,7 @@ class BioSim:
         :param species: String, name of animal species
         :param params: Dict with valid parameter specification for species
         """
+        pass
 
     def set_landscape_parameters(self, landscape, params):
         """
@@ -57,6 +82,7 @@ class BioSim:
         :param landscape: String, code letter for landscape
         :param params: Dict with valid parameter specification for landscape
         """
+        pass
 
     def simulate(self, num_years, vis_years=1, img_years=None):
         """
@@ -68,6 +94,7 @@ class BioSim:
 
         Image files will be numbered consecutively.
         """
+        pass
 
     def add_population(self, population):
         """
@@ -75,22 +102,34 @@ class BioSim:
 
         :param population: List of dictionaries specifying population
         """
+        pass
 
     @property
     def year(self):
         """Last year simulated."""
+        pass
 
     @property
     def num_animals(self):
         """Total number of animals on island."""
+        pass
 
     @property
     def num_animals_per_species(self):
         """Number of animals per species in island, as dictionary."""
+        pass
 
     @property
     def animal_distribution(self):
-        """Pandas DataFrame with animal count per species for each cell on island."""
+        """Pandas DataFrame with animal count per species for
+        each cell on island."""
+        pass
 
     def make_movie(self):
         """Create MPEG4 movie from visualization images saved."""
+        pass
+
+if __name__ == "__main__":
+    k = BioSim(island_map="OMO\nOJO\nOSO\nOOO", ini_pop=0, seed=0)
+    print(type(k.array_map[0, 0]))
+    print(k.biome_map)

@@ -14,17 +14,8 @@ class Biome:
     Class that creates the map for the BioSim, divided into cells.
     Each cell contains food, and has a regrow capability.
     """
-    def __init__(self, island_map):
-        """
-        Converts the multiline string input into a numpy array of same
-        dimensions.
-        :param island_map:
-        """
-        self.island_map = island_map
-
-        area = self.island_map.split()
-        string_map = [[cell for cell in string] for string in area]
-        self.array_map = np.array(string_map)
+    def __init__(self):
+        pass
 
     def regrow(self):
         """
