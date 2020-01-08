@@ -7,6 +7,7 @@ __author__ = "Sebastian Kihle & Andreas Hoeimyr"
 __email__ = "sebaskih@nmbu.no & andrehoi@nmbu.no"
 
 import numpy as np
+import re
 
 from biosim.geography import Mountain, Savannah, Jungle, Desert, Ocean
 
@@ -54,9 +55,33 @@ class BioSim:
 
         area = self.island_map.split()
         string_map = [[cell for cell in string] for string in area]
-        self.array_map = np.array(string_map, dtype=object)
         self.biome_map = np.array(string_map)
 
+        # Using regular expression to check if all letters in input string
+        # are defined for this island.
+        if re.fullmatch(r"[OMDJS\n]+", island_map) is None:
+            raise ValueError('Map contains biome not defined for this island')
+
+
+        # Verifies that cells on the edge of the map are ocean biomes.
+        for cell in self.biome_map[0,:]:
+            if not cell == 'O':
+                raise ValueError('Edge of map must be ocean')
+
+        for cell in self.biome_map[-1,:]:
+            if not cell == 'O':
+                raise ValueError('Edge of map must be ocean')
+
+        for cell in self.biome_map[:,0]:
+            if not cell == 'O':
+                raise ValueError('Edge of map must be ocean')
+
+        for cell in self.biome_map[:,-1]:
+            if not cell == 'O':
+                raise ValueError('Edge of map must be ocean')
+
+        # Converts array elements from strings to object instances
+        self.array_map = np.array(string_map, dtype=object)
         biome_dict = {'O': Ocean, 'D': Desert, 'J': Jungle, 'M': Mountain,
                       'S': Savannah}
 
@@ -64,7 +89,7 @@ class BioSim:
             for col in range(self.array_map.shape[1]):
                 self.array_map[row, col] = biome_dict[self.array_map[row,
                                                                      col]]()
-        print(self.array_map)
+
 
     def set_animal_parameters(self, species, params):
         """
@@ -129,7 +154,8 @@ class BioSim:
         """Create MPEG4 movie from visualization images saved."""
         pass
 
+
 if __name__ == "__main__":
-    k = BioSim(island_map="OMO\nOJO\nOSO\nOOO", ini_pop=0, seed=0)
+    k = BioSim(island_map="OOO\nOJO\nOSO\nOOO", ini_pop=0, seed=0)
     print(type(k.array_map[0, 0]))
     print(k.biome_map)
