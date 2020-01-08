@@ -30,10 +30,9 @@ class Animal:
     omega = 0
     F = 0
 
-    def __init__(self, age_and_weight):
-        self.parameters = age_and_weight
-        self.age = age_and_weight['age']
-        self.w = age_and_weight['weight']
+    def __init__(self, age, weight):
+        self.age = age
+        self.weight = weight
         self.phi = 0
         self.calculate_fitness()
 
@@ -64,7 +63,7 @@ class Animal:
         else:
             self.phi = self._sigmodial_plus(self.age, self.a_half,
                                             self.phi_age) * \
-                       self._sigmodial_minus(self.w, self.w_half,
+                       self._sigmodial_minus(self.weight, self.w_half,
                                              self.phi_weight)
 
     def migrate(self):
@@ -90,7 +89,7 @@ class Animal:
         constant eta.
         :return:
         """
-        self.w -= self.eta * self.w
+        self.weight -= self.eta * self.weight
 
     def potential_death(self):
         """
@@ -161,9 +160,8 @@ class Herbivore(Animal):
                 raise ValueError("This parameter is not defined for this "
                                  "animal")
 
-    def __init__(self, age_and_weight):
-
-        super().__init__(age_and_weight)
+    def __init__(self, age, weight):
+        super().__init__(age, weight)
 
     def migrate(self):
         """
@@ -205,6 +203,11 @@ class Carnivore(Animal):
     omega = 0.9
     F = 50
     DeltaPhiMax = 10.0
+    list_of_acceptable_variables = ["w_birth", "sigma_birth", "beta", "eta",
+                                    "a_half", "phi_age", "w_half",
+                                    "phi_weight", "mu", "lambda_herbivore",
+                                    "gamma", "zeta", "xi", "omega", "F",
+                                    "DeltaPhiMax"]
 
     @classmethod
     def new_parameters(cls, parameters):
@@ -232,9 +235,15 @@ class Carnivore(Animal):
 
         :return:
         """
+        for key in parameters.keys:
+            if key in cls.list_of_acceptable_variables:
+                cls.key = parameters[key]
+            else:
+                raise ValueError("This parameter is not defined for this "
+                                 "animal")
 
-    def __init__(self, parameters_carnivore):
-        super().__init__()
+    def __init__(self, age, weight):
+        super().__init__(age, weight)
 
     def eat(self):
         """
