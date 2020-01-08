@@ -20,9 +20,14 @@ class Biome:
         dimensions.
         :param island_map:
         """
-        area = island_map.split()
+        self.island_map = island_map
+
+    def create_island_map(self):
+        area = self.island_map.split()
         string_map = [[cell for cell in string] for string in area]
-        self.array_map = np.array(string_map)
+        array_map = np.array(string_map)
+        return array_map
+
 
     def regrow(self):
         """
