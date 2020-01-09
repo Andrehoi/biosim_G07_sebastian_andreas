@@ -37,6 +37,7 @@ class Animal:
         self.phi = 0
         self.calculate_fitness()
         self.alive = True
+        self.legal_biomes = ['M', 'O', 'D', 'S', 'J']
 
     def ageing(self):
         """
@@ -184,6 +185,7 @@ class Herbivore(Animal):
 
     def __init__(self, age, weight):
         super().__init__(age, weight)
+        self.legal_biomes = ['D', 'S', 'J']
 
     def migrate(self):
         """
@@ -266,6 +268,7 @@ class Carnivore(Animal):
 
     def __init__(self, age, weight):
         super().__init__(age, weight)
+        self.legal_biomes = ['D', 'S', 'J']
 
     def eat(self):
         """

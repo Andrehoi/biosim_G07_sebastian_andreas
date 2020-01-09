@@ -11,18 +11,19 @@ import numpy as np
 
 class Biome:
     """
-    Class that creates the map for the BioSim, divided into cells.
-    Each cell contains food, and has a regrow capability.
+    Biome stores information about the animals present in the cells of the
+    map of Rossoya (array_map)
     """
     def __init__(self):
-        pass
+        self.available_food = 0
+        self.present_animals = []
 
     def regrow(self):
         """
         Regrows feed for the cell depending on biome.
         :return:
         """
-        pass
+        self.available_food += 0
 
 
 class Mountain(Biome):
@@ -38,11 +39,32 @@ class Jungle(Biome):
     """
     Describes jungle biome. Has f_max_j amount of food, and maximum regrowth.
     """
+    f_max = 800
+
+    @classmethod
+    def biome_parameters(cls, parameters):
+        """
+        Redefines available amount of food before a simulation
+        :param parameters: A dictionary containing f_max
+        :return:
+        """
+        for key in parameters.keys:
+            if key == cls.f_max:
+                cls.key = parameters[key]
+            else:
+                raise ValueError("This parameter is not defined for the "
+                                 "jungle biome")
+
     def __init__(self):
         super().__init__()
+        self.available_food = self.f_max
 
     def regrow(self):
-        pass
+        """
+        Sets the amount of food available at the start of a year as f_max.
+        :return:
+        """
+        self.available_food = self.f_max
 
 
 class Savannah(Biome):
@@ -51,11 +73,40 @@ class Savannah(Biome):
     on food left in cell. If all the food has been consumed, regrowth is
     limited by regrowth factor alpha.
     """
+
+    f_max = 300
+    alpha = 0.3
+
+    @classmethod
+    def biome_parameters(cls, parameters):
+        """
+        Redefines available amount of food (f_max) before a simulation and
+        the regrowth factor (alpha).
+        :param parameters: A dictionary containing f_max and alpha
+        :return:
+        """
+        for key in parameters.keys:
+            if key == cls.f_max or cls.alpha:
+                cls.key = parameters[key]
+            else:
+                raise ValueError("This parameter is not defined for the "
+                                 "savannah biome")
+
     def __init__(self):
         super().__init__()
+        self.available_food = self.f_max
 
     def regrow(self):
-        pass
+        """
+        Calculates the amount of food available at the start of a year.
+        This depends on the amount of food left from previous year and the
+        regrowth factor alpha.
+        :return:
+        """
+        self.available_food += self.alpha*(self.f_max - self.available_food)
+
+        if self.available_food > self.f_max:
+            self.available_food = self.f_max
 
 
 class Desert(Biome):
