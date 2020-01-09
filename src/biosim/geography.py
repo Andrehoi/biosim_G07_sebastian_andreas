@@ -48,8 +48,8 @@ class Jungle(Biome):
         :param parameters: A dictionary containing f_max
         :return:
         """
-        for key in parameters.keys:
-            if key == cls.f_max:
+        for key in parameters.keys():
+            if key == 'f_max':
                 cls.key = parameters[key]
             else:
                 raise ValueError("This parameter is not defined for the "
@@ -85,8 +85,8 @@ class Savannah(Biome):
         :param parameters: A dictionary containing f_max and alpha
         :return:
         """
-        for key in parameters.keys:
-            if key == cls.f_max or cls.alpha:
+        for key in parameters.keys():
+            if key == 'f_max' or 'alpha':
                 cls.key = parameters[key]
             else:
                 raise ValueError("This parameter is not defined for the "

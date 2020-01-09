@@ -69,7 +69,7 @@ class Animal:
                        self._sigmodial_minus(self.weight, self.w_half,
                                              self.phi_weight)
 
-    def migrate(self):
+    def migrate(self, position):
         """
         Calculates the probability for an animal to move one cell, and
         potentially moves it. The function also calculates the probability
@@ -177,7 +177,7 @@ class Herbivore(Animal):
 
         :return:
         """
-        for key in parameters.keys:
+        for key in parameters.keys():
             if key in cls.list_of_acceptable_variables:
                 cls.key = parameters[key]
             else:
@@ -194,7 +194,6 @@ class Herbivore(Animal):
         to move into a mountain cell or ocean cell, the animal does not move.
         :return:
         """
-        super().migrate()
         pass
 
     def eat(self, food_available_in_cell):
@@ -211,8 +210,6 @@ class Herbivore(Animal):
         else:
             self.weight += self.beta * food_available_in_cell
             return 0
-
-
 
 
 class Carnivore(Animal):
@@ -269,7 +266,7 @@ class Carnivore(Animal):
 
         :return:
         """
-        for key in parameters.keys:
+        for key in parameters.keys():
             if key in cls.list_of_acceptable_variables:
                 cls.key = parameters[key]
             else:
@@ -295,13 +292,12 @@ class Carnivore(Animal):
         """
         pass
 
-    def migrate(self):
+    def migrate(self, position):
         """
         Migrates using the migrate method for animals. However if it tries
         to move into a mountain cell or ocean cell, the animal does not move.
         :return:
         """
-        super().migrate()
         pass
 
 

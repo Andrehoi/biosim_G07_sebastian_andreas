@@ -10,6 +10,7 @@ import numpy as np
 import re
 
 from biosim.geography import Mountain, Savannah, Jungle, Desert, Ocean
+from biosim.animals import Animal, Herbivore, Carnivore
 
 
 class BioSim:
@@ -92,23 +93,25 @@ class BioSim:
 
         # Converts array elements from strings to object instances
         self.array_map = np.array(string_map, dtype=object)
-        biome_dict = {'O': Ocean, 'D': Desert, 'J': Jungle, 'M': Mountain,
-                      'S': Savannah}
+        self.biome_dict = {'O': Ocean, 'D': Desert, 'J': Jungle, 'M': Mountain,
+                           'S': Savannah}
 
         for row in range(self.array_map.shape[0]):
             for col in range(self.array_map.shape[1]):
-                self.array_map[row, col] = biome_dict[self.array_map[row,
+                self.array_map[row, col] = self.biome_dict[self.array_map[row,
                                                                      col]]()
 
-
     def set_animal_parameters(self, species, params):
+
         """
         Set parameters for animal species.
 
         :param species: String, name of animal species
         :param params: Dict with valid parameter specification for species
         """
-        pass
+        class_dict = {'Herbivore': Herbivore, 'Carnivore': Carnivore}
+
+        class_dict[species].new_parameters(params)
 
     def set_landscape_parameters(self, landscape, params):
         """
@@ -117,7 +120,7 @@ class BioSim:
         :param landscape: String, code letter for landscape
         :param params: Dict with valid parameter specification for landscape
         """
-        pass
+        self.biome_dict[landscape].biome_parameters(params)
 
     def simulate(self, num_years, vis_years=1, img_years=None):
         """
@@ -137,8 +140,12 @@ class BioSim:
 
         :param population: List of dictionaries specifying population
         """
-        pass
+        for dictionary in population:
+            coordinates = dictionary['loc']
 
+            self.array_map[coordinates].present_animals.append(dictionary[
+                                                                   'pop'])
+            print(self.array_map[coordinates].present_animals)
     @property
     def year(self):
         """Last year simulated."""
@@ -169,3 +176,21 @@ if __name__ == "__main__":
     k = BioSim(island_map="OOO\nOJO\nOSO\nOOO", ini_pop=0, seed=0)
     print(type(k.array_map[0, 0]))
     print(k.biome_map)
+
+    print(k.add_population([
+            {
+                "loc": (2, 1),
+                "pop": [
+                    {"species": "Herbivore", "age": 1, "weight": 15.0},
+                    {"species": "Carnivore", "age": 4, "weight": 8.0},
+                ],
+            },
+            {
+                "loc": (1, 1),
+                "pop": [
+                    {"species": "Herbivore", "age": 5, "weight": 20.0},
+                    {"species": "Carnivore", "age": 2, "weight": 5.0},
+                ],
+            },
+        ]
+    ))
