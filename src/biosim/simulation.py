@@ -91,7 +91,12 @@ class BioSim:
 
         Image files will be numbered consecutively.
         """
-        pass
+        """
+        while True:
+            cell = self.map.map_iterator()
+            
+            for animal in cell.animal_list
+        """
 
     def add_population(self, population):
         """
@@ -99,13 +104,34 @@ class BioSim:
 
         :param population: List of dictionaries specifying population
         """
+        # Unpacks the coordinates and animals to add.
+        # Adds new animals to a temporary list.
         for dictionary in population:
             coordinates = dictionary['loc']
+            animals_to_add = []
 
-            # TODO: Add check for legal animal areas
-            self.map.array_map[coordinates].present_animals.append(dictionary[
-                                                                   'pop'])
-            # print(self.array_map[coordinates].present_animals)
+            # TODO: Add check for legal animal areas, and non-negative age
+            #  and weight
+
+            # Gets each new animal
+            for element in dictionary['pop']:
+                animals_to_add.append(element)
+
+            # Unpacks the species value, and creates new class instance of
+            # class type corresponding to species.
+            # New class instance uses age and weight values from dictionary.
+            for animal in animals_to_add:
+                animal_class = animal['species']
+                if animal_class == 'Herbivore':
+                    new_animal = Herbivore(animal['age'], animal['weight'])
+                    self.map.array_map[coordinates].\
+                        present_animals.append(new_animal)
+                if animal_class == 'Carnivore':
+                    new_animal = Carnivore(animal['age'], animal['weight'])
+                    self.map.array_map[coordinates].\
+                        present_animals.append(
+                        new_animal)
+
 
     @property
     def year(self):
@@ -159,3 +185,4 @@ if __name__ == "__main__":
         ]
     ))
     print(k.map.array_map[1, 1].present_animals)
+    print(k.map.array_map[2, 1].present_animals)

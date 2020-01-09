@@ -15,6 +15,8 @@ class Map:
     """
     def __init__(self, island_multiline_sting):
         self.island_multiline_sting = island_multiline_sting
+        self.x = 0
+        self.y = 0
 
         # Splits the multiline string and converts it into an array.
         area = self.island_multiline_sting.split()
@@ -60,10 +62,33 @@ class Map:
                 self.array_map[row, col] = self.biome_dict[self.array_map[
                     row, col]]()
 
-        return
+    def map_iterator(self):
+        """
+        Iterates through each cell in the map.
+        :return:
+        """
+        x = 0
+        y = 0
+        while True:
+            yield self.array_map[x, y]
+            x += 1
+            if x > len(self.biome_map[0]):
+                y += 1
+                x = 0
+
+
+
+        """
+        for row in self.array_map:
+            for cell in row:
+                for animal in cell.present_animals:
+        """
+
+
 
 if __name__ == '__main__':
 
     m = Map("OOO\nOJO\nOOO")
     print(m.array_map)
     print(m.biome_map)
+    print(m.map_cycle())
