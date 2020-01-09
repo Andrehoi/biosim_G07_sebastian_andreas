@@ -86,19 +86,32 @@ def test_mountain_and_water_impassable():
 
 def test_eating():
     """
-    Test that eating works as it should
+    Test that eating works as it should for the Herbivore class.
+    That it returns correct new food available in cell, and that it gains
+    weight according to beta * F.
     :return:
     """
-    pass
+    herb = Herbivore(3, 35)
+    assert herb.eat(300) == 290
+    assert herb.weight == 44
+    assert herb.eat(7) == 0
+    assert herb.weight == 50.3
 
 
 def test_mating_and_weight():
     """
     Test the mating function, and that there is no offspring if offsprings
-    weight surpasses the weight of the mother
+    weight surpasses the weight of the mother. This tests the super-class
+    method, and therefore tests for both herbivores and carnivores since it
+    inherits.
     :return:
     """
-    pass
+    test_herb = Herbivore(1, 100)
+    test_herb.breeding(100)
+    assert test_herb.breeding(100) is not None
+
+    test_herb2 = Herbivore(1, 5)
+    assert test_herb2.breeding(100) is None
 
 
 def test_death():

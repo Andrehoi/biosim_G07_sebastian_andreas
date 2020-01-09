@@ -48,7 +48,7 @@ class Animal:
 
     def _sigmodial_plus(self, x, x_half, phi):
         """ Used to calculated fitness """
-        return 1/(1 + exp(phi * (x - x_half)))
+        return 1 / (1 + exp(phi * (x - x_half)))
 
     def _sigmodial_minus(self, x, x_half, phi):
         """ Used to calculate fitness """
@@ -84,7 +84,7 @@ class Animal:
         animals are in the cell. Potentially creates a new animal with
         weight decided from a gaussian distribution. The mother animal loses
         weight relative to the wight of the offspring times a constant xi.
-        :return:
+        :return: None if no animal is born, or a dict with newborn parameters
         """
 
         if self.weight < self.zeta * (self.w_birth + self.sigma_birth):
@@ -99,7 +99,6 @@ class Animal:
                 self.weight -= birth_weight * self.xi
                 return {'species': '{0}'.format(type(self).__name__),
                         'age': 0, 'weight': birth_weight}
-
 
     def lose_weight(self):
         """
@@ -198,13 +197,22 @@ class Herbivore(Animal):
         super().migrate()
         pass
 
-    def eat(self):
+    def eat(self, food_available_in_cell):
         """
         Tries to eat amount of food F, otherwise eats whats left in the
         cell. Gains weight proportional beta*F, where beta is a constant.
-        :return:
+        :param food_available_in_cell:
+        :return: New amount of food left in cell
         """
-        pass
+        if food_available_in_cell >= self.F:
+            self.weight += self.beta * self.F
+            return food_available_in_cell - self.F
+
+        else:
+            self.weight += self.beta * food_available_in_cell
+            return 0
+
+
 
 
 class Carnivore(Animal):
