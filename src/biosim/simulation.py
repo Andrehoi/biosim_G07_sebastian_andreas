@@ -52,31 +52,41 @@ class BioSim:
                 :param island_map:
                 """
         self.island_map = island_map
+        self.ini_pop = ini_pop
+        self.seed = seed
+        self.current_year = 0
 
+        # Splits the multiline string and converts it into an array.
         area = self.island_map.split()
         string_map = [[cell for cell in string] for string in area]
         self.biome_map = np.array(string_map)
+
+        # Checks that all lines in the multiline string map are as long as
+        # the first line.
+        reference_length = len(self.biome_map[0])
+        for lines in self.biome_map:
+            if len(lines) != reference_length:
+                raise ValueError('All lines in map must me same length')
 
         # Using regular expression to check if all letters in input string
         # are defined for this island.
         if re.fullmatch(r"[OMDJS\n]+", island_map) is None:
             raise ValueError('Map contains biome not defined for this island')
 
-
         # Verifies that cells on the edge of the map are ocean biomes.
-        for cell in self.biome_map[0,:]:
+        for cell in self.biome_map[0]:
             if not cell == 'O':
                 raise ValueError('Edge of map must be ocean')
 
-        for cell in self.biome_map[-1,:]:
+        for cell in self.biome_map[-1]:
             if not cell == 'O':
                 raise ValueError('Edge of map must be ocean')
 
-        for cell in self.biome_map[:,0]:
+        for cell in self.biome_map.T[0]:
             if not cell == 'O':
                 raise ValueError('Edge of map must be ocean')
 
-        for cell in self.biome_map[:,-1]:
+        for cell in self.biome_map.T[-1]:
             if not cell == 'O':
                 raise ValueError('Edge of map must be ocean')
 
@@ -132,7 +142,7 @@ class BioSim:
     @property
     def year(self):
         """Last year simulated."""
-        pass
+        return self.current_year
 
     @property
     def num_animals(self):
