@@ -88,6 +88,7 @@ class Animal:
         """
 
         if self.weight < self.zeta * (self.w_birth + self.sigma_birth):
+            print('no birth')
             return
 
         else:
@@ -96,7 +97,8 @@ class Animal:
             if random.random() <= prob_of_birth:
                 birth_weight = random.gauss(self.w_birth, self.sigma_birth)
                 self.weight -= birth_weight * self.xi
-                # create newborn animal with weight = birth_weight and age = 0
+                return {'species': '{0}'.format(type(self).__name__),
+                        'age': 0, 'weight': birth_weight}
 
 
     def lose_weight(self):
@@ -187,7 +189,7 @@ class Herbivore(Animal):
         super().__init__(age, weight)
         self.legal_biomes = ['D', 'S', 'J']
 
-    def migrate(self):
+    def migrate(self, position):
         """
         Migrates using the migrate method for animals. However if it tries
         to move into a mountain cell or ocean cell, the animal does not move.
@@ -293,3 +295,9 @@ class Carnivore(Animal):
         """
         super().migrate()
         pass
+
+
+if __name__ == '__main__':
+    dan = Carnivore(3, 34)
+    print(dan.phi)
+    print(dan.breeding(4))
