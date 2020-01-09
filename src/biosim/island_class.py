@@ -60,6 +60,7 @@ class Map:
                 self.array_map[row, col] = self.biome_dict[self.array_map[
                     row, col]]()
 
+        return
 
 if __name__ == '__main__':
 

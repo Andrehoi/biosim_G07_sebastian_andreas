@@ -11,6 +11,7 @@ import re
 
 from biosim.geography import Mountain, Savannah, Jungle, Desert, Ocean
 from biosim.animals import Animal, Herbivore, Carnivore
+from biosim.island_class import Map
 
 
 class BioSim:
@@ -52,53 +53,9 @@ class BioSim:
                 dimensions.
                 :param island_map:
                 """
-        self.island_map = island_map
+        self.map = Map(island_map)
         self.seed = seed
         self.current_year = 0
-
-        # Splits the multiline string and converts it into an array.
-        area = self.island_map.split()
-        string_map = [[cell for cell in string] for string in area]
-        self.biome_map = np.array(string_map)
-
-        # Checks that all lines in the multiline string map are as long as
-        # the first line.
-        reference_length = len(self.biome_map[0])
-        for lines in self.biome_map:
-            if len(lines) != reference_length:
-                raise ValueError('All lines in map must me same length')
-
-        # Using regular expression to check if all letters in input string
-        # are defined for this island.
-        if re.fullmatch(r"[OMDJS\n]+", island_map) is None:
-            raise ValueError('Map contains biome not defined for this island')
-
-        # Verifies that cells on the edge of the map are ocean biomes.
-        for cell in self.biome_map[0]:
-            if not cell == 'O':
-                raise ValueError('Edge of map must be ocean')
-
-        for cell in self.biome_map[-1]:
-            if not cell == 'O':
-                raise ValueError('Edge of map must be ocean')
-
-        for cell in self.biome_map.T[0]:
-            if not cell == 'O':
-                raise ValueError('Edge of map must be ocean')
-
-        for cell in self.biome_map.T[-1]:
-            if not cell == 'O':
-                raise ValueError('Edge of map must be ocean')
-
-        # Converts array elements from strings to object instances
-        self.array_map = np.array(string_map, dtype=object)
-        self.biome_dict = {'O': Ocean, 'D': Desert, 'J': Jungle, 'M': Mountain,
-                           'S': Savannah}
-
-        for row in range(self.array_map.shape[0]):
-            for col in range(self.array_map.shape[1]):
-                self.array_map[row, col] = self.biome_dict[self.array_map[
-                    row, col]]()
 
         # Adds the initial population to the map.
         self.add_population(ini_pop)
@@ -122,7 +79,7 @@ class BioSim:
         :param landscape: String, code letter for landscape
         :param params: Dict with valid parameter specification for landscape
         """
-        self.biome_dict[landscape].biome_parameters(params)
+        self.map.biome_dict[landscape].biome_parameters(params)
 
     def simulate(self, num_years, vis_years=1, img_years=None):
         """
@@ -146,7 +103,7 @@ class BioSim:
             coordinates = dictionary['loc']
 
             # TODO: Add check for legal animal areas
-            self.array_map[coordinates].present_animals.append(dictionary[
+            self.map.array_map[coordinates].present_animals.append(dictionary[
                                                                    'pop'])
             # print(self.array_map[coordinates].present_animals)
 
@@ -181,8 +138,8 @@ if __name__ == "__main__":
         {"loc": (1, 1),
         "pop": [{"species": "Herbivore", "age": 1, "weight": 15.0}]}], seed=0)
 
-    print(type(k.array_map[0, 0]))
-    print(k.biome_map)
+    print(type(k.map.array_map[0, 0]))
+    print(k.map.biome_map)
 
     print(k.add_population([
             {
@@ -201,4 +158,4 @@ if __name__ == "__main__":
             },
         ]
     ))
-    print(k.array_map[1, 1].present_animals)
+    print(k.map.array_map[1, 1].present_animals)
