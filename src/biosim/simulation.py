@@ -53,7 +53,6 @@ class BioSim:
                 :param island_map:
                 """
         self.island_map = island_map
-        self.ini_pop = ini_pop
         self.seed = seed
         self.current_year = 0
 
@@ -98,8 +97,11 @@ class BioSim:
 
         for row in range(self.array_map.shape[0]):
             for col in range(self.array_map.shape[1]):
-                self.array_map[row, col] = self.biome_dict[self.array_map[row,
-                                                                     col]]()
+                self.array_map[row, col] = self.biome_dict[self.array_map[
+                    row, col]]()
+
+        # Adds the initial population to the map.
+        self.add_population(ini_pop)
 
     def set_animal_parameters(self, species, params):
 
@@ -143,9 +145,11 @@ class BioSim:
         for dictionary in population:
             coordinates = dictionary['loc']
 
+            # TODO: Add check for legal animal areas
             self.array_map[coordinates].present_animals.append(dictionary[
                                                                    'pop'])
-            print(self.array_map[coordinates].present_animals)
+            # print(self.array_map[coordinates].present_animals)
+
     @property
     def year(self):
         """Last year simulated."""
@@ -173,7 +177,10 @@ class BioSim:
 
 
 if __name__ == "__main__":
-    k = BioSim(island_map="OOO\nOJO\nOSO\nOOO", ini_pop=0, seed=0)
+    k = BioSim(island_map="OOO\nOJO\nOSO\nOOO", ini_pop=[
+        {"loc": (1, 1),
+        "pop": [{"species": "Herbivore", "age": 1, "weight": 15.0}]}], seed=0)
+
     print(type(k.array_map[0, 0]))
     print(k.biome_map)
 
@@ -194,3 +201,4 @@ if __name__ == "__main__":
             },
         ]
     ))
+    print(k.array_map[1, 1].present_animals)
