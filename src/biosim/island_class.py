@@ -75,15 +75,14 @@ class Map:
             if x > len(self.biome_map[0]):
                 y += 1
                 x = 0
-
-
+            if y > len(self.biome_map.T[0]):
+                y = 0
 
         """
         for row in self.array_map:
             for cell in row:
                 for animal in cell.present_animals:
         """
-
 
 
 if __name__ == '__main__':

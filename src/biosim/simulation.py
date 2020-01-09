@@ -91,12 +91,26 @@ class BioSim:
 
         Image files will be numbered consecutively.
         """
-        """
+        year = 0
         while True:
-            cell = self.map.map_iterator()
-            
-            for animal in cell.animal_list
-        """
+            # cell = self.map.map_iterator()
+            cell = Jungle()
+            cell.regrow()
+            cell_list = cell.present_animals
+            for animal in cell_list:
+                animal.eat(cell.available_food)
+                cell.present_animals.append(animal.breeding())
+                # migration
+                animal.ageing()
+                animal.lose_weight()
+                animal.potential_death()
+            year += 1
+            if year >= num_years:
+                self.current_year += year
+                print(self.current_year)
+                return
+
+
 
     def add_population(self, population):
         """
@@ -160,7 +174,7 @@ class BioSim:
 
 
 if __name__ == "__main__":
-    k = BioSim(island_map="OOO\nOJO\nOSO\nOOO", ini_pop=[
+    k = BioSim(island_map="OOO\nOJO\nOOO", ini_pop=[
         {"loc": (1, 1),
         "pop": [{"species": "Herbivore", "age": 1, "weight": 15.0}]}], seed=0)
 
@@ -186,3 +200,6 @@ if __name__ == "__main__":
     ))
     print(k.map.array_map[1, 1].present_animals)
     print(k.map.array_map[2, 1].present_animals)
+    k.simulate(5)
+    k.simulate(3)
+    print(k.current_year)
