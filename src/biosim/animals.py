@@ -15,21 +15,60 @@ class Animal:
     Class Animal contains characteristics the animals on Rossoya has in
     common as well as actions.
     """
-    w_birth = 0
-    sigma_birth = 0
-    beta = 0
-    eta = 0
-    a_half = 0
-    phi_age = 0
-    w_half = 0
-    phi_weight = 0
-    mu = 0
-    lambda_herbivore = 0
-    gamma = 0
-    zeta = 0
-    xi = 0
-    omega = 0
-    F = 0
+    param_dict = {
+        'w_birth': 0,
+        'sigma_birth': 0,
+        'beta': 0,
+        'eta': 0,
+        'a_half': 0,
+        'phi_age': 0,
+        'w_half': 0,
+        'phi_weight': 0,
+        'mu': 0,
+        'lambda_animal': 0,
+        'gamma': 0,
+        'zeta': 0,
+        'xi': 0,
+        'omega': 0,
+        'F': 0,
+        'DeltaPhiMax': 0
+    }
+
+    @classmethod
+    def new_parameters(cls, parameters):
+        """
+        Takes a dictionary of parameters as input. Overrides default
+        parameter values. If illegal parameters of parameter values are
+        input raise ValueError.
+
+        :param parameters:
+            w_birth: Average weight of offspring.
+            sigma_birth: Standard deviation of w_birth.
+            beta: Constant that defines gained weight from food.
+            eta: Weigh loss constant.
+            a_half: Age component of fitness calculation.
+            phi_age: Age component of fitness calculation.
+            w_half: Weight component of fitness calculation.
+            phi_weight: Weight component of fitness calculation.
+            mu: Probability of migrating constant.
+            lambda_herbivore: Direction preference dependent on food.
+            gamma: Probability of birth constant.
+            zeta: Birth possibility constant relative to weight.
+            xi: Fraction of offspring weight the mother loses at birth.
+            omega: Death probability factor.
+            F: Maximum food capacity.
+            DeltaPhiMax: Maximum difference in fitness between carnivore
+            and herbivore
+
+        :return:
+        """
+        for iterator in parameters:
+            if iterator in cls.param_dict:
+                cls.param_dict[iterator] = parameters[iterator]
+
+            else:
+                raise ValueError("This parameter is not defined for this "
+                                 "animal")
 
     def __init__(self, age, weight):
         self.age = age
@@ -64,10 +103,12 @@ class Animal:
         if self.weight == 0:
             self.phi = 0
         else:
-            self.phi = self._sigmodial_plus(self.age, self.a_half,
-                                            self.phi_age) * \
-                       self._sigmodial_minus(self.weight, self.w_half,
-                                             self.phi_weight)
+            self.phi = self._sigmodial_plus(self.age,
+                                            self.param_dict['a_half'],
+                                            self.param_dict['phi_age']) * \
+                       self._sigmodial_minus(self.weight,
+                                             self.param_dict['w_half'],
+                                             self.param_dict['phi_weight'])
 
     def migrate(self, position):
         """
@@ -87,16 +128,20 @@ class Animal:
         :return: None if no animal is born, or a dict with newborn parameters
         """
 
-        if self.weight < self.zeta * (self.w_birth + self.sigma_birth):
+        if self.weight < self.param_dict['zeta'] * \
+                (self.param_dict['w_birth'] + self.param_dict['sigma_birth']):
             print('no birth')
             return
 
         else:
-            prob_of_birth = self.gamma * self.phi * (n_animals_in_cell - 1)
+            prob_of_birth = self.param_dict['gamma'] * \
+                            self.phi * (n_animals_in_cell - 1)
 
             if random.random() <= prob_of_birth:
-                birth_weight = random.gauss(self.w_birth, self.sigma_birth)
-                self.weight -= birth_weight * self.xi
+                birth_weight = random.gauss(self.param_dict['w_birth'],
+                                            self.param_dict['sigma_birth'])
+
+                self.weight -= birth_weight * self.param_dict['xi']
 
                 if type(self).__name__ == 'Herbivore':
                     return Herbivore(0, birth_weight)
@@ -110,7 +155,7 @@ class Animal:
         constant eta.
         :return:
         """
-        self.weight -= self.eta * self.weight
+        self.weight -= self.param_dict['eta'] * self.weight
         self.calculate_fitness()
 
     def potential_death(self):
@@ -123,7 +168,7 @@ class Animal:
             self.alive = False
 
         else:
-            death_probability = self.omega * (1 - self.phi)
+            death_probability = self.param_dict['omega'] * (1 - self.phi)
             rng = random.random()
 
             self.alive = rng <= death_probability
@@ -135,59 +180,23 @@ class Herbivore(Animal):
     Cannot move into mountain biomes or ocean biomes.
     """
 
-    w_birth = 8.0
-    sigma_birth = 1.5
-    beta = 0.9
-    eta = 0.05
-    a_half = 40
-    phi_age = 0.2
-    w_half = 10
-    phi_weight = 0.1
-    mu = 0.25
-    lambda_animal = 1.0
-    gamma = 0.2
-    zeta = 3.5
-    xi = 1.2
-    omega = 0.4
-    F = 10
-
-    list_of_acceptable_variables = ["w_birth", "sigma_birth", "beta", "eta",
-                                    "a_half", "phi_age", "w_half",
-                                    "phi_weight", "mu", "lambda_animal",
-                                    "gamma", "zeta", "xi", "omega", "F"]
-
-    @classmethod
-    def new_parameters(cls, parameters):
-        """
-        Takes a dictionary of parameters as input. Overrides default
-        parameter values. If illegal parameters of parameter values are
-        input raise ValueError.
-
-        :param parameters:
-            w_birth: Average weight of offspring.
-            sigma_birth: Standard deviation of w_birth.
-            beta: Constant that defines gained weight from food.
-            eta: Weigh loss constant.
-            a_half: Age component of fitness calculation.
-            phi_age: Age component of fitness calculation.
-            w_half: Weight component of fitness calculation.
-            phi_weight: Weight component of fitness calculation.
-            mu: Probability of migrating constant.
-            lambda_herbivore: Direction preference dependent on food.
-            gamma: Probability of birth constant.
-            zeta: Birth possibility constant relative to weight.
-            xi: Fraction of offspring weight the mother loses at birth.
-            omega: Death probability factor.
-            F: Maximum food capacity.
-
-        :return:
-        """
-        for key in parameters.keys():
-            if key in cls.list_of_acceptable_variables:
-                cls.key = parameters[key]
-            else:
-                raise ValueError("This parameter is not defined for this "
-                                 "animal")
+    param_dict = {
+        'w_birth': 8.0,
+        'sigma_birth': 1.5,
+        'beta': 0.9,
+        'eta': 0.05,
+        'a_half': 40,
+        'phi_age': 0.2,
+        'w_half': 10,
+        'phi_weight': 0.1,
+        'mu': 0.25,
+        'lambda_animal': 1,
+        'gamma': 0.2,
+        'zeta': 3.5,
+        'xi': 1.2,
+        'omega': 0.4,
+        'F': 10,
+    }
 
     def __init__(self, age, weight):
         super().__init__(age, weight)
@@ -208,13 +217,13 @@ class Herbivore(Animal):
         :param food_available_in_cell:
         :return: New amount of food left in cell
         """
-        if food_available_in_cell >= self.F:
-            self.weight += self.beta * self.F
+        if food_available_in_cell >= self.param_dict['F']:
+            self.weight += self.param_dict['beta'] * self.param_dict['F']
             self.calculate_fitness()
-            return food_available_in_cell - self.F
+            return food_available_in_cell - self.param_dict['F']
 
         else:
-            self.weight += self.beta * food_available_in_cell
+            self.weight += self.param_dict['beta'] * food_available_in_cell
             self.calculate_fitness()
             return 0
 
@@ -225,63 +234,23 @@ class Carnivore(Animal):
     Cannot move into mountain biomes or ocean biomes.
     """
     param_dict = {
-    'w_birth': 6.0,
-    'sigma_birth': 1.0,
-    'beta': 0.75,
-    'eta': 0.125,
-    'a_half': 60,
-    'phi_age': 0.4,
-    'w_half': 4.0,
-    'phi_weight': 0.4,
-    'mu': 0.4,
-    'lambda_animal': 1,
-    'gamma': 0.8,
-    'zeta': 3.5,
-    'xi': 1.1,
-    'omega': 0.9,
-    'F': 50,
-    'DeltaPhiMax': 10
+        'w_birth': 6.0,
+        'sigma_birth': 1.0,
+        'beta': 0.75,
+        'eta': 0.125,
+        'a_half': 60,
+        'phi_age': 0.4,
+        'w_half': 4.0,
+        'phi_weight': 0.4,
+        'mu': 0.4,
+        'lambda_animal': 1,
+        'gamma': 0.8,
+        'zeta': 3.5,
+        'xi': 1.1,
+        'omega': 0.9,
+        'F': 50,
+        'DeltaPhiMax': 10
     }
-    list_of_acceptable_variables = ["w_birth", "sigma_birth", "beta", "eta",
-                                    "a_half", "phi_age", "w_half",
-                                    "phi_weight", "mu", "lambda_animal",
-                                    "gamma", "zeta", "xi", "omega", "F",
-                                    "DeltaPhiMax"]
-
-    @classmethod
-    def new_parameters(cls, parameters):
-        """
-        Takes a dictionary of parameters as input. Overrides default
-        parameter values. If illegal parameters of parameter values are
-        input raise ValueError.
-
-        :param parameters:
-            w_birth: Average weight of offspring.
-            sigma_birth: Standard deviation of w_birth.
-            beta: Constant that defines gained weight from food.
-            eta: Weigh loss constant.
-            a_half: Age component of fitness calculation.
-            phi_age: Age component of fitness calculation.
-            w_half: Weight component of fitness calculation.
-            phi_weight: Weight component of fitness calculation.
-            mu: Probability of migrating constant.
-            lambda_carnivore: Direction preference dependent on food.
-            gamma: Probability of birth constant.
-            zeta: Birth possibility constant relative to weight.
-            xi: Fraction of offspring weight the mother loses at birth.
-            omega: Death probability factor.
-            F: Maximum food capacity.
-
-        :return:
-        """
-
-        for key in parameters.keys():
-            if key in cls.list_of_acceptable_variables:
-                cls.key = parameters[key]
-            else:
-                raise ValueError("This parameter is not defined for this "
-                                 "animal")                      
-
 
     def __init__(self, age, weight):
         super().__init__(age, weight)
@@ -333,7 +302,7 @@ class Carnivore(Animal):
                     return
 
                 # Eats until whole herbivore, and checks if its full.
-                if herbivore.weight < self.F:
+                if herbivore.weight < self.param_dict['F']:
                     self.weight += self.param_dict['beta'] * herbivore.weight
                     if self.weight > start_weight + self.param_dict['beta'] * \
                             self.param_dict['F']:
@@ -355,11 +324,11 @@ class Carnivore(Animal):
 
 
 if __name__ == '__main__':
-    """
+
     herb_list = [Herbivore(80, 1), Herbivore(1, 15), Herbivore(4, 35)]
     hunter = Carnivore(3, 50)
     hunter.new_parameters({'DeltaPhiMax': 0.5})
-    print(hunter.DeltaPhiMax)
+    print(hunter.param_dict['DeltaPhiMax'])
     print(hunter.phi)
     print(herb_list[0].phi)
     hunter.hunt(herb_list)
@@ -368,4 +337,3 @@ if __name__ == '__main__':
     print(herb_list[1].phi, herb_list[1].alive)
     print(herb_list[2].phi, herb_list[2].alive)
     print(hunter.weight)
-    """
