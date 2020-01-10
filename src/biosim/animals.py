@@ -130,7 +130,6 @@ class Animal:
 
         if self.weight < self.param_dict['zeta'] * \
                 (self.param_dict['w_birth'] + self.param_dict['sigma_birth']):
-            print('no birth')
             return
 
         else:
@@ -171,7 +170,7 @@ class Animal:
             death_probability = self.param_dict['omega'] * (1 - self.phi)
             rng = random.random()
 
-            self.alive = rng <= death_probability
+            self.alive = rng >= death_probability
 
 
 class Herbivore(Animal):

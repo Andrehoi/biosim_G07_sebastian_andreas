@@ -120,13 +120,13 @@ def test_death():
     :return:
     """
     herbivore = Herbivore(3, 0)
+    assert herbivore.alive
     herbivore.potential_death()
+    assert not herbivore.alive
 
-    if not herbivore.alive:
-        assert True
-    else:
-        assert False
-
+    immortal_herb = Herbivore(2, 100)
+    immortal_herb.potential_death()
+    assert immortal_herb.alive
 
 def test_hunting():
     """
@@ -158,6 +158,12 @@ def test_hunting_stops_when_full():
     assert not herb_list[1].alive
     assert herb_list[2].alive
 
+
+def test_weight_loss():
+    herb = Herbivore(3, 20)
+    assert herb.weight == 20
+    herb.lose_weight()
+    assert herb.weight == 19
 
 
 

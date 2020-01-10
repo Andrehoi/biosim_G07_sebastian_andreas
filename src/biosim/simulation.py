@@ -126,6 +126,7 @@ class BioSim:
             # All herbivores in cell eats in order of fitness.
             for herbivore in herbivore_list:
                 cell.available_food = herbivore.eat(cell.available_food)
+                print(herbivore.weight)
 
             # All carnivores in cell hunt herbivores in cell. Carnivore with
             # highest fitness hunts first for the herbivore with lowest
@@ -157,9 +158,11 @@ class BioSim:
 
             for animals in cell_list:
                 animals.ageing()
+                print('age:', animals.age)
 
             for animals in cell_list:
                 animals.lose_weight()
+                print('weight after loss:', animals.weight)
 
             for animals in cell_list:
                 animals.potential_death()
@@ -167,6 +170,7 @@ class BioSim:
             # Removes animals killed from natural causes.
             for animals in cell_list:
                 if not animals.alive:
+                    print('an animal died')
                     cell_list.remove(animals)
 
             # Updates live animals present in cell
@@ -179,7 +183,6 @@ class BioSim:
             # the simulation.
             if year >= num_years:
                 self.current_year += year
-                print(self.current_year)
                 return
 
     def add_population(self, population):
@@ -251,17 +254,10 @@ if __name__ == "__main__":
 
     print(k.add_population([
             {
-                "loc": (2, 1),
-                "pop": [
-                    {"species": "Herbivore", "age": 1, "weight": 15.0},
-                    {"species": "Carnivore", "age": 4, "weight": 8.0},
-                ],
-            },
-            {
                 "loc": (1, 1),
                 "pop": [
-                    {"species": "Carnivore", "age": 1, "weight": 20.0},
-                    {"species": "Carnivore", "age": 1, "weight": 5.0},
+                    {"species": "Herbivore", "age": 4, "weight": 45.0},
+                    {"species": "Herbivore", "age": 2, "weight": 17.0},
                 ],
             },
         ]
