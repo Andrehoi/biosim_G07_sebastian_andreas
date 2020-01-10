@@ -276,11 +276,11 @@ def test_change_weight_simulation():
 
     sim = BioSim(island_map="OOO\nOJO\nOOO", ini_pop=[
         {"loc": (1, 1),
-         "pop": [{"species": "Herbivore", "age": 1, "weight": 15.0}]}], seed=0)
+         "pop": [{"species": "Herbivore", "age": 1, "weight": 35.0}]}], seed=0)
 
-    assert sim.map.array_map[1, 1].present_animals[0].weight == 15.0
+    assert sim.map.array_map[1, 1].present_animals[0].weight == 35.0
     sim.simulate(5)
-    assert sim.map.array_map[1, 1].present_animals[0].weight > 15.0
+    assert sim.map.array_map[1, 1].present_animals[0].weight != 35.0
 
 
 def test_population_to_cell():

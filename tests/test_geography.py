@@ -19,11 +19,11 @@ def test_regrowth_jungle():
     """
 
     jgl = Jungle()
-    assert jgl.available_food == jgl.f_max
+    assert jgl.available_food == jgl.param_dict['f_max']
 
     jgl.available_food -= 50
     jgl.regrow()
-    assert jgl.available_food == jgl.f_max
+    assert jgl.available_food == jgl.param_dict['f_max']
 
 
 def test_regrowth_savannah():
@@ -34,7 +34,7 @@ def test_regrowth_savannah():
     """
     # This test might fail if not used with default parameters
     svh = Savannah()
-    assert svh.available_food == svh.f_max
+    assert svh.available_food == svh.param_dict['f_max']
 
     svh.available_food -= 50
     svh.regrow()
@@ -53,8 +53,6 @@ def test_regrowth_biome():
 
     bio.regrow()
     assert bio.available_food == 0
-
-
 
 
 def test_locations():
