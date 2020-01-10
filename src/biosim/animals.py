@@ -284,7 +284,7 @@ class Carnivore(Animal):
         super().__init__(age, weight)
         self.legal_biomes = ['D', 'S', 'J']
 
-    def eat(self):
+    def hunt(self, sorted_list_of_herbivores):
         """
         Tries to eat herbivores in cell, starting with herbivore with
         lowest fitness.
@@ -295,9 +295,32 @@ class Carnivore(Animal):
 
         Chance of successful kill increases proportionally with carnivore
         fitness, and inversely proportionally with herbivore fitness.
+        :param sorted_list_of_herbivores:
         :return:
         """
-        pass
+
+        sorted_list_of_herbivores.sort(key=lambda x: x.phi, reverse=True)
+        kill_probability = 0
+        for herbivore in sorted_list_of_herbivores:
+            if self.phi <= herbivore.phi:
+                kill_probability = 0
+
+            if self.phi - herbivore.phi < self.DeltaPhiMax:
+                kill_probability = (self.phi - herbivore.phi)/self.DeltaPhiMax
+
+            if self.phi - herbivore.phi >= self.DeltaPhiMax:
+                kill_probability = 1
+
+            if random.random() <= kill_probability:
+                if herbivore.weight >= self.F:
+                    self.weight += self.beta*self.F
+                    return
+
+                if herbivore.weight < self.F:
+                    self.weight += self.beta*herbivore.weight
+
+                herbivore.alive = False
+
 
     def migrate(self, position):
         """

@@ -269,3 +269,39 @@ def test_figure_saved(figfile_root):
 
     assert os.path.isfile(figfile_root + "_00000.png")
     assert os.path.isfile(figfile_root + "_00001.png")
+
+
+def test_change_weight_simulation():
+    """ Tests that a herbivore living in a jungle cell will gain weight. """
+
+    sim = BioSim(island_map="OOO\nOJO\nOOO", ini_pop=[
+        {"loc": (1, 1),
+         "pop": [{"species": "Herbivore", "age": 1, "weight": 15.0}]}], seed=0)
+
+    assert sim.map.array_map[1, 1].present_animals[0].weight == 15.0
+    sim.simulate(5)
+    assert sim.map.array_map[1, 1].present_animals[0].weight > 15.0
+
+
+def test_population_to_cell():
+    """ Tests that you can add and store animals in a cell of the map. """
+
+    sim = BioSim(island_map="OOO\nOJO\nOOO", ini_pop=[
+        {"loc": (1, 1),
+         "pop": [{"species": "Herbivore", "age": 1, "weight": 15.0}]}], seed=0)
+
+    assert len(sim.map.array_map[1, 1].present_animals) == 1
+    sim.add_population(
+        [
+            {
+                "loc": (1, 1),
+                "pop": [
+                    {"species": "Herbivore", "age": 1, "weight": 10.0},
+                    {"species": "Carnivore", "age": 1, "weight": 10.0},
+                ],
+            },
+
+        ]
+    )
+
+    assert len(sim.map.array_map[1, 1].present_animals) == 3

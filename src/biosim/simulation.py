@@ -102,13 +102,36 @@ class BioSim:
             cell_list = cell.present_animals
             print(cell.present_animals)
 
-            cell_list.sort(key=lambda x: x.phi)
+            # Create empty lists for the types of animals.
+            carnivore_list = []
+            herbivore_list = []
+            # Split the initial list of animals present in cell into lists of
+            # each animal type.
+            for creature in cell_list:
+                if type(creature).__name__ == 'Herbivore':
+                    herbivore_list.append(creature)
+
+                if type(creature).__name__ == 'Carnivore':
+                    carnivore_list.append(creature)
+
+            # Sorts each list in according to order of descending fitness.
+            herbivore_list.sort(key=lambda x: x.phi)
+            carnivore_list.sort(key=lambda x: x.phi)
+
+            # Joins the to sorted lists with herbivores first in the list.
+            joined_animal_lists = herbivore_list + carnivore_list
+
             # For each animal in the cell.
-            for animal in cell_list:
+            for animal in joined_animal_lists:
                 print(animal)
 
-                # Animal eats and the amount of food in the cell is reduced.
-                cell.available_food = animal.eat(cell.available_food)
+                if type(animal).__name__ == 'Herbivore':
+                    # Animal eats and the amount of food in the cell is
+                    # reduced.
+                    cell.available_food = animal.eat(cell.available_food)
+
+                if type(animal).__name__ == 'Carnivore':
+                    animal.hunt(herbivore_list)
 
                 # Checks if there is born a new animal, and potentially adds
                 # it to the list of animals in the cell.
@@ -135,7 +158,6 @@ class BioSim:
                 self.current_year += year
                 print(self.current_year)
                 return
-
 
     def add_population(self, population):
         """
