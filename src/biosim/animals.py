@@ -111,6 +111,7 @@ class Animal:
         :return:
         """
         self.weight -= self.eta * self.weight
+        self.calculate_fitness()
 
     def potential_death(self):
         """
@@ -209,10 +210,12 @@ class Herbivore(Animal):
         """
         if food_available_in_cell >= self.F:
             self.weight += self.beta * self.F
+            self.calculate_fitness()
             return food_available_in_cell - self.F
 
         else:
             self.weight += self.beta * food_available_in_cell
+            self.calculate_fitness()
             return 0
 
 

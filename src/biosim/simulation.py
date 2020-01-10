@@ -96,19 +96,41 @@ class BioSim:
             # cell = self.map.map_iterator()
             cell = self.map.array_map[1, 1]
             cell.regrow()
+
+            # Create a cell with the present animals at beginning of year so
+            # that the newborns dont breed too.
             cell_list = cell.present_animals
             print(cell.present_animals)
+
+            cell_list.sort(key=lambda x: x.phi)
+            # For each animal in the cell.
             for animal in cell_list:
                 print(animal)
+
+                # Animal eats and the amount of food in the cell is reduced.
                 cell.available_food = animal.eat(cell.available_food)
+
+                # Checks if there is born a new animal, and potentially adds
+                # it to the list of animals in the cell.
                 new_animal = animal.breeding(len(cell_list))
                 if new_animal is not None:
                     cell.present_animals.append(new_animal)
                 # migration
+
+                # Animals age one year.
                 animal.ageing()
+
+                # Animals lose weight.
                 animal.lose_weight()
+
+                # Animal might die due to low fitness.
                 animal.potential_death()
+
+            # Add a year to the counter
             year += 1
+
+            # Adds the amount of simulated years to the total year count for
+            # the simulation.
             if year >= num_years:
                 self.current_year += year
                 print(self.current_year)
@@ -199,8 +221,8 @@ if __name__ == "__main__":
             },
         ]
     ))
-print(k.map.array_map[1, 1].present_animals[-1].weight)
-k.simulate(5)
-print(k.map.array_map[1, 1].present_animals[-1].weight)
-print(k.map.array_map[1, 1].present_animals)
-print(k.current_year)
+    print(k.map.array_map[1, 1].present_animals[0].weight)
+    k.simulate(5)
+    print(k.map.array_map[1, 1].present_animals[0].weight)
+    print(k.map.array_map[1, 1].present_animals)
+    print(k.current_year)
