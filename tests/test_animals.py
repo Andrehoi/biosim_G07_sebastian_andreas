@@ -128,14 +128,36 @@ def test_death():
         assert False
 
 
-
 def test_hunting():
     """
     Test the hunting capabilities of the predators. Go for the herbivore
     with lowest fitness and stop if all herbivores have been attempted
     :return:
     """
-    herb_list = [Herbivore(80, 7), Herbivore(1, 15), Herbivore(4, 35)]
+    herb_list = [Herbivore(100, 50), Herbivore(1, 15), Herbivore(4, 35)]
     hunter = Carnivore(3, 50)
+    hunter.new_parameters({'DeltaPhiMax': 0.5})
     hunter.hunt(herb_list)
-    print(herb_list)
+    assert hunter.weight > 50
+    assert not herb_list[0].alive
+    assert herb_list[1].alive
+    assert herb_list[2].alive
+
+
+def test_hunting_stops_when_full():
+    """
+    Tests that a carnivore stops killing when its full.
+    :return:
+    """
+    herb_list = [Herbivore(100, 35), Herbivore(100, 35), Herbivore(4, 35)]
+    hunter = Carnivore(3, 50)
+    hunter.new_parameters({'DeltaPhiMax': 0.01})
+    hunter.hunt(herb_list)
+    assert hunter.weight > 50
+    assert not herb_list[0].alive
+    assert not herb_list[1].alive
+    assert herb_list[2].alive
+
+
+
+
