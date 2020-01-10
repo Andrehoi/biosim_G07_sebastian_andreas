@@ -284,7 +284,7 @@ class Carnivore(Animal):
                 kill_probability = 0
 
             if self.phi - herbivore.phi < self.param_dict['DeltaPhiMax']:
-                kill_probability = (self.phi - herbivore.phi)/\
+                kill_probability = (self.phi - herbivore.phi) / \
                                    self.param_dict['DeltaPhiMax']
 
             if self.phi - herbivore.phi >= self.param_dict['DeltaPhiMax']:
@@ -299,19 +299,18 @@ class Carnivore(Animal):
                 if herbivore.weight >= self.param_dict['F']:
                     self.weight += self.param_dict['beta'] * \
                                    self.param_dict['F']
+                    herbivore.alive = False
                     return
 
-                # Eats until whole herbivore, and checks if its full.
+                # Eats whole herbivore, and checks if its full.
                 if herbivore.weight < self.param_dict['F']:
                     self.weight += self.param_dict['beta'] * herbivore.weight
+                    herbivore.alive = False
                     if self.weight > start_weight + self.param_dict['beta'] * \
                             self.param_dict['F']:
                         self.weight = start_weight + self.param_dict['beta']\
                                       * self.param_dict['F']
                         return
-
-                # Herbivore is no longer alive.
-                herbivore.alive = False
 
 
     def migrate(self, position):
@@ -325,15 +324,12 @@ class Carnivore(Animal):
 
 if __name__ == '__main__':
 
-    herb_list = [Herbivore(80, 1), Herbivore(1, 15), Herbivore(4, 35)]
+    herb_list = [Herbivore(100, 35), Herbivore(100, 35), Herbivore(4, 35)]
     hunter = Carnivore(3, 50)
-    hunter.new_parameters({'DeltaPhiMax': 0.5})
-    print(hunter.param_dict['DeltaPhiMax'])
-    print(hunter.phi)
-    print(herb_list[0].phi)
+    hunter.new_parameters({'DeltaPhiMax': 0.01})
     hunter.hunt(herb_list)
-    print(herb_list)
+    print(hunter.param_dict['DeltaPhiMax'])
+    print(hunter.weight)
     print(herb_list[0].phi, herb_list[0].alive)
     print(herb_list[1].phi, herb_list[1].alive)
     print(herb_list[2].phi, herb_list[2].alive)
-    print(hunter.weight)
