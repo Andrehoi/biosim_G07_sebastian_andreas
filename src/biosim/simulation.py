@@ -94,12 +94,16 @@ class BioSim:
         year = 0
         while True:
             # cell = self.map.map_iterator()
-            cell = Jungle()
+            cell = self.map.array_map[1, 1]
             cell.regrow()
             cell_list = cell.present_animals
+            print(cell.present_animals)
             for animal in cell_list:
-                animal.eat(cell.available_food)
-                cell.present_animals.append(animal.breeding())
+                print(animal)
+                cell.available_food = animal.eat(cell.available_food)
+                new_animal = animal.breeding(len(cell_list))
+                if new_animal is not None:
+                    cell.present_animals.append(new_animal)
                 # migration
                 animal.ageing()
                 animal.lose_weight()
@@ -109,7 +113,6 @@ class BioSim:
                 self.current_year += year
                 print(self.current_year)
                 return
-
 
 
     def add_population(self, population):
@@ -143,8 +146,7 @@ class BioSim:
                 if animal_class == 'Carnivore':
                     new_animal = Carnivore(animal['age'], animal['weight'])
                     self.map.array_map[coordinates].\
-                        present_animals.append(
-                        new_animal)
+                        present_animals.append(new_animal)
 
 
     @property
@@ -178,7 +180,6 @@ if __name__ == "__main__":
         {"loc": (1, 1),
         "pop": [{"species": "Herbivore", "age": 1, "weight": 15.0}]}], seed=0)
 
-    print(type(k.map.array_map[0, 0]))
     print(k.map.biome_map)
 
     print(k.add_population([
@@ -193,13 +194,13 @@ if __name__ == "__main__":
                 "loc": (1, 1),
                 "pop": [
                     {"species": "Herbivore", "age": 5, "weight": 20.0},
-                    {"species": "Carnivore", "age": 2, "weight": 5.0},
+                    {"species": "Herbivore", "age": 2, "weight": 5.0},
                 ],
             },
         ]
     ))
-    print(k.map.array_map[1, 1].present_animals)
-    print(k.map.array_map[2, 1].present_animals)
-    k.simulate(5)
-    k.simulate(3)
-    print(k.current_year)
+print(k.map.array_map[1, 1].present_animals[-1].weight)
+k.simulate(5)
+print(k.map.array_map[1, 1].present_animals[-1].weight)
+print(k.map.array_map[1, 1].present_animals)
+print(k.current_year)

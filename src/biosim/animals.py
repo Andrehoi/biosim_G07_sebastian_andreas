@@ -97,8 +97,12 @@ class Animal:
             if random.random() <= prob_of_birth:
                 birth_weight = random.gauss(self.w_birth, self.sigma_birth)
                 self.weight -= birth_weight * self.xi
-                return {'species': '{0}'.format(type(self).__name__),
-                        'age': 0, 'weight': birth_weight}
+
+                if type(self).__name__ == 'Herbivore':
+                    return Herbivore(0, birth_weight)
+
+                if type(self).__name__ == 'Carnivore':
+                    return Carnivore(0, birth_weight)
 
     def lose_weight(self):
         """
