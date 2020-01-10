@@ -115,8 +115,8 @@ class BioSim:
                     carnivore_list.append(creature)
 
             # Sorts each list in according to order of descending fitness.
-            herbivore_list.sort(key=lambda x: x.phi)
-            carnivore_list.sort(key=lambda x: x.phi)
+            herbivore_list.sort(key=lambda x: x.phi, reverse=True)
+            carnivore_list.sort(key=lambda x: x.phi, reverse=Tr)
 
             # Joins the to sorted lists with herbivores first in the list.
             joined_animal_lists = herbivore_list + carnivore_list

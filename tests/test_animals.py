@@ -135,4 +135,7 @@ def test_hunting():
     with lowest fitness and stop if all herbivores have been attempted
     :return:
     """
-    pass
+    herb_list = [Herbivore(80, 7), Herbivore(1, 15), Herbivore(4, 35)]
+    hunter = Carnivore(3, 50)
+    hunter.hunt(herb_list)
+    print(herb_list)

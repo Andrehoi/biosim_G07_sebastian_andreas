@@ -224,23 +224,24 @@ class Carnivore(Animal):
     Class describing carnivore behaviour.
     Cannot move into mountain biomes or ocean biomes.
     """
-
-    w_birth = 6.0
-    sigma_birth = 1.0
-    beta = 0.75
-    eta = 0.125
-    a_half = 60
-    phi_age = 0.4
-    w_half = 4.0
-    phi_weight = 0.4
-    mu = 0.4
-    lambda_animal = 1
-    gamma = 0.8
-    zeta = 3.5
-    xi = 1.1
-    omega = 0.9
-    F = 50
-    DeltaPhiMax = 10.0
+    param_dict = {
+    'w_birth': 6.0,
+    'sigma_birth': 1.0,
+    'beta': 0.75,
+    'eta': 0.125,
+    'a_half': 60,
+    'phi_age': 0.4,
+    'w_half': 4.0,
+    'phi_weight': 0.4,
+    'mu': 0.4,
+    'lambda_animal': 1,
+    'gamma': 0.8,
+    'zeta': 3.5,
+    'xi': 1.1,
+    'omega': 0.9,
+    'F': 50,
+    'DeltaPhiMax': 10
+    }
     list_of_acceptable_variables = ["w_birth", "sigma_birth", "beta", "eta",
                                     "a_half", "phi_age", "w_half",
                                     "phi_weight", "mu", "lambda_animal",
@@ -273,12 +274,14 @@ class Carnivore(Animal):
 
         :return:
         """
+
         for key in parameters.keys():
             if key in cls.list_of_acceptable_variables:
                 cls.key = parameters[key]
             else:
                 raise ValueError("This parameter is not defined for this "
-                                 "animal")
+                                 "animal")                      
+
 
     def __init__(self, age, weight):
         super().__init__(age, weight)
@@ -299,26 +302,46 @@ class Carnivore(Animal):
         :return:
         """
 
-        sorted_list_of_herbivores.sort(key=lambda x: x.phi, reverse=True)
+        # Saves initial weight for comparison later.
+        start_weight = self.weight
+
+        # Sorts the herbivore list in ascending fitness order.
+        sorted_list_of_herbivores.sort(key=lambda x: x.phi)
         kill_probability = 0
+
+        # Calculates the probability of successful kill.
         for herbivore in sorted_list_of_herbivores:
             if self.phi <= herbivore.phi:
                 kill_probability = 0
 
-            if self.phi - herbivore.phi < self.DeltaPhiMax:
-                kill_probability = (self.phi - herbivore.phi)/self.DeltaPhiMax
+            if self.phi - herbivore.phi < self.param_dict['DeltaPhiMax']:
+                kill_probability = (self.phi - herbivore.phi)/\
+                                   self.param_dict['DeltaPhiMax']
 
-            if self.phi - herbivore.phi >= self.DeltaPhiMax:
+            if self.phi - herbivore.phi >= self.param_dict['DeltaPhiMax']:
                 kill_probability = 1
 
+            print(kill_probability)
+
+            # Checks if the carnivore kills the herbivore.
             if random.random() <= kill_probability:
-                if herbivore.weight >= self.F:
-                    self.weight += self.beta*self.F
+
+                # Eats until full
+                if herbivore.weight >= self.param_dict['F']:
+                    self.weight += self.param_dict['beta'] * \
+                                   self.param_dict['F']
                     return
 
+                # Eats until whole herbivore, and checks if its full.
                 if herbivore.weight < self.F:
-                    self.weight += self.beta*herbivore.weight
+                    self.weight += self.param_dict['beta'] * herbivore.weight
+                    if self.weight > start_weight + self.param_dict['beta'] * \
+                            self.param_dict['F']:
+                        self.weight = start_weight + self.param_dict['beta']\
+                                      * self.param_dict['F']
+                        return
 
+                # Herbivore is no longer alive.
                 herbivore.alive = False
 
 
@@ -332,6 +355,17 @@ class Carnivore(Animal):
 
 
 if __name__ == '__main__':
-    dan = Carnivore(3, 34)
-    print(dan.phi)
-    print(dan.breeding(4))
+    """
+    herb_list = [Herbivore(80, 1), Herbivore(1, 15), Herbivore(4, 35)]
+    hunter = Carnivore(3, 50)
+    hunter.new_parameters({'DeltaPhiMax': 0.5})
+    print(hunter.DeltaPhiMax)
+    print(hunter.phi)
+    print(herb_list[0].phi)
+    hunter.hunt(herb_list)
+    print(herb_list)
+    print(herb_list[0].phi, herb_list[0].alive)
+    print(herb_list[1].phi, herb_list[1].alive)
+    print(herb_list[2].phi, herb_list[2].alive)
+    print(hunter.weight)
+    """
