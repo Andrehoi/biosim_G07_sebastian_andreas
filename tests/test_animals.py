@@ -37,14 +37,14 @@ def test_fitness():
 
     herbivore = Herbivore(3, 12)
     assert not herbivore.phi == 0
-    assert herbivore.phi == 0.5494981150724044
+    assert abs(herbivore.phi - 0.5494) < 0.0001
 
     carnivore = Carnivore(10, 0)
     assert carnivore.phi == 0
 
     carnivore = Carnivore(3, 12)
     assert not carnivore.phi == 0
-    assert carnivore.phi == 0.9608342770828058
+    assert abs(carnivore.phi - 0.9608) < 0.00004
 
 
 def test_lose_weight():

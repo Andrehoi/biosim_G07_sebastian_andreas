@@ -34,6 +34,7 @@ def test_regrowth_savannah():
     """
     # This test might fail if not used with default parameters
     svh = Savannah()
+    svh.biome_parameters({'f_max': 300})
     assert svh.available_food == svh.param_dict['f_max']
 
     svh.available_food -= 50
