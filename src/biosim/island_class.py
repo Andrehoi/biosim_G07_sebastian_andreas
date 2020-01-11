@@ -64,30 +64,42 @@ class Map:
 
     def map_iterator(self):
         """
-        Iterates through each cell in the map.
-        :return:
+        Iterates through each cell in the map. X iterates through columns in
+        the map matrix, and Y iterates through rows of the map matrix.
+        Yields the object in the current cell of the map.
+        The yield allows the code to produce a series of cells over time,
+        rather than computing them at once and sending them back like a list.
+        :yields: Object in current cell.
         """
+        # Starts in top left corner of map.
         x = 0
         y = 0
+
+        # For each cell in the map yields the object.
         while True:
-            yield self.array_map[x, y]
+
+            # Use yield to be able to iterate through the map.
+            yield self.array_map[y, x]
             x += 1
-            if x > len(self.biome_map[0]):
+
+            # When it reaches the end of the row, start at the first column,
+            # second row.
+            if x >= len(self.biome_map[0]):
                 y += 1
                 x = 0
-            if y > len(self.biome_map.T[0]):
-                y = 0
 
-        """
-        for row in self.array_map:
-            for cell in row:
-                for animal in cell.present_animals:
-        """
+            # Stops when reaching bottom right cell of the map.
+            if y >= len(self.biome_map.T[0]):
+                return
 
 
 if __name__ == '__main__':
 
-    m = Map("OOO\nOJO\nOOO")
-    print(m.array_map)
-    print(m.biome_map)
-    print(m.map_cycle())
+    m = Map("OOOO\nOJJO\nOSSO\nOOOO")
+    year_counter = 0
+    while True:
+        for cell in m.map_iterator():
+            print(cell)
+        year_counter += 1
+        if year_counter >= 10:
+            break

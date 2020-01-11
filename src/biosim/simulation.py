@@ -94,93 +94,96 @@ class BioSim:
         year = 0
 
         while True:
-            # cell = self.map.map_iterator()
-            cell = self.map.array_map[1, 1]
-            cell.regrow()
+            for cell in self.map.map_iterator():
+                print(cell)
 
-            # Create a cell with the present animals at beginning of year so
-            # that the newborns dont breed too.
-            cell_list = cell.present_animals
-            print(cell.present_animals)
+                #cell = self.map.array_map[1, 1]
+                cell.regrow()
 
-            # Create empty lists for the types of animals.
-            carnivore_list = []
-            herbivore_list = []
+                # Create a cell with the present animals at beginning of year so
+                # that the newborns dont breed too.
+                cell_list = cell.present_animals
+                print(cell.present_animals)
 
-            # Split the initial list of animals present in cell into lists of
-            # each animal type.
-            for creature in cell_list:
-                if type(creature).__name__ == 'Herbivore':
-                    herbivore_list.append(creature)
+                # Create empty lists for the types of animals.
+                carnivore_list = []
+                herbivore_list = []
 
-                if type(creature).__name__ == 'Carnivore':
-                    carnivore_list.append(creature)
+                # Split the initial list of animals present in cell into lists of
+                # each animal type.
+                for creature in cell_list:
+                    if type(creature).__name__ == 'Herbivore':
+                        herbivore_list.append(creature)
 
-            # Sorts each list in according to order of descending fitness.
-            herbivore_list.sort(key=lambda x: x.phi, reverse=True)
-            carnivore_list.sort(key=lambda x: x.phi, reverse=True)
+                    if type(creature).__name__ == 'Carnivore':
+                        carnivore_list.append(creature)
 
-            # Joins the to sorted lists with herbivores first in the list.
-            joined_animal_lists = herbivore_list + carnivore_list
+                # Sorts each list in according to order of descending fitness.
+                herbivore_list.sort(key=lambda x: x.phi, reverse=True)
+                carnivore_list.sort(key=lambda x: x.phi, reverse=True)
 
-            # All herbivores in cell eats in order of fitness.
-            for herbivore in herbivore_list:
-                cell.available_food = herbivore.eat(cell.available_food)
-                print(herbivore.weight)
+                # Joins the to sorted lists with herbivores first in the list.
+                joined_animal_lists = herbivore_list + carnivore_list
 
-            # All carnivores in cell hunt herbivores in cell. Carnivore with
-            # highest fitness hunts first for the herbivore with lowest
-            # fitness.
-            for carnivore in carnivore_list:
-                carnivore.hunt(herbivore_list)
+                # All herbivores in cell eats in order of fitness.
+                for herbivore in herbivore_list:
+                    cell.available_food = herbivore.eat(cell.available_food)
+                    print('weight', herbivore.weight)
 
-            # Removes herbivores killed from hunt.
-            for animals in cell_list:
-                if not animals.alive:
-                    cell_list.remove(animals)
+                # All carnivores in cell hunt herbivores in cell. Carnivore with
+                # highest fitness hunts first for the herbivore with lowest
+                # fitness.
+                for carnivore in carnivore_list:
+                    carnivore.hunt(herbivore_list)
 
-            for herbivore in herbivore_list:
-                # Checks if there is born a new animal, and potentially adds
-                # it to the list of animals in the cell.
-                new_herbivore = herbivore.breeding(len(herbivore_list))
-                if new_herbivore is not None:
-                    cell_list.append(new_herbivore)
+                # Removes herbivores killed from hunt.
+                for animals in cell_list:
+                    if not animals.alive:
+                        cell_list.remove(animals)
 
-            for carnivore in carnivore_list:
+                for herbivore in herbivore_list:
+                    # Checks if there is born a new animal, and potentially
+                    # adds it to the list of animals in the cell.
+                    new_herbivore = herbivore.breeding(len(herbivore_list))
+                    if new_herbivore is not None:
+                        cell_list.append(new_herbivore)
 
-                new_carnivore = carnivore.breeding((len(carnivore_list)))
+                for carnivore in carnivore_list:
 
-                if new_carnivore is not None:
-                    cell.present_animals.append(new_carnivore)
-                    cell_list.append(new_carnivore)
+                    new_carnivore = carnivore.breeding((len(carnivore_list)))
 
-            # TODO: Add migration for all animals.
+                    if new_carnivore is not None:
+                        cell.present_animals.append(new_carnivore)
+                        cell_list.append(new_carnivore)
 
-            for animals in cell_list:
-                animals.ageing()
-                print('age:', animals.age)
+                # TODO: Add migration for all animals.
 
-            for animals in cell_list:
-                animals.lose_weight()
-                print('weight after loss:', animals.weight)
+                for animals in cell_list:
+                    animals.ageing()
+                    print('age:', animals.age)
 
-            for animals in cell_list:
-                animals.potential_death()
+                for animals in cell_list:
+                    animals.lose_weight()
+                    print('weight after loss:', animals.weight)
 
-            # Removes animals killed from natural causes.
-            for animals in cell_list:
-                if not animals.alive:
-                    print('an animal died')
-                    cell_list.remove(animals)
+                for animals in cell_list:
+                    animals.potential_death()
 
-            # Updates live animals present in cell
-            cell.present_animals = cell_list
+                # Removes animals killed from natural causes.
+                for animals in cell_list:
+                    if not animals.alive:
+                        print('an animal died')
+                        cell_list.remove(animals)
+
+                # Updates live animals present in cell
+                cell.present_animals = cell_list
 
             # Add a year to the counter
             year += 1
+            print(year)
 
-            # Adds the amount of simulated years to the total year count for
-            # the simulation.
+            # Adds the amount of simulated years to the total year
+            # count for the simulation.
             if year >= num_years:
                 self.current_year += year
                 return
@@ -246,9 +249,14 @@ class BioSim:
 
 
 if __name__ == "__main__":
-    k = BioSim(island_map="OOO\nOJO\nOOO", ini_pop=[
+
+    k = BioSim(island_map="OOO\nOJO\nOSO\nOOO", ini_pop=[
         {"loc": (1, 1),
-        "pop": [{"species": "Herbivore", "age": 1, "weight": 15.0}]}], seed=0)
+        "pop": [{"species": "Herbivore", "age": 1, "weight": 15.0}]},
+        {"loc": (2, 1),
+         "pop": [{"species": "Herbivore", "age": 1, "weight": 15.0}]}
+    ], seed=0)
+
     Carnivore.new_parameters({'DeltaPhiMax': 10})
     print(k.map.biome_map)
 
@@ -262,10 +270,31 @@ if __name__ == "__main__":
             },
         ]
     ))
-    print(k.map.array_map[1, 1].present_animals[0].weight)
-    print(k.map.array_map[1, 1].present_animals[0].age)
     k.simulate(5)
-    print(k.map.array_map[1, 1].present_animals[0].age)
-    print(k.map.array_map[1, 1].present_animals[0].weight)
-    print(k.map.array_map[1, 1].present_animals)
+    print('added carnivores to simulation')
+    k.add_population([
+            {
+                "loc": (1, 1),
+                "pop": [
+                    {"species": "Carnivore", "age": 3, "weight": 45.0},
+                    {"species": "Carnivore", "age": 2, "weight": 17.0},
+                ],
+            },
+        ])
     print(k.current_year)
+    k.add_population([
+        {
+            "loc": (2, 1),
+            "pop": [
+                {"species": "Herbivore", "age": 3, "weight": 45.0},
+                {"species": "Herbivore", "age": 2, "weight": 17.0},
+            ],
+        },
+    ])
+    k.simulate(5)
+
+
+    """
+    for map_cell in k.map.map_iterator():
+        print(map_cell)
+    """

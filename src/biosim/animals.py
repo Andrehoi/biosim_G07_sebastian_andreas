@@ -143,9 +143,11 @@ class Animal:
                 self.weight -= birth_weight * self.param_dict['xi']
 
                 if type(self).__name__ == 'Herbivore':
+                    print('Herbivore born')
                     return Herbivore(0, birth_weight)
 
                 if type(self).__name__ == 'Carnivore':
+                    print('Carnivore born')
                     return Carnivore(0, birth_weight)
 
     def lose_weight(self):
@@ -288,8 +290,6 @@ class Carnivore(Animal):
 
             if self.phi - herbivore.phi >= self.param_dict['DeltaPhiMax']:
                 kill_probability = 1
-
-            print(kill_probability)
 
             # Checks if the carnivore kills the herbivore.
             if random.random() <= kill_probability:
