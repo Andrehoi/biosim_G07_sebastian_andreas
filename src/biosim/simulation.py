@@ -6,7 +6,6 @@
 __author__ = "Sebastian Kihle & Andreas Hoeimyr"
 __email__ = "sebaskih@nmbu.no & andrehoi@nmbu.no"
 
-import numpy as np
 import re
 
 from biosim.geography import Mountain, Savannah, Jungle, Desert, Ocean
@@ -29,12 +28,16 @@ class BioSim:
         :param island_map: Multi-line string specifying island geography
         :param ini_pop: List of dictionaries specifying initial population
         :param seed: Integer used as random number seed
-        :param ymax_animals: Number specifying y-axis limit for graph showing animal numbers
-        :param cmax_animals: Dict specifying color-code limits for animal densities
-        :param img_base: String with beginning of file name for figures, including path
+        :param ymax_animals: Number specifying y-axis limit for graph showing
+        animal numbers
+        :param cmax_animals: Dict specifying color-code limits for animal
+        densities
+        :param img_base: String with beginning of file name for figures,
+        including path
         :param img_fmt: String with file type for figures, e.g. 'png'
 
-        If ymax_animals is None, the y-axis limit should be adjusted automatically.
+        If ymax_animals is None, the y-axis limit should be adjusted
+        automatically.
 
         If cmax_animals is None, sensible, fixed default values should be used.
         cmax_animals is a dict mapping species names to numbers, e.g.,
@@ -61,15 +64,14 @@ class BioSim:
         self.add_population(ini_pop)
 
     def set_animal_parameters(self, species, params):
-
         """
         Set parameters for animal species.
 
         :param species: String, name of animal species
         :param params: Dict with valid parameter specification for species
         """
-        class_dict = {'Herbivore': Herbivore, 'Carnivore': Carnivore}
 
+        class_dict = {'Herbivore': Herbivore, 'Carnivore': Carnivore}
         class_dict[species].new_parameters(params)
 
     def set_landscape_parameters(self, landscape, params):
@@ -87,7 +89,8 @@ class BioSim:
 
         :param num_years: number of years to simulate
         :param vis_years: years between visualization updates
-        :param img_years: years between visualizations saved to files (default: vis_years)
+        :param img_years: years between visualizations saved to files
+        (default: vis_years)
 
         Image files will be numbered consecutively.
         """
@@ -97,11 +100,11 @@ class BioSim:
             for cell in self.map.map_iterator():
                 print(cell)
 
-                #cell = self.map.array_map[1, 1]
+                # cell = self.map.array_map[1, 1]
                 cell.regrow()
 
-                # Create a cell with the present animals at beginning of year so
-                # that the newborns dont breed too.
+                # Create a cell with the present animals at beginning of year
+                # so that the newborns dont breed too.
                 cell_list = cell.present_animals
                 print(cell.present_animals)
 
@@ -109,8 +112,8 @@ class BioSim:
                 carnivore_list = []
                 herbivore_list = []
 
-                # Split the initial list of animals present in cell into lists of
-                # each animal type.
+                # Split the initial list of animals present in cell into lists
+                # of each animal type.
                 for creature in cell_list:
                     if type(creature).__name__ == 'Herbivore':
                         herbivore_list.append(creature)
@@ -130,9 +133,9 @@ class BioSim:
                     cell.available_food = herbivore.eat(cell.available_food)
                     print('weight', herbivore.weight)
 
-                # All carnivores in cell hunt herbivores in cell. Carnivore with
-                # highest fitness hunts first for the herbivore with lowest
-                # fitness.
+                # All carnivores in cell hunt herbivores in cell. Carnivore
+                # with highest fitness hunts first for the herbivore with
+                # lowest fitness.
                 for carnivore in carnivore_list:
                     carnivore.hunt(herbivore_list)
 
@@ -221,7 +224,6 @@ class BioSim:
                     self.map.array_map[coordinates].\
                         present_animals.append(new_animal)
 
-
     @property
     def year(self):
         """Last year simulated."""
@@ -252,7 +254,7 @@ if __name__ == "__main__":
 
     k = BioSim(island_map="OOO\nOJO\nOSO\nOOO", ini_pop=[
         {"loc": (1, 1),
-        "pop": [{"species": "Herbivore", "age": 1, "weight": 15.0}]},
+         "pop": [{"species": "Herbivore", "age": 1, "weight": 15.0}]},
         {"loc": (2, 1),
          "pop": [{"species": "Herbivore", "age": 1, "weight": 15.0}]}
     ], seed=0)
@@ -292,7 +294,6 @@ if __name__ == "__main__":
         },
     ])
     k.simulate(5)
-
 
     """
     for map_cell in k.map.map_iterator():

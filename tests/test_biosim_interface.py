@@ -9,9 +9,10 @@ the simulation module of the biosim package.
 Notes:
      - The BioSim class should pass all tests in this set.
      - The tests check only that the class interface can be used, not that
-       the class functions correctly. You need to write your own tests for that.
-     - You should only run these tests on your code *after* you have implemented
-       both animal and all landscape classes.
+       the class functions correctly. You need to write your own tests for
+       that.
+     - You should only run these tests on your code *after* you have
+       implemented both animal and all landscape classes.
 """
 
 __author__ = "Hans Ekkehard Plesser"
@@ -25,6 +26,8 @@ import os
 import os.path
 
 from biosim.simulation import BioSim
+from biosim.island_class import Map
+from biosim.geography import Mountain, Savannah, Jungle, Desert, Ocean
 
 
 def test_empty_island():
@@ -247,7 +250,8 @@ def test_set_plot_limits():
 
 @pytest.fixture
 def figfile_root():
-    """Provide name for figfile root and delete figfiles after test completes"""
+    """Provide name for figfile root and delete figfiles after
+    test completes"""
 
     ffroot = os.path.join(".", "testfigroot")
     yield ffroot
@@ -305,3 +309,19 @@ def test_population_to_cell():
     )
 
     assert len(sim.map.array_map[1, 1].present_animals) == 3
+
+
+def test_map_iterator():
+    """ Tests that map_iterator iterates through map and yields the class
+    stored in each cell for the map."""
+
+    ocean_map = Map("OOO\nOOO\nOOO")
+
+    cell = ocean_map.map_iterator()
+
+    for cell in ocean_map.map_iterator():
+        assert type(cell).__name__ == 'Ocean'
+
+
+
+
