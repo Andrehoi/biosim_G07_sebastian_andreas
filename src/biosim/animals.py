@@ -13,7 +13,9 @@ import random
 class Animal:
     """
     Class Animal contains characteristics the animals on Rossoya has in
-    common as well as actions.
+    common as well as actions. Each animal has weight, age and fitness
+    properties. I also keeps track of if the animals has moved this year,
+    if it is alive and what biomes it can stay in.
     """
     param_dict = {
         'w_birth': 0,
@@ -76,6 +78,7 @@ class Animal:
         self.phi = 0
         self.calculate_fitness()
         self.alive = True
+        self.has_moved = False
         self.legal_biomes = ['M', 'O', 'D', 'S', 'J']
 
     def ageing(self):
@@ -268,7 +271,8 @@ class Carnivore(Animal):
 
         Chance of successful kill increases proportionally with carnivore
         fitness, and inversely proportionally with herbivore fitness.
-        :param sorted_list_of_herbivores:
+        :param sorted_list_of_herbivores: Takes in a list with the
+        herbivores present in the cell.
         :return:
         """
 

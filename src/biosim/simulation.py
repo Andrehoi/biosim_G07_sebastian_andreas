@@ -98,7 +98,7 @@ class BioSim:
 
         while True:
             for cell in self.map.map_iterator():
-                print(cell)
+                print('Current cell:', type(cell).__name__)
 
                 # cell = self.map.array_map[1, 1]
                 cell.regrow()
@@ -116,10 +116,12 @@ class BioSim:
                 # of each animal type.
                 for creature in cell_list:
                     if type(creature).__name__ == 'Herbivore':
-                        herbivore_list.append(creature)
+                        if not creature.has_moved:
+                            herbivore_list.append(creature)
 
                     if type(creature).__name__ == 'Carnivore':
-                        carnivore_list.append(creature)
+                        if not creature.has_moved:
+                            carnivore_list.append(creature)
 
                 # Sorts each list in according to order of descending fitness.
                 herbivore_list.sort(key=lambda x: x.phi, reverse=True)
@@ -131,7 +133,8 @@ class BioSim:
                 # All herbivores in cell eats in order of fitness.
                 for herbivore in herbivore_list:
                     cell.available_food = herbivore.eat(cell.available_food)
-                    print('weight', herbivore.weight)
+                    print('Weight of', type(herbivore).__name__,
+                          herbivore.weight)
 
                 # All carnivores in cell hunt herbivores in cell. Carnivore
                 # with highest fitness hunts first for the herbivore with
@@ -159,15 +162,16 @@ class BioSim:
                         cell.present_animals.append(new_carnivore)
                         cell_list.append(new_carnivore)
 
-                # TODO: Add migration for all animals.
+                # TODO: Add migration for all animals. Change the
+                #  self.has_moved parameter after moving.
 
                 for animals in cell_list:
                     animals.ageing()
-                    print('age:', animals.age)
+                    print('Age:', animals.age)
 
                 for animals in cell_list:
                     animals.lose_weight()
-                    print('weight after loss:', animals.weight)
+                    print('Weight after loss:', animals.weight)
 
                 for animals in cell_list:
                     animals.potential_death()
@@ -175,15 +179,20 @@ class BioSim:
                 # Removes animals killed from natural causes.
                 for animals in cell_list:
                     if not animals.alive:
-                        print('an animal died')
+                        print('A', type(animals).__name__, 'died')
                         cell_list.remove(animals)
 
-                # Updates live animals present in cell
+                # Updates live animals present in cell.
                 cell.present_animals = cell_list
+
+            # Makes all animals able to move again for the next year.
+            for cell in self.map.map_iterator():
+                for animal in cell.present_animals:
+                    animal.has_moved = False
 
             # Add a year to the counter
             year += 1
-            print(year)
+            print('Current year in sim:', year)
 
             # Adds the amount of simulated years to the total year
             # count for the simulation.
