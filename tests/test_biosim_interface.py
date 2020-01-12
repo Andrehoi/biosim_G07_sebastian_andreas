@@ -282,9 +282,9 @@ def test_change_weight_simulation():
         {"loc": (1, 1),
          "pop": [{"species": "Herbivore", "age": 1, "weight": 35.0}]}], seed=0)
 
-    assert sim.map.array_map[1, 1].present_animals[0].weight == 35.0
+    assert sim.map.array_map[1, 1].present_herbivores[0].weight == 35.0
     sim.simulate(5)
-    assert sim.map.array_map[1, 1].present_animals[0].weight != 35.0
+    assert sim.map.array_map[1, 1].present_herbivores[0].weight != 35.0
 
 
 def test_population_to_cell():
@@ -294,7 +294,7 @@ def test_population_to_cell():
         {"loc": (1, 1),
          "pop": [{"species": "Herbivore", "age": 1, "weight": 15.0}]}], seed=0)
 
-    assert len(sim.map.array_map[1, 1].present_animals) == 1
+    assert len(sim.map.array_map[1, 1].present_herbivores) == 1
     sim.add_population(
         [
             {
@@ -308,7 +308,8 @@ def test_population_to_cell():
         ]
     )
 
-    assert len(sim.map.array_map[1, 1].present_animals) == 3
+    assert len(sim.map.array_map[1, 1].present_herbivores) + len(
+        sim.map.array_map[1, 1].present_carnivores) == 3
 
 
 def test_map_iterator():

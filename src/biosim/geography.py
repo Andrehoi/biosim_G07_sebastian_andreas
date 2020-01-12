@@ -35,7 +35,8 @@ class Biome:
 
     def __init__(self):
         self.available_food = 0
-        self.present_animals = []
+        self.present_carnivores = []
+        self.present_herbivores = []
 
     def regrow(self):
         """

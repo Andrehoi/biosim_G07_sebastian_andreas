@@ -103,29 +103,23 @@ class BioSim:
                 # cell = self.map.array_map[1, 1]
                 cell.regrow()
 
-                # Create a cell with the present animals at beginning of year
-                # so that the newborns dont breed too.
-                cell_list = cell.present_animals
-                print(cell.present_animals)
-
                 # Create empty lists for the types of animals.
                 carnivore_list = []
                 herbivore_list = []
 
                 # Split the initial list of animals present in cell into lists
                 # of each animal type.
-                for creature in cell_list:
-                    if type(creature).__name__ == 'Herbivore':
-                        if not creature.has_moved:
-                            herbivore_list.append(creature)
+                for herbivore in cell.present_herbivores:
+                    if not herbivore.has_moved:
+                        herbivore_list.append(herbivore)
 
-                    if type(creature).__name__ == 'Carnivore':
-                        if not creature.has_moved:
-                            carnivore_list.append(creature)
+                for carnivore in cell.present_carnivores:
+                    if not carnivore.has_moved:
+                        carnivore_list.append(carnivore)
 
                 # Sorts each list in according to order of descending fitness.
-                herbivore_list.sort(key=lambda x: x.phi, reverse=True)
                 carnivore_list.sort(key=lambda x: x.phi, reverse=True)
+                herbivore_list.sort(key=lambda x: x.phi, reverse=True)
 
                 # Joins the to sorted lists with herbivores first in the list.
                 joined_animal_lists = herbivore_list + carnivore_list
@@ -133,8 +127,7 @@ class BioSim:
                 # All herbivores in cell eats in order of fitness.
                 for herbivore in herbivore_list:
                     cell.available_food = herbivore.eat(cell.available_food)
-                    print('Weight of', type(herbivore).__name__,
-                          herbivore.weight)
+                    print('Weight of herbivore:', herbivore.weight)
 
                 # All carnivores in cell hunt herbivores in cell. Carnivore
                 # with highest fitness hunts first for the herbivore with
@@ -143,52 +136,76 @@ class BioSim:
                     carnivore.hunt(herbivore_list)
 
                 # Removes herbivores killed from hunt.
-                for animals in cell_list:
-                    if not animals.alive:
-                        cell_list.remove(animals)
+                for herbivore in herbivore_list:
+                    if not herbivore.alive:
+                        herbivore_list.remove(herbivore)
 
                 for herbivore in herbivore_list:
                     # Checks if there is born a new animal, and potentially
                     # adds it to the list of animals in the cell.
                     new_herbivore = herbivore.breeding(len(herbivore_list))
                     if new_herbivore is not None:
-                        cell_list.append(new_herbivore)
+                        new_herbivore.has_moved = True
+                        herbivore_list.append(new_herbivore)
 
                 for carnivore in carnivore_list:
 
                     new_carnivore = carnivore.breeding((len(carnivore_list)))
 
                     if new_carnivore is not None:
-                        cell.present_animals.append(new_carnivore)
-                        cell_list.append(new_carnivore)
+                        new_carnivore.has_moved = True
+                        carnivore_list.append(new_carnivore)
 
                 # TODO: Add migration for all animals. Change the
                 #  self.has_moved parameter after moving.
 
-                for animals in cell_list:
-                    animals.ageing()
-                    print('Age:', animals.age)
+                # Ages the herbivores, then the carnivores.
+                for herbivore in herbivore_list:
+                    herbivore.ageing()
+                    print('Age:', herbivore.age)
 
-                for animals in cell_list:
-                    animals.lose_weight()
-                    print('Weight after loss:', animals.weight)
+                for carnivore in carnivore_list:
+                    carnivore.ageing()
+                    print('Age:', carnivore.age)
 
-                for animals in cell_list:
-                    animals.potential_death()
+                # The herbivores lose weight, then the carnivores.
+                for herbivore in herbivore_list:
+                    herbivore.lose_weight()
+                    print('Weight after loss:', herbivore.weight)
+
+                for carnivore in carnivore_list:
+                    carnivore.lose_weight()
+                    print('Weight after loss:', carnivore.weight)
+
+                # Checks if the herbivores dies, then the carnivores.
+                for herbivore in herbivore_list:
+                    herbivore.potential_death()
+
+                for carnivore in carnivore_list:
+                    carnivore.potential_death()
 
                 # Removes animals killed from natural causes.
-                for animals in cell_list:
-                    if not animals.alive:
-                        print('A', type(animals).__name__, 'died')
-                        cell_list.remove(animals)
+                for herbivore in herbivore_list:
+                    if not herbivore.alive:
+                        print('A herbivore died')
+                        herbivore_list.remove(herbivore)
+
+                for carnivore in carnivore_list:
+                    if not carnivore.alive:
+                        print('A carnivore died')
+                        carnivore_list.remove(carnivore)
 
                 # Updates live animals present in cell.
-                cell.present_animals = cell_list
+                cell.present_herbivores = herbivore_list
+                cell.present_carnivores = carnivore_list
 
             # Makes all animals able to move again for the next year.
             for cell in self.map.map_iterator():
-                for animal in cell.present_animals:
-                    animal.has_moved = False
+                for herbivore in cell.present_herbivores:
+                    herbivore.has_moved = False
+
+                for carnivore in cell.present_carnivores:
+                    carnivore.has_moved = False
 
             # Add a year to the counter
             year += 1
@@ -227,11 +244,11 @@ class BioSim:
                 if animal_class == 'Herbivore':
                     new_animal = Herbivore(animal['age'], animal['weight'])
                     self.map.array_map[coordinates].\
-                        present_animals.append(new_animal)
+                        present_herbivores.append(new_animal)
                 if animal_class == 'Carnivore':
                     new_animal = Carnivore(animal['age'], animal['weight'])
                     self.map.array_map[coordinates].\
-                        present_animals.append(new_animal)
+                        present_carnivores.append(new_animal)
 
     @property
     def year(self):

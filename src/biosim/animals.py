@@ -120,7 +120,10 @@ class Animal:
         of direction of movements, either east, west, north or south.
         :return:
         """
-        pass
+        move_prob = self.mu * self.phi
+
+        if move_prob <= random.random():
+            pass
 
     def breeding(self, n_animals_in_cell):
         """
