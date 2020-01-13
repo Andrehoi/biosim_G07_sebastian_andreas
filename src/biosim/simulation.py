@@ -273,7 +273,18 @@ class BioSim:
     @property
     def num_animals_per_species(self):
         """Number of animals per species in island, as dictionary."""
-        pass
+        animal_dictionary = {}
+        herbivore_counter = 0
+        carnivore_counter = 0
+
+        for cell in self.map.map_iterator():
+            for herbivore in cell.presen_herbivores:
+                herbivore_counter += 1
+
+            for carnivore in cell.present_carnivores:
+                carnivore_counter += 1
+
+
 
     @property
     def animal_distribution(self):

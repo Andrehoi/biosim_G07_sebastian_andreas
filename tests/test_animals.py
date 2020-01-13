@@ -65,6 +65,7 @@ def test_lose_weight():
     carnivore = Carnivore(3, 12)
     print(carnivore.__class__)
     print(carnivore.param_dict['eta'])
+    from pdb import set_trace; set_trace()
     carnivore.lose_weight()
     assert not carnivore.weight == 12
     assert carnivore.weight == 10.5
