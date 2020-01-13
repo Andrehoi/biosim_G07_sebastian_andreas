@@ -83,97 +83,149 @@ class BioSim:
         """
         self.map.biome_dict[landscape].biome_parameters(params)
 
-    def feeding_cycle(self, cell, herbivore_list, carnivore_list):
+    def feeding_cycle(self):
         """ Eating cycle for each animal in the cell"""
 
-        for herbivore in herbivore_list:
-            cell.available_food = herbivore.eat(cell.available_food)
-            print('Weight of herbivore:', herbivore.weight)
+        for cell in self.map.map_iterator():
+            print('Current cell:', type(cell).__name__, 'Feeding')
 
-        for carnivore in carnivore_list:
-            carnivore.hunt(herbivore_list)
+            # cell = self.map.array_map[1, 1]
+            cell.regrow()
 
-        # Removes herbivores killed from hunt.
-        for herbivore in herbivore_list:
-            if not herbivore.alive:
-                herbivore_list.remove(herbivore)
+            # Sorts each list in according to order of descending fitness.
+            cell.present_herbivores.sort(key=lambda x: x.phi, reverse=True)
+            cell.present_carnivores.sort(key=lambda x: x.phi, reverse=True)
 
-    def breeding_cycle(self, herbivore_list, carnivore_list):
+            for herbivore in cell.present_herbivores:
+                cell.available_food = herbivore.eat(cell.available_food)
+                print('Weight of herbivore:', herbivore.weight)
+
+            for carnivore in cell.present_carnivores:
+                carnivore.hunt(cell.present_herbivores)
+
+                alive_herbivores = [herbivore for herbivore in
+                                    cell.present_herbivores if herbivore.alive]
+
+                cell.present_herbivores = alive_herbivores
+
+    def breeding_cycle(self):
         """ Method for yearly breeding for all animals"""
 
-        for herbivore in herbivore_list:
-            # Checks if there is born a new animal, and potentially
-            # adds it to the list of animals in the cell.
-            new_herbivore = herbivore.breeding(len(herbivore_list))
-            if new_herbivore is not None:
-                new_herbivore.has_moved = True
-                herbivore_list.append(new_herbivore)
+        for cell in self.map.map_iterator():
+            print('Current cell:', type(cell).__name__, 'Breeding')
 
-        for carnivore in carnivore_list:
-            new_carnivore = carnivore.breeding((len(carnivore_list)))
+            current_herbivores = cell.present_herbivores
+            newborn_herbivores = []
+            for herbivore in cell.present_herbivores:
+                # Checks if there is born a new animal, and potentially
+                # adds it to the list of animals in the cell.
+                new_herbivore = herbivore.breeding(len(
+                    current_herbivores))
+                if new_herbivore is not None:
+                    newborn_herbivores.append(new_herbivore)
 
-            if new_carnivore is not None:
-                new_carnivore.has_moved = True
-                carnivore_list.append(new_carnivore)
+            cell.present_herbivores = current_herbivores + newborn_herbivores
 
-        return herbivore_list, carnivore_list
+            current_carnivores = cell.present_carnivores
+            newborn_carnivores = []
+            for carnivore in cell.present_carnivores:
+                new_carnivore = carnivore.breeding((len(
+                    current_carnivores)))
 
-    def migration_cycle(self, herbivore_list, carnivore_list):
+                if new_carnivore is not None:
+                    newborn_carnivores.append(new_carnivore)
 
-        for herbivore in herbivore_list:
-            target_cell = herbivore.migrate(self.map.top,
-                                            self.map.bottom,
-                                            self.map.left,
-                                            self.map.right)
-            herbivore.has_moved = True
-            if target_cell is not None:
-                target_cell.present_herbivores.append(herbivore)
+            cell.present_carnivores = current_carnivores + newborn_carnivores
 
-    def aging_cycle(self, herbivore_list, carnivore_list):
-        # Ages the herbivores, then the carnivores.
-        for herbivore in herbivore_list:
-            herbivore.ageing()
-            print('Age:', herbivore.age)
+    def migration_cycle(self):
 
-        for carnivore in carnivore_list:
-            carnivore.ageing()
-            print('Age:', carnivore.age)
+        for cell in self.map.map_iterator():
+            print('Current cell:', type(cell).__name__, 'migration')
 
-    def weight_loss_cycle(self, herbivore_list, carnivore_list):
-        # The herbivores lose weight, then the carnivores.
-        for herbivore in herbivore_list:
-            herbivore.lose_weight()
-            print('Weight after loss:', herbivore.weight)
+            # Sorts each list in according to order of descending fitness.
+            cell.present_herbivores.sort(key=lambda x: x.phi, reverse=True)
+            cell.present_carnivores.sort(key=lambda x: x.phi, reverse=True)
 
-        for carnivore in carnivore_list:
-            carnivore.lose_weight()
-            print('Weight after loss:', carnivore.weight)
+            migrating_herbivores = cell.present_herbivores
+            exited_herbivores = []
+            for herbivore in migrating_herbivores:
+                if not herbivore.has_moved:
+                    target_cell = herbivore.migrate(self.map.top,
+                                                    self.map.bottom,
+                                                    self.map.left,
+                                                    self.map.right)
+                    herbivore.has_moved = True
+                    if target_cell is not None:
+                        target_cell.present_herbivores.append(herbivore)
+                        exited_herbivores.append(herbivore)
+                        print('An animal moved to ',
+                              type(target_cell).__name__)
 
-    def death_cycle(self, herbivore_list, carnivore_list):
-        # Checks if the herbivores dies, then the carnivores.
-        for herbivore in herbivore_list:
-            herbivore.potential_death()
+            cell.present_herbivores = [animal for animal in
+                                       migrating_herbivores if animal not in
+                                       exited_herbivores]
 
-        for carnivore in carnivore_list:
-            carnivore.potential_death()
+    def ageing_cycle(self):
 
-        # Removes animals killed from natural causes.
-        alive_herbivores = [herbivore for herbivore in
-                            herbivore_list if herbivore.alive]
+        for cell in self.map.map_iterator():
+            print('Current cell:', type(cell).__name__, 'ageing')
 
-        dead = len(herbivore_list) - len(alive_herbivores)
+            # Ages the herbivores, then the carnivores.
+            for herbivore in cell.present_herbivores:
+                herbivore.ageing()
+                print('Age:', herbivore.age)
 
-        if dead > 0:
-            print(dead, 'herbivores died')
+            for carnivore in cell.present_carnivores:
+                carnivore.ageing()
+                print('Age:', carnivore.age)
 
-        alive_carnivores = [carnivore for carnivore in
-                            carnivore_list if carnivore.alive]
+    def weight_loss_cycle(self):
 
-        dead = len(carnivore_list) - len(alive_carnivores)
+        for cell in self.map.map_iterator():
+            print('Current cell:', type(cell).__name__, 'weight_loss')
 
-        if dead > 0:
-            print(dead, 'carnivores died')
-        return alive_herbivores, alive_carnivores
+            # The herbivores lose weight, then the carnivores.
+            for herbivore in cell.present_herbivores:
+                herbivore.lose_weight()
+                print('Weight after loss:', herbivore.weight)
+
+            for carnivore in cell.present_carnivores:
+                carnivore.lose_weight()
+                print('Weight after loss:', carnivore.weight)
+
+    def death_cycle(self):
+
+        for cell in self.map.map_iterator():
+            print('Current cell:', type(cell).__name__, 'death')
+
+            # Checks if the herbivores dies, then the carnivores.
+            for herbivore in cell.present_herbivores:
+                herbivore.potential_death()
+
+            for carnivore in cell.present_carnivores:
+                carnivore.potential_death()
+
+            # Removes animals killed from natural causes.
+
+            alive_herbivores = [herbivore for herbivore in
+                                cell.present_herbivores if herbivore.alive]
+
+            dead = len(cell.present_herbivores) - len(alive_herbivores)
+
+            if dead > 0:
+                print(dead, 'Herbivores died')
+
+            cell.present_herbivores = alive_herbivores
+
+            alive_carnivores = [carnivore for carnivore in
+                                cell.present_carnivores if carnivore.alive]
+
+            dead = len(cell.present_carnivores) - len(alive_carnivores)
+
+            if dead > 0:
+                print(dead, 'Carnivores died')
+
+            cell.present_carnivores = alive_carnivores
 
     def simulate(self, num_years, vis_years=1, img_years=None):
         """
@@ -189,98 +241,20 @@ class BioSim:
         year = 0
 
         while True:
-            # Eating cycle for all animals on the map
-            for cell in self.map.map_iterator():
-                print('Current cell:', type(cell).__name__, 'eating')
 
-                cell.regrow()
+            self.feeding_cycle()
+            self.breeding_cycle()
+            self.migration_cycle()
+            self.ageing_cycle()
+            self.weight_loss_cycle()
+            self.death_cycle()
 
-                # Sorts each list in according to order of descending fitness.
-                cell.present_herbivores.sort(key=lambda x: x.phi, reverse=True)
-                cell.present_carnivores.sort(key=lambda x: x.phi, reverse=True)
-
-                self.feeding_cycle(cell, cell.present_herbivores,
-                                   cell.present_carnivores)
-
-            # Breeding cycle for all animals on the map
-            for cell in self.map.map_iterator():
-                print('Current cell:', type(cell).__name__, 'breeding')
-
-                cell.present_herbivores, cell.present_carnivores = \
-                    self.breeding_cycle(cell.present_herbivores,
-                                        cell.present_carnivores)
-
-            # Migration cycle for all animals on the map
-            for cell in self.map.map_iterator():
-                print('Current cell:', type(cell).__name__, 'migration')
-
-                # Create empty lists for the types of animals.
-                carnivore_list = []
-                herbivore_list = []
-
-                # Split the initial list of animals present in cell into lists
-                # of each animal type.
-                for herbivore in cell.present_herbivores:
-                    if not herbivore.has_moved:
-                        herbivore.has_moved = True
-                        herbivore_list.append(herbivore)
-
-                for carnivore in cell.present_carnivores:
-                    if not carnivore.has_moved:
-                        carnivore.has_moved = True
-                        carnivore_list.append(carnivore)
-
-                # Sorts each list in according to order of descending fitness.
-                carnivore_list.sort(key=lambda x: x.phi, reverse=True)
-                herbivore_list.sort(key=lambda x: x.phi, reverse=True)
-
-                self.migration_cycle(herbivore_list, carnivore_list)
-
-            # Aging cycle for all animals on the island
-            for cell in self.map.map_iterator():
-                print('Current cell:', type(cell).__name__, 'aging')
-
-                self.aging_cycle(cell.present_herbivores,
-                                 cell.present_carnivores)
-
-            # Loss of weight cycle for all animals on the island
-            for cell in self.map.map_iterator():
-                print('Current cell:', type(cell).__name__, 'weight loss')
-
-                self.weight_loss_cycle(cell.present_herbivores,
-                                       cell.present_carnivores)
-
-            # Potential death for each animal on the island.
-            for cell in self.map.map_iterator():
-                print('Current cell:', type(cell).__name__, 'potential death')
-
-                alive_herbivores, alive_carnivores = self.death_cycle(
-                    cell.present_herbivores, cell.present_carnivores)
-
-                # Updates live animals present in cell.
-                cell.present_herbivores = alive_herbivores
-                cell.present_carnivores = alive_carnivores
-
-            # Makes all animals able to move again for the next year.
             for cell in self.map.map_iterator():
                 for herbivore in cell.present_herbivores:
                     herbivore.has_moved = False
-                    herbivore.has_fed = False
-                    herbivore.has_bred = False
-                    herbivore.has_aged = False
-                    herbivore.has_lost_weight = False
-                    herbivore.has_pot_died = False
 
                 for carnivore in cell.present_carnivores:
                     carnivore.has_moved = False
-                    carnivore.has_moved = False
-                    carnivore.has_fed = False
-                    carnivore.has_bred = False
-                    carnivore.has_aged = False
-                    carnivore.has_lost_weight = False
-                    carnivore.has_pot_died = False
-
-
 
             # Add a year to the counter
             year += 1
@@ -394,7 +368,7 @@ if __name__ == "__main__":
             },
         ]
     ))
-    k.simulate(1)
+    k.simulate(10)
     print(k.num_animals)
     print('added carnivores to simulation')
     k.add_population([
@@ -407,7 +381,8 @@ if __name__ == "__main__":
             },
         ])
     print(k.current_year)
-    k.simulate(5)
+
+    k.simulate(10)
     print(k.num_animals)
 
     """
