@@ -4,6 +4,7 @@ __author__ = "Sebastian Kihle & Andreas Hoeimyr"
 __email__ = "sebaskih@nmbu.no & andrehoi@nmbu.no"
 
 from biosim.animals import Animal, Herbivore, Carnivore
+from pytest import approx
 
 """
 Test file for animal properties
@@ -55,12 +56,15 @@ def test_lose_weight():
     """
 
     herbivore = Herbivore(3, 12)
-    carnivore = Carnivore(3, 12)
+
 
     herbivore.lose_weight()
     assert not herbivore.weight == 12
     assert herbivore.weight == 11.4
 
+    carnivore = Carnivore(3, 12)
+    print(carnivore.__class__)
+    print(carnivore.param_dict['eta'])
     carnivore.lose_weight()
     assert not carnivore.weight == 12
     assert carnivore.weight == 10.5

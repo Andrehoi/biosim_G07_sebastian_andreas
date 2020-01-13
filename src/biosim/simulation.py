@@ -185,19 +185,19 @@ class BioSim:
                     carnivore.potential_death()
 
                 # Removes animals killed from natural causes.
-                for herbivore in herbivore_list:
-                    if not herbivore.alive:
-                        print('A herbivore died')
-                        herbivore_list.remove(herbivore)
+                alive_herbivores = [herbivore for herbivore in
+                                    herbivore_list if herbivore.alive]
+                print(len(herbivore_list) - len(alive_herbivores),
+                      'Herbivores died')
 
-                for carnivore in carnivore_list:
-                    if not carnivore.alive:
-                        print('A carnivore died')
-                        carnivore_list.remove(carnivore)
+                alive_carnivores = [carnivore for carnivore in
+                                    carnivore_list if carnivore.alive]
+                print(len(carnivore_list) - len(alive_carnivores),
+                      'Carnivores died')
 
                 # Updates live animals present in cell.
-                cell.present_herbivores = herbivore_list
-                cell.present_carnivores = carnivore_list
+                cell.present_herbivores = alive_herbivores
+                cell.present_carnivores = alive_carnivores
 
             # Makes all animals able to move again for the next year.
             for cell in self.map.map_iterator():
@@ -258,7 +258,17 @@ class BioSim:
     @property
     def num_animals(self):
         """Total number of animals on island."""
-        pass
+        animal_counter = 0
+
+        for cell in self.map.map_iterator():
+            for _ in cell.present_herbivores:
+                animal_counter += 1
+
+            for _ in cell.present_herbivores:
+                animal_counter += 1
+        return animal_counter
+
+
 
     @property
     def num_animals_per_species(self):
@@ -320,6 +330,7 @@ if __name__ == "__main__":
         },
     ])
     k.simulate(5)
+    print(k.num_animals())
 
     """
     for map_cell in k.map.map_iterator():

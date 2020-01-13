@@ -223,3 +223,6 @@ dmypy.json
 
 # new ignores
 .idea/*
+doc/_build
+doc/_static
+doc/templates
