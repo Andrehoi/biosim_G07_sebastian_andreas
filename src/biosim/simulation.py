@@ -116,6 +116,8 @@ class BioSim:
                 new_carnivore.has_moved = True
                 carnivore_list.append(new_carnivore)
 
+        return herbivore_list, carnivore_list
+
     def migration_cycle(self, herbivore_list, carnivore_list):
 
         for herbivore in herbivore_list:
@@ -158,13 +160,13 @@ class BioSim:
         # Removes animals killed from natural causes.
         alive_herbivores = [herbivore for herbivore in
                             herbivore_list if herbivore.alive]
-        print(len(herbivore_list) - len(alive_herbivores),
-              'Herbivores died')
+        if len(herbivore_list) - len(alive_herbivores) > 0:
+            print('Herbivores died')
 
         alive_carnivores = [carnivore for carnivore in
                             carnivore_list if carnivore.alive]
-        print(len(carnivore_list) - len(alive_carnivores),
-              'Carnivores died')
+        if len(carnivore_list) - len(alive_carnivores) > 0:
+            print('carnivores died')
         return alive_herbivores, alive_carnivores
 
     def simulate(self, num_years, vis_years=1, img_years=None):
@@ -181,10 +183,10 @@ class BioSim:
         year = 0
 
         while True:
+            # Eating cycle for all animals on the map
             for cell in self.map.map_iterator():
-                print('Current cell:', type(cell).__name__)
+                print('Current cell:', type(cell).__name__, 'eating')
 
-                # cell = self.map.array_map[1, 1]
                 cell.regrow()
 
                 # Create empty lists for the types of animals.
@@ -194,11 +196,12 @@ class BioSim:
                 # Split the initial list of animals present in cell into lists
                 # of each animal type.
                 for herbivore in cell.present_herbivores:
-                    if not herbivore.has_moved:
+                    if not herbivore.has_fed:
                         herbivore_list.append(herbivore)
 
                 for carnivore in cell.present_carnivores:
-                    if not carnivore.has_moved:
+                    if not carnivore.has_fed:
+                        carnivore.has_fed = True
                         carnivore_list.append(carnivore)
 
                 # Sorts each list in according to order of descending fitness.
@@ -210,13 +213,135 @@ class BioSim:
 
                 self.feeding_cycle(cell, herbivore_list, carnivore_list)
 
-                self.breeding_cycle(herbivore_list, carnivore_list)
+            # Breeding cycle for all animals on the map
+            for cell in self.map.map_iterator():
+                print('Current cell:', type(cell).__name__, 'breeding')
+
+                # Create empty lists for the types of animals.
+                carnivore_list = []
+                herbivore_list = []
+
+                # Split the initial list of animals present in cell into lists
+                # of each animal type.
+                for herbivore in cell.present_herbivores:
+                    if not herbivore.has_bred:
+                        herbivore.has_bred = True
+                        herbivore_list.append(herbivore)
+
+                for carnivore in cell.present_carnivores:
+                    if not carnivore.has_bred:
+                        carnivore.has_bred = True
+                        carnivore_list.append(carnivore)
+
+                # Sorts each list in according to order of descending fitness.
+                carnivore_list.sort(key=lambda x: x.phi, reverse=True)
+                herbivore_list.sort(key=lambda x: x.phi, reverse=True)
+
+                cell.present_herbivores, \
+                cell.present_carnivores = self.breeding_cycle(herbivore_list,
+                                                        carnivore_list)
+
+            # Migration cycle for all animals on the map
+            for cell in self.map.map_iterator():
+                print('Current cell:', type(cell).__name__, 'migration')
+
+                # Create empty lists for the types of animals.
+                carnivore_list = []
+                herbivore_list = []
+
+                # Split the initial list of animals present in cell into lists
+                # of each animal type.
+                for herbivore in cell.present_herbivores:
+                    if not herbivore.has_moved:
+                        herbivore.has_moved = True
+                        herbivore_list.append(herbivore)
+
+                for carnivore in cell.present_carnivores:
+                    if not carnivore.has_moved:
+                        carnivore.has_moved = True
+                        carnivore_list.append(carnivore)
+
+                # Sorts each list in according to order of descending fitness.
+                carnivore_list.sort(key=lambda x: x.phi, reverse=True)
+                herbivore_list.sort(key=lambda x: x.phi, reverse=True)
 
                 self.migration_cycle(herbivore_list, carnivore_list)
 
+            # Aging cycle for all animals on the island
+            for cell in self.map.map_iterator():
+                print('Current cell:', type(cell).__name__, 'aging')
+
+                # Create empty lists for the types of animals.
+                carnivore_list = []
+                herbivore_list = []
+
+                # Split the initial list of animals present in cell into lists
+                # of each animal type.
+                for herbivore in cell.present_herbivores:
+                    if not herbivore.has_aged:
+                        herbivore.has_aged = True
+                        herbivore_list.append(herbivore)
+
+                for carnivore in cell.present_carnivores:
+                    if not carnivore.has_aged:
+                        carnivore.has_aged = True
+                        carnivore_list.append(carnivore)
+
+                # Sorts each list in according to order of descending fitness.
+                carnivore_list.sort(key=lambda x: x.phi, reverse=True)
+                herbivore_list.sort(key=lambda x: x.phi, reverse=True)
+
                 self.aging_cycle(herbivore_list, carnivore_list)
 
+            # Loss of weight cycle for all animals on the island
+            for cell in self.map.map_iterator():
+                print('Current cell:', type(cell).__name__, 'weight loss')
+
+                # Create empty lists for the types of animals.
+                carnivore_list = []
+                herbivore_list = []
+
+                # Split the initial list of animals present in cell into lists
+                # of each animal type.
+                for herbivore in cell.present_herbivores:
+                    if not herbivore.has_lost_weight:
+                        herbivore.has_lost_weight = True
+                        herbivore_list.append(herbivore)
+
+                for carnivore in cell.present_carnivores:
+                    if not carnivore.has_lost_weight:
+                        carnivore.has_lost_weight = True
+                        carnivore_list.append(carnivore)
+
+                # Sorts each list in according to order of descending fitness.
+                carnivore_list.sort(key=lambda x: x.phi, reverse=True)
+                herbivore_list.sort(key=lambda x: x.phi, reverse=True)
+
                 self.weight_loss_cycle(herbivore_list, carnivore_list)
+
+            # Potential death for each animal on the island.
+            for cell in self.map.map_iterator():
+                print('Current cell:', type(cell).__name__, 'potential death')
+
+                # Create empty lists for the types of animals.
+                carnivore_list = []
+                herbivore_list = []
+
+                # Split the initial list of animals present in cell into lists
+                # of each animal type.
+                for herbivore in cell.present_herbivores:
+                    if not herbivore.has_pot_died:
+                        herbivore.has_pot_died = True
+                        herbivore_list.append(herbivore)
+
+                for carnivore in cell.present_carnivores:
+                    if not carnivore.has_pot_died:
+                        carnivore.has_pot_died = True
+                        carnivore_list.append(carnivore)
+
+                # Sorts each list in according to order of descending fitness.
+                carnivore_list.sort(key=lambda x: x.phi, reverse=True)
+                herbivore_list.sort(key=lambda x: x.phi, reverse=True)
 
                 alive_herbivores, alive_carnivores = self.death_cycle(
                     herbivore_list, carnivore_list)
@@ -229,9 +354,22 @@ class BioSim:
             for cell in self.map.map_iterator():
                 for herbivore in cell.present_herbivores:
                     herbivore.has_moved = False
+                    herbivore.has_fed = False
+                    herbivore.has_bred = False
+                    herbivore.has_aged = False
+                    herbivore.has_lost_weight = False
+                    herbivore.has_pot_died = False
 
                 for carnivore in cell.present_carnivores:
                     carnivore.has_moved = False
+                    carnivore.has_moved = False
+                    carnivore.has_fed = False
+                    carnivore.has_bred = False
+                    carnivore.has_aged = False
+                    carnivore.has_lost_weight = False
+                    carnivore.has_pot_died = False
+
+
 
             # Add a year to the counter
             year += 1
@@ -290,7 +428,7 @@ class BioSim:
             for _ in cell.present_herbivores:
                 animal_counter += 1
 
-            for _ in cell.present_herbivores:
+            for _ in cell.present_carnivores:
                 animal_counter += 1
         return animal_counter
 
@@ -345,7 +483,8 @@ if __name__ == "__main__":
             },
         ]
     ))
-    k.simulate(5)
+    k.simulate(1)
+    print(k.num_animals)
     print('added carnivores to simulation')
     k.add_population([
             {
@@ -367,6 +506,7 @@ if __name__ == "__main__":
         },
     ])
     k.simulate(5)
+    print(k.num_animals)
 
     """
     for map_cell in k.map.map_iterator():

@@ -78,7 +78,12 @@ class Animal:
         self.phi = 0
         self.calculate_fitness()
         self.alive = True
+        self.has_fed = False
+        self.has_bred = False
         self.has_moved = False
+        self.has_aged = False
+        self.has_lost_weight = False
+        self.has_pot_died = False
         self.legal_biomes = ['Mountain', 'Ocean', 'Desert', 'Savannah',
                              'Jungle']
 
@@ -398,12 +403,14 @@ class Carnivore(Animal):
                     self.weight += self.param_dict['beta'] * \
                                    self.param_dict['F']
                     herbivore.alive = False
+                    print('ate herbivore')
                     return
 
                 # Eats whole herbivore, and checks if its full.
                 if herbivore.weight < self.param_dict['F']:
                     self.weight += self.param_dict['beta'] * herbivore.weight
                     herbivore.alive = False
+                    print('ate herbivore')
                     if self.weight > start_weight + self.param_dict['beta'] * \
                             self.param_dict['F']:
                         self.weight = start_weight + self.param_dict['beta']\
