@@ -4,7 +4,6 @@ __author__ = "Sebastian Kihle & Andreas Hoeimyr"
 __email__ = "sebaskih@nmbu.no & andrehoi@nmbu.no"
 
 from biosim.animals import Animal, Herbivore, Carnivore
-from pytest import approx
 
 """
 Test file for animal properties
@@ -41,6 +40,8 @@ def test_fitness():
     assert abs(herbivore.phi - 0.5494) < 0.0001
 
     carnivore = Carnivore(10, 0)
+    carnivore.new_parameters({'phi_age': 0.4, 'a_half': 60, 'w_half': 4.0,
+                              'phi_weight': 0.4})
     assert carnivore.phi == 0
 
     carnivore = Carnivore(3, 12)
@@ -56,16 +57,13 @@ def test_lose_weight():
     """
 
     herbivore = Herbivore(3, 12)
-
+    carnivore = Carnivore(3, 12)
 
     herbivore.lose_weight()
     assert not herbivore.weight == 12
     assert herbivore.weight == 11.4
 
-    carnivore = Carnivore(3, 12)
-    print(carnivore.__class__)
-    print(carnivore.param_dict['eta'])
-    from pdb import set_trace; set_trace()
+    carnivore.new_parameters({'eta': 0.125})
     carnivore.lose_weight()
     assert not carnivore.weight == 12
     assert carnivore.weight == 10.5
@@ -133,6 +131,7 @@ def test_death():
     immortal_herb.potential_death()
     assert immortal_herb.alive
 
+
 def test_hunting():
     """
     Test the hunting capabilities of the predators. Go for the herbivore
@@ -141,12 +140,28 @@ def test_hunting():
     """
     herb_list = [Herbivore(100, 50), Herbivore(1, 15), Herbivore(4, 35)]
     hunter = Carnivore(3, 50)
+    hunter.new_parameters({'w_birth': 8.0,
+        'sigma_birth': 1.5,
+        'beta': 0.9,
+        'eta': 0.05,
+        'a_half': 40,
+        'phi_age': 0.2,
+        'w_half': 10,
+        'phi_weight': 0.1,
+        'mu': 0.25,
+        'lambda_animal': 1,
+        'gamma': 0.2,
+        'zeta': 3.5,
+        'xi': 1.2,
+        'omega': 0.4,
+        'F': 10})
     hunter.new_parameters({'DeltaPhiMax': 0.5})
     hunter.hunt(herb_list)
     assert hunter.weight > 50
     assert not herb_list[0].alive
     assert herb_list[1].alive
     assert herb_list[2].alive
+    hunter.new_parameters({'DeltaPhiMax': 10})
 
 
 def test_hunting_stops_when_full():

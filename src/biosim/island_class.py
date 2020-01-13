@@ -17,6 +17,10 @@ class Map:
         self.island_multiline_sting = island_multiline_sting
         self.x = 0
         self.y = 0
+        self.top = Ocean()
+        self.bottom = Ocean()
+        self.left = Ocean()
+        self.right = Ocean()
 
         # Splits the multiline string and converts it into an array.
         area = self.island_multiline_sting.split()
@@ -77,7 +81,14 @@ class Map:
 
         # For each cell in the map yields the object.
         while True:
-
+            if y >= 1:
+                self.top = self.array_map[y-1, x]
+            if y <= len(self.biome_map.T[0]) - 1:
+                self.bottom = self.array_map[y+1, x]
+            if x > len(self.biome_map[0]):
+                self.left = self.array_map[y, x-1]
+            if x <= 1:
+                self.right = self.array_map[y, x+1]
             # Use yield to be able to iterate through the map.
             yield self.array_map[y, x]
             x += 1

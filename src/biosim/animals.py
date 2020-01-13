@@ -79,7 +79,8 @@ class Animal:
         self.calculate_fitness()
         self.alive = True
         self.has_moved = False
-        self.legal_biomes = ['M', 'O', 'D', 'S', 'J']
+        self.legal_biomes = ['Mountain', 'Ocean', 'Desert', 'Savannah',
+                             'Jungle']
 
     def ageing(self):
         """
@@ -113,17 +114,61 @@ class Animal:
                                              self.param_dict['w_half'],
                                              self.param_dict['phi_weight'])
 
-    def migrate(self, position):
+    def migrate(self, top_cell, bottom_cell, left_cell, right_cell):
         """
         Calculates the probability for an animal to move one cell, and
         potentially moves it. The function also calculates the probability
         of direction of movements, either east, west, north or south.
         :return:
         """
-        move_prob = self.mu * self.phi
+        move_prob = self.param_dict['mu'] * self.phi
 
         if move_prob <= random.random():
-            pass
+            e_top = top_cell.available_food / (((len(
+                top_cell.present_herbivores) + 1) * self.param_dict['F']))
+            print(e_top)
+
+            e_bottom = bottom_cell.available_food / (((len(
+                bottom_cell.present_herbivores) + 1) * self.param_dict['F']))
+
+            e_left = left_cell.available_food / (((len(
+                left_cell.present_herbivores) + 1) * self.param_dict['F']))
+
+            e_right = right_cell.available_food / (((len(
+                right_cell.present_herbivores) + 1) * self.param_dict['F']))
+
+            prop_top = exp(self.param_dict['lambda_animal'] * e_top)
+            prop_bottom = exp(self.param_dict['lambda_animal'] * e_bottom)
+            prop_left = exp(self.param_dict['lambda_animal'] * e_left)
+            prop_right = exp(self.param_dict['lambda_animal'] * e_right)
+
+            sum_prop = prop_top + prop_right + prop_bottom + prop_left
+            top_prob = prop_top / sum_prop
+            bottom_prob = prop_bottom / sum_prop
+            left_prob = prop_left / sum_prop
+            right_prob = prop_right / sum_prop
+
+            number = random.random()
+            if 0 <= number < top_prob:
+                if not type(top_cell).__name__ in self.legal_biomes:
+                    return None
+                return top_cell
+
+            if top_prob <= number < top_prob + bottom_prob:
+                if not type(top_cell).__name__ in self.legal_biomes:
+                    return None
+                return bottom_cell
+
+            if top_prob + bottom_prob <= number < top_prob + bottom_prob + \
+                    left_prob:
+                if not type(top_cell).__name__ in self.legal_biomes:
+                    return None
+                return left_cell
+
+            if top_prob + bottom_prob + left_prob <= number < 1:
+                if not type(top_cell).__name__ in self.legal_biomes:
+                    return None
+                return right_cell
 
     def breeding(self, n_animals_in_cell):
         """
@@ -207,15 +252,62 @@ class Herbivore(Animal):
 
     def __init__(self, age, weight):
         super().__init__(age, weight)
-        self.legal_biomes = ['D', 'S', 'J']
+        self.legal_biomes = ['Desert', 'Savannah', 'Jungle']
 
-    def migrate(self, position):
+    def migrate(self, top_cell, bottom_cell, left_cell, right_cell):
         """
-        Migrates using the migrate method for animals. However if it tries
-        to move into a mountain cell or ocean cell, the animal does not move.
+        Calculates the probability for an animal to move one cell, and
+        potentially moves it. The function also calculates the probability
+        of direction of movements, either east, west, north or south.
         :return:
         """
-        pass
+        move_prob = self.param_dict['mu'] * self.phi
+
+        if move_prob <= random.random():
+            e_top = top_cell.available_food / (((len(
+                top_cell.present_herbivores) + 1) * self.param_dict['F']))
+
+            e_bottom = bottom_cell.available_food / (((len(
+                bottom_cell.present_herbivores) + 1) * self.param_dict['F']))
+
+            e_left = left_cell.available_food / (((len(
+                left_cell.present_herbivores) + 1) * self.param_dict['F']))
+
+            e_right = right_cell.available_food / (((len(
+                right_cell.present_herbivores) + 1) * self.param_dict['F']))
+
+            prop_top = exp(self.param_dict['lambda_animal'] * e_top)
+            prop_bottom = exp(self.param_dict['lambda_animal'] * e_bottom)
+            prop_left = exp(self.param_dict['lambda_animal'] * e_left)
+            prop_right = exp(self.param_dict['lambda_animal'] * e_right)
+
+            sum_prop = prop_top + prop_right + prop_bottom + prop_left
+            top_prob = prop_top / sum_prop
+            bottom_prob = prop_bottom / sum_prop
+            left_prob = prop_left / sum_prop
+            right_prob = prop_right / sum_prop
+
+            number = random.random()
+            if 0 <= number < top_prob:
+                if not type(top_cell).__name__ in self.legal_biomes:
+                    return None
+                return top_cell
+
+            if top_prob <= number < top_prob + bottom_prob:
+                if not type(top_cell).__name__ in self.legal_biomes:
+                    return None
+                return bottom_cell
+
+            if top_prob + bottom_prob <= number < top_prob + bottom_prob + \
+                    left_prob:
+                if not type(top_cell).__name__ in self.legal_biomes:
+                    return None
+                return left_cell
+
+            if top_prob + bottom_prob + left_prob <= number < 1:
+                if not type(top_cell).__name__ in self.legal_biomes:
+                    return None
+                return right_cell
 
     def eat(self, food_available_in_cell):
         """
@@ -261,7 +353,7 @@ class Carnivore(Animal):
 
     def __init__(self, age, weight):
         super().__init__(age, weight)
-        self.legal_biomes = ['D', 'S', 'J']
+        self.legal_biomes = ['Desert', 'Savannah', 'Jungle']
 
     def hunt(self, sorted_list_of_herbivores):
         """

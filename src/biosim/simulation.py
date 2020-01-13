@@ -83,6 +83,90 @@ class BioSim:
         """
         self.map.biome_dict[landscape].biome_parameters(params)
 
+    def feeding_cycle(self, cell, herbivore_list, carnivore_list):
+        """ Eating cycle for each animal in the cell"""
+
+        for herbivore in herbivore_list:
+            cell.available_food = herbivore.eat(cell.available_food)
+            print('Weight of herbivore:', herbivore.weight)
+
+        for carnivore in carnivore_list:
+            carnivore.hunt(herbivore_list)
+
+        # Removes herbivores killed from hunt.
+        for herbivore in herbivore_list:
+            if not herbivore.alive:
+                herbivore_list.remove(herbivore)
+
+    def breeding_cycle(self, herbivore_list, carnivore_list):
+        """ Method for yearly breeding for all animals"""
+
+        for herbivore in herbivore_list:
+            # Checks if there is born a new animal, and potentially
+            # adds it to the list of animals in the cell.
+            new_herbivore = herbivore.breeding(len(herbivore_list))
+            if new_herbivore is not None:
+                new_herbivore.has_moved = True
+                herbivore_list.append(new_herbivore)
+
+        for carnivore in carnivore_list:
+            new_carnivore = carnivore.breeding((len(carnivore_list)))
+
+            if new_carnivore is not None:
+                new_carnivore.has_moved = True
+                carnivore_list.append(new_carnivore)
+
+    def migration_cycle(self, herbivore_list, carnivore_list):
+
+        for herbivore in herbivore_list:
+            target_cell = herbivore.migrate(self.map.top,
+                                            self.map.bottom,
+                                            self.map.left,
+                                            self.map.right)
+            herbivore.has_moved = True
+            if target_cell is not None:
+                target_cell.present_herbivores.append(herbivore)
+
+    def aging_cycle(self, herbivore_list, carnivore_list):
+        # Ages the herbivores, then the carnivores.
+        for herbivore in herbivore_list:
+            herbivore.ageing()
+            print('Age:', herbivore.age)
+
+        for carnivore in carnivore_list:
+            carnivore.ageing()
+            print('Age:', carnivore.age)
+
+    def weight_loss_cycle(self, herbivore_list, carnivore_list):
+        # The herbivores lose weight, then the carnivores.
+        for herbivore in herbivore_list:
+            herbivore.lose_weight()
+            print('Weight after loss:', herbivore.weight)
+
+        for carnivore in carnivore_list:
+            carnivore.lose_weight()
+            print('Weight after loss:', carnivore.weight)
+
+    def death_cycle(self, herbivore_list, carnivore_list):
+        # Checks if the herbivores dies, then the carnivores.
+        for herbivore in herbivore_list:
+            herbivore.potential_death()
+
+        for carnivore in carnivore_list:
+            carnivore.potential_death()
+
+        # Removes animals killed from natural causes.
+        alive_herbivores = [herbivore for herbivore in
+                            herbivore_list if herbivore.alive]
+        print(len(herbivore_list) - len(alive_herbivores),
+              'Herbivores died')
+
+        alive_carnivores = [carnivore for carnivore in
+                            carnivore_list if carnivore.alive]
+        print(len(carnivore_list) - len(alive_carnivores),
+              'Carnivores died')
+        return alive_herbivores, alive_carnivores
+
     def simulate(self, num_years, vis_years=1, img_years=None):
         """
         Run simulation while visualizing the result.
@@ -124,76 +208,18 @@ class BioSim:
                 # Joins the to sorted lists with herbivores first in the list.
                 joined_animal_lists = herbivore_list + carnivore_list
 
-                # All herbivores in cell eats in order of fitness.
-                for herbivore in herbivore_list:
-                    cell.available_food = herbivore.eat(cell.available_food)
-                    print('Weight of herbivore:', herbivore.weight)
+                self.feeding_cycle(cell, herbivore_list, carnivore_list)
 
-                # All carnivores in cell hunt herbivores in cell. Carnivore
-                # with highest fitness hunts first for the herbivore with
-                # lowest fitness.
-                for carnivore in carnivore_list:
-                    carnivore.hunt(herbivore_list)
+                self.breeding_cycle(herbivore_list, carnivore_list)
 
-                # Removes herbivores killed from hunt.
-                for herbivore in herbivore_list:
-                    if not herbivore.alive:
-                        herbivore_list.remove(herbivore)
+                self.migration_cycle(herbivore_list, carnivore_list)
 
-                for herbivore in herbivore_list:
-                    # Checks if there is born a new animal, and potentially
-                    # adds it to the list of animals in the cell.
-                    new_herbivore = herbivore.breeding(len(herbivore_list))
-                    if new_herbivore is not None:
-                        new_herbivore.has_moved = True
-                        herbivore_list.append(new_herbivore)
+                self.aging_cycle(herbivore_list, carnivore_list)
 
-                for carnivore in carnivore_list:
+                self.weight_loss_cycle(herbivore_list, carnivore_list)
 
-                    new_carnivore = carnivore.breeding((len(carnivore_list)))
-
-                    if new_carnivore is not None:
-                        new_carnivore.has_moved = True
-                        carnivore_list.append(new_carnivore)
-
-                # TODO: Add migration for all animals. Change the
-                #  self.has_moved parameter after moving.
-
-                # Ages the herbivores, then the carnivores.
-                for herbivore in herbivore_list:
-                    herbivore.ageing()
-                    print('Age:', herbivore.age)
-
-                for carnivore in carnivore_list:
-                    carnivore.ageing()
-                    print('Age:', carnivore.age)
-
-                # The herbivores lose weight, then the carnivores.
-                for herbivore in herbivore_list:
-                    herbivore.lose_weight()
-                    print('Weight after loss:', herbivore.weight)
-
-                for carnivore in carnivore_list:
-                    carnivore.lose_weight()
-                    print('Weight after loss:', carnivore.weight)
-
-                # Checks if the herbivores dies, then the carnivores.
-                for herbivore in herbivore_list:
-                    herbivore.potential_death()
-
-                for carnivore in carnivore_list:
-                    carnivore.potential_death()
-
-                # Removes animals killed from natural causes.
-                alive_herbivores = [herbivore for herbivore in
-                                    herbivore_list if herbivore.alive]
-                print(len(herbivore_list) - len(alive_herbivores),
-                      'Herbivores died')
-
-                alive_carnivores = [carnivore for carnivore in
-                                    carnivore_list if carnivore.alive]
-                print(len(carnivore_list) - len(alive_carnivores),
-                      'Carnivores died')
+                alive_herbivores, alive_carnivores = self.death_cycle(
+                    herbivore_list, carnivore_list)
 
                 # Updates live animals present in cell.
                 cell.present_herbivores = alive_herbivores
