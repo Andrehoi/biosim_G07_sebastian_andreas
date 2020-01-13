@@ -367,7 +367,6 @@ if __name__ == "__main__":
         },
     ])
     k.simulate(5)
-    print(k.num_animals())
 
     """
     for map_cell in k.map.map_iterator():

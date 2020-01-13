@@ -83,11 +83,14 @@ class Map:
         while True:
             if y >= 1:
                 self.top = self.array_map[y-1, x]
-            if y <= len(self.biome_map.T[0]) - 1:
+
+            if y < len(self.biome_map.T[0]) - 1:
                 self.bottom = self.array_map[y+1, x]
-            if x > len(self.biome_map[0]):
+
+            if x >= 1:
                 self.left = self.array_map[y, x-1]
-            if x <= 1:
+
+            if x < len(self.biome_map[0]) - 1:
                 self.right = self.array_map[y, x+1]
             # Use yield to be able to iterate through the map.
             yield self.array_map[y, x]
