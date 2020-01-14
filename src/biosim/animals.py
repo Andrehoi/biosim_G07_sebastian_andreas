@@ -126,54 +126,7 @@ class Animal:
         of direction of movements, either east, west, north or south.
         :return:
         """
-        move_prob = self.param_dict['mu'] * self.phi
-
-        if move_prob <= random.random():
-            e_top = top_cell.available_food / (((len(
-                top_cell.present_herbivores) + 1) * self.param_dict['F']))
-            print(e_top)
-
-            e_bottom = bottom_cell.available_food / (((len(
-                bottom_cell.present_herbivores) + 1) * self.param_dict['F']))
-
-            e_left = left_cell.available_food / (((len(
-                left_cell.present_herbivores) + 1) * self.param_dict['F']))
-
-            e_right = right_cell.available_food / (((len(
-                right_cell.present_herbivores) + 1) * self.param_dict['F']))
-
-            prop_top = exp(self.param_dict['lambda_animal'] * e_top)
-            prop_bottom = exp(self.param_dict['lambda_animal'] * e_bottom)
-            prop_left = exp(self.param_dict['lambda_animal'] * e_left)
-            prop_right = exp(self.param_dict['lambda_animal'] * e_right)
-
-            sum_prop = prop_top + prop_right + prop_bottom + prop_left
-            top_prob = prop_top / sum_prop
-            bottom_prob = prop_bottom / sum_prop
-            left_prob = prop_left / sum_prop
-            right_prob = prop_right / sum_prop
-
-            number = random.random()
-            if 0 <= number < top_prob:
-                if not type(top_cell).__name__ in self.legal_biomes:
-                    return None
-                return top_cell
-
-            if top_prob <= number < top_prob + bottom_prob:
-                if not type(top_cell).__name__ in self.legal_biomes:
-                    return None
-                return bottom_cell
-
-            if top_prob + bottom_prob <= number < top_prob + bottom_prob + \
-                    left_prob:
-                if not type(top_cell).__name__ in self.legal_biomes:
-                    return None
-                return left_cell
-
-            if top_prob + bottom_prob + left_prob <= number < 1:
-                if not type(top_cell).__name__ in self.legal_biomes:
-                    return None
-                return right_cell
+        pass
 
     def breeding(self, n_animals_in_cell):
         """
@@ -417,14 +370,76 @@ class Carnivore(Animal):
                                       * self.param_dict['F']
                         return
 
-
-    def migrate(self, position):
+    def migrate(self, top_cell, bottom_cell, left_cell, right_cell):
         """
-        Migrates using the migrate method for animals. However if it tries
-        to move into a mountain cell or ocean cell, the animal does not move.
+        Calculates the probability for an animal to move one cell, and
+        potentially moves it. The function also calculates the probability
+        of direction of movements, either east, west, north or south.
         :return:
         """
-        pass
+        move_prob = self.param_dict['mu'] * self.phi
+
+        if move_prob <= random.random():
+            herb_wight = 0
+            for herbivore in top_cell.present_herbivores:
+                herb_wight += herbivore.weight
+
+            e_top = herb_wight / (((len(top_cell.present_carnivores) + 1)
+                                   * self.param_dict['F']))
+
+            herb_wight = 0
+            for herbivore in bottom_cell.present_herbivores:
+                herb_wight += herbivore.weight
+
+            e_bottom = herb_wight / (((len(bottom_cell.present_carnivores) + 1)
+                                      * self.param_dict['F']))
+
+            herb_wight = 0
+            for herbivore in left_cell.present_herbivores:
+                herb_wight += herbivore.weight
+
+            e_left = herb_wight / (((len(left_cell.present_carnivores) + 1)
+                                    * self.param_dict['F']))
+
+            herb_wight = 0
+            for herbivore in right_cell.present_herbivores:
+                herb_wight += herbivore.weight
+
+            e_right = herb_wight / (((len(right_cell.present_carnivores) + 1)
+                                     * self.param_dict['F']))
+
+            prop_top = exp(self.param_dict['lambda_animal'] * e_top)
+            prop_bottom = exp(self.param_dict['lambda_animal'] * e_bottom)
+            prop_left = exp(self.param_dict['lambda_animal'] * e_left)
+            prop_right = exp(self.param_dict['lambda_animal'] * e_right)
+
+            sum_prop = prop_top + prop_right + prop_bottom + prop_left
+            top_prob = prop_top / sum_prop
+            bottom_prob = prop_bottom / sum_prop
+            left_prob = prop_left / sum_prop
+            right_prob = prop_right / sum_prop
+
+            number = random.random()
+            if 0 <= number < top_prob:
+                if not type(top_cell).__name__ in self.legal_biomes:
+                    return None
+                return top_cell
+
+            if top_prob <= number < top_prob + bottom_prob:
+                if not type(top_cell).__name__ in self.legal_biomes:
+                    return None
+                return bottom_cell
+
+            if top_prob + bottom_prob <= number < top_prob + bottom_prob + \
+                    left_prob:
+                if not type(top_cell).__name__ in self.legal_biomes:
+                    return None
+                return left_cell
+
+            if top_prob + bottom_prob + left_prob <= number < 1:
+                if not type(top_cell).__name__ in self.legal_biomes:
+                    return None
+                return right_cell
 
 
 if __name__ == '__main__':

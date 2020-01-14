@@ -11,6 +11,7 @@ import re
 from biosim.geography import Mountain, Savannah, Jungle, Desert, Ocean
 from biosim.animals import Animal, Herbivore, Carnivore
 from biosim.island_class import Map
+import textwrap
 
 
 class BioSim:
@@ -83,71 +84,106 @@ class BioSim:
         """
         self.map.biome_dict[landscape].biome_parameters(params)
 
-    def feeding_cycle(self):
-        """ Eating cycle for each animal in the cell"""
+    def feeding_cycle(self, prints=False):
+        """
+        Eating cycle for each animal in each cell
 
+        :param prints: prints relevant actions
+        :return:
+        """
+
+        # Iterates through the map.
         for cell in self.map.map_iterator():
-            print('Current cell:', type(cell).__name__, 'Feeding')
+            if prints:
+                print('Current cell:', type(cell).__name__, 'Feeding')
 
-            # cell = self.map.array_map[1, 1]
+            # Regrows food in each cell.
             cell.regrow()
 
             # Sorts each list in according to order of descending fitness.
             cell.present_herbivores.sort(key=lambda x: x.phi, reverse=True)
             cell.present_carnivores.sort(key=lambda x: x.phi, reverse=True)
 
+            # Eating method for the herbivores.
             for herbivore in cell.present_herbivores:
                 cell.available_food = herbivore.eat(cell.available_food)
-                print('Weight of herbivore:', herbivore.weight)
+                if prints:
+                    print('Weight of herbivore:', herbivore.weight)
 
+            # Eating method for each carnivore in cell.
             for carnivore in cell.present_carnivores:
                 carnivore.hunt(cell.present_herbivores)
 
+                # Only keeps the herbivores that survived the hunt
                 alive_herbivores = [herbivore for herbivore in
                                     cell.present_herbivores if herbivore.alive]
 
                 cell.present_herbivores = alive_herbivores
 
-    def breeding_cycle(self):
-        """ Method for yearly breeding for all animals"""
+    def breeding_cycle(self, prints=False):
+        """
+        Method for yearly breeding for all animals
 
+        :param prints: prints relevant actions
+        :return:
+        """
+
+        # For each cell in the map.
         for cell in self.map.map_iterator():
-            print('Current cell:', type(cell).__name__, 'Breeding')
+            if prints:
+                print('Current cell:', type(cell).__name__, 'Breeding')
 
+            # Creates new list so that newborns dont breed.
             current_herbivores = cell.present_herbivores
             newborn_herbivores = []
             for herbivore in cell.present_herbivores:
                 # Checks if there is born a new animal, and potentially
-                # adds it to the list of animals in the cell.
+                # adds it to a list of newborn animals in the cell.
                 new_herbivore = herbivore.breeding(len(
                     current_herbivores))
                 if new_herbivore is not None:
                     newborn_herbivores.append(new_herbivore)
 
+            # Updates the herbivores present in the cell.
             cell.present_herbivores = current_herbivores + newborn_herbivores
 
+            # Creates new list so that newborns dont breed.
             current_carnivores = cell.present_carnivores
             newborn_carnivores = []
             for carnivore in cell.present_carnivores:
+                # Checks if there is born a new animal, and potentially
+                # adds it to a list of newborn animals in the cell.
                 new_carnivore = carnivore.breeding((len(
                     current_carnivores)))
-
                 if new_carnivore is not None:
                     newborn_carnivores.append(new_carnivore)
 
+            # Updates the carnivores present in the cell.
             cell.present_carnivores = current_carnivores + newborn_carnivores
 
-    def migration_cycle(self):
+    def migration_cycle(self, prints=False):
+        """
+        Migration method that moves all animals on the map.
 
+        :param prints: prints relevant actions
+        :return:
+        """
+        # For each cell in the map.
         for cell in self.map.map_iterator():
-            print('Current cell:', type(cell).__name__, 'migration')
+            if prints:
+                print('Current cell:', type(cell).__name__, 'migration')
 
             # Sorts each list in according to order of descending fitness.
             cell.present_herbivores.sort(key=lambda x: x.phi, reverse=True)
             cell.present_carnivores.sort(key=lambda x: x.phi, reverse=True)
 
+            # Herbivores in cell at start of cycle.
             migrating_herbivores = cell.present_herbivores
+
+            # Herbivores that leave the current cell.
             exited_herbivores = []
+
+            # For all the herbivores in cell that has not yet moved.
             for herbivore in migrating_herbivores:
                 if not herbivore.has_moved:
                     target_cell = herbivore.migrate(self.map.top,
@@ -155,48 +191,106 @@ class BioSim:
                                                     self.map.left,
                                                     self.map.right)
                     herbivore.has_moved = True
+
+                    # Moves to the target cell unless it is an invalid biome.
                     if target_cell is not None:
                         target_cell.present_herbivores.append(herbivore)
                         exited_herbivores.append(herbivore)
-                        print('An animal moved to ',
-                              type(target_cell).__name__)
+                        if prints:
+                            print('An animal moved to ',
+                                  type(target_cell).__name__)
 
+            # Updates present herbivores in the cell.
             cell.present_herbivores = [animal for animal in
                                        migrating_herbivores if animal not in
                                        exited_herbivores]
 
-    def ageing_cycle(self):
+            # Carnivores in cell at start of cycle.
+            migrating_carnivores = cell.present_carnivores
 
+            # Carnivores that leave the current cell.
+            exited_carnivores = []
+
+            # For all the carnivores that have not yet moved.
+            for carnivore in migrating_carnivores:
+                if not carnivore.has_moved:
+                    target_cell = carnivore.migrate(self.map.top,
+                                                    self.map.bottom,
+                                                    self.map.left,
+                                                    self.map.right)
+                    carnivore.has_moved = True
+
+                    # Moves to target cell unless its an invalid biome.
+                    if target_cell is not None:
+                        target_cell.present_carnivores.append(carnivore)
+                        exited_carnivores.append(carnivore)
+                        if prints:
+                            print('An animal moved to ',
+                                  type(target_cell).__name__)
+
+            # Updates the present carnivores in current cell.
+            cell.present_carnivores = [animal for animal in
+                                       migrating_carnivores if animal not in
+                                       exited_carnivores]
+
+    def ageing_cycle(self, prints=False):
+        """
+        Ages all animals on the map
+
+        :param prints: prints relevant actions
+        :return:
+        """
+
+        # For each cell in the map.
         for cell in self.map.map_iterator():
-            print('Current cell:', type(cell).__name__, 'ageing')
+            if prints:
+                print('Current cell:', type(cell).__name__, 'ageing')
 
             # Ages the herbivores, then the carnivores.
             for herbivore in cell.present_herbivores:
                 herbivore.ageing()
-                print('Age:', herbivore.age)
+                if prints:
+                    print('Age:', herbivore.age)
 
             for carnivore in cell.present_carnivores:
                 carnivore.ageing()
-                print('Age:', carnivore.age)
+                if prints:
+                    print('Age:', carnivore.age)
 
-    def weight_loss_cycle(self):
+    def weight_loss_cycle(self, prints=False):
+        """
+        Each animal on the map loses weight
 
+        :param prints: prints relevant actions
+        :return:
+        """
         for cell in self.map.map_iterator():
-            print('Current cell:', type(cell).__name__, 'weight_loss')
+            if prints:
+                print('Current cell:', type(cell).__name__, 'weight_loss')
 
             # The herbivores lose weight, then the carnivores.
             for herbivore in cell.present_herbivores:
                 herbivore.lose_weight()
-                print('Weight after loss:', herbivore.weight)
+                if prints:
+                    print('Weight after loss:', herbivore.weight)
 
             for carnivore in cell.present_carnivores:
                 carnivore.lose_weight()
-                print('Weight after loss:', carnivore.weight)
+                if prints:
+                    print('Weight after loss:', carnivore.weight)
 
-    def death_cycle(self):
+    def death_cycle(self, prints=False):
+        """
+        Each animal has a chance of dying. Removes dead animals.
 
+        :param prints: prints relevant actions
+        :return:
+        """
+
+        # For each cell in the map.
         for cell in self.map.map_iterator():
-            print('Current cell:', type(cell).__name__, 'death')
+            if prints:
+                print('Current cell:', type(cell).__name__, 'death')
 
             # Checks if the herbivores dies, then the carnivores.
             for herbivore in cell.present_herbivores:
@@ -206,15 +300,16 @@ class BioSim:
                 carnivore.potential_death()
 
             # Removes animals killed from natural causes.
-
             alive_herbivores = [herbivore for herbivore in
                                 cell.present_herbivores if herbivore.alive]
 
             dead = len(cell.present_herbivores) - len(alive_herbivores)
 
             if dead > 0:
-                print(dead, 'Herbivores died')
+                if prints:
+                    print(dead, 'Herbivores died')
 
+            # Updates living herbivores in cell.
             cell.present_herbivores = alive_herbivores
 
             alive_carnivores = [carnivore for carnivore in
@@ -223,11 +318,13 @@ class BioSim:
             dead = len(cell.present_carnivores) - len(alive_carnivores)
 
             if dead > 0:
-                print(dead, 'Carnivores died')
+                if prints:
+                    print(dead, 'Carnivores died')
 
+            # Updates living carnivores in cell.
             cell.present_carnivores = alive_carnivores
 
-    def simulate(self, num_years, vis_years=1, img_years=None):
+    def simulate(self, num_years, vis_years=1, img_years=None, prints=False):
         """
         Run simulation while visualizing the result.
 
@@ -242,12 +339,12 @@ class BioSim:
 
         while True:
 
-            self.feeding_cycle()
-            self.breeding_cycle()
-            self.migration_cycle()
-            self.ageing_cycle()
-            self.weight_loss_cycle()
-            self.death_cycle()
+            self.feeding_cycle(prints)
+            self.breeding_cycle(prints)
+            self.migration_cycle(prints)
+            self.ageing_cycle(prints)
+            self.weight_loss_cycle(prints)
+            self.death_cycle(prints)
 
             for cell in self.map.map_iterator():
                 for herbivore in cell.present_herbivores:
@@ -347,12 +444,29 @@ class BioSim:
 
 
 if __name__ == "__main__":
+    geogr = """\
+                   OOOOOOOOOOOOOOOOOOOOO
+                   OOOOOOOOSMMMMJJJJJJJO
+                   OSSSSSJJJJMMJJJJJJJOO
+                   OSSSSSSSSSMMJJJJJJOOO
+                   OSSSSSJJJJJJJJJJJJOOO
+                   OSSSSSJJJDDJJJSJJJOOO
+                   OSSJJJJJDDDJJJSSSSOOO
+                   OOSSSSJJJDDJJJSOOOOOO
+                   OSSSJJJJJDDJJJJJJJOOO
+                   OSSSSJJJJDDJJJJOOOOOO
+                   OOSSSSJJJJJJJJOOOOOOO
+                   OOOSSSSJJJJJJJOOOOOOO
+                   OOOOOOOOOOOOOOOOOOOOO"""
 
-    k = BioSim(island_map="OOO\nOJO\nOSO\nOOO", ini_pop=[
-        {"loc": (1, 1),
+    geogr = textwrap.dedent(geogr)
+    k = BioSim(island_map=geogr, ini_pop=[
+        {"loc": (3, 6),
          "pop": [{"species": "Herbivore", "age": 7, "weight": 15.0}]},
-        {"loc": (2, 1),
-         "pop": [{"species": "Herbivore", "age": 1, "weight": 15.0}]}
+        {"loc": (3, 6),
+         "pop": [{"species": "Herbivore", "age": 1, "weight": 15.0},
+                 {"species": "Herbivore", "age": 1, "weight": 15.0},
+                 {"species": "Herbivore", "age": 1, "weight": 15.0}]}
     ], seed=0)
 
     Carnivore.new_parameters({'DeltaPhiMax': 10})
@@ -360,7 +474,7 @@ if __name__ == "__main__":
 
     print(k.add_population([
             {
-                "loc": (1, 1),
+                "loc": (3, 5),
                 "pop": [
                     {"species": "Herbivore", "age": 9, "weight": 45.0},
                     {"species": "Herbivore", "age": 5, "weight": 17.0},
@@ -368,12 +482,12 @@ if __name__ == "__main__":
             },
         ]
     ))
-    k.simulate(10)
+    k.simulate(10, prints=True)
     print(k.num_animals)
     print('added carnivores to simulation')
     k.add_population([
             {
-                "loc": (1, 1),
+                "loc": (3, 6),
                 "pop": [
                     {"species": "Carnivore", "age": 3, "weight": 45.0},
                     {"species": "Carnivore", "age": 2, "weight": 17.0},
