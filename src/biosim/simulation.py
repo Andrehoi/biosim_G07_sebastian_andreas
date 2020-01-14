@@ -6,13 +6,17 @@
 __author__ = "Sebastian Kihle & Andreas Hoeimyr"
 __email__ = "sebaskih@nmbu.no & andrehoi@nmbu.no"
 
-import re
+
 
 from biosim.geography import Mountain, Savannah, Jungle, Desert, Ocean
 from biosim.animals import Animal, Herbivore, Carnivore
 from biosim.island_class import Map
 import textwrap
 import pandas as pd
+import re
+
+import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
 
 
 class BioSim:
@@ -429,8 +433,6 @@ class BioSim:
                 animal_counter += 1
         return animal_counter
 
-
-
     @property
     def num_animals_per_species(self):
         """
@@ -479,6 +481,21 @@ class BioSim:
                                                               'Carnivore',
                                                               'Herbivore'])
         return data_frame
+
+    def vis_number_of_species(self):
+        animals = self.num_animals_per_species
+        year = self.current_year
+
+        return
+
+    def heat_map_herbivores(self):
+        pass
+
+    def heat_map_carnivores(self):
+        pass
+
+    def create_colour_island(self):
+        pass
 
     def make_movie(self):
         """Create MPEG4 movie from visualization images saved."""
@@ -542,6 +559,7 @@ if __name__ == "__main__":
     print(k.num_animals)
     k.animal_distribution
 
+    print(k.vis_number_of_species())
     """
     for map_cell in k.map.map_iterator():
         print(map_cell)

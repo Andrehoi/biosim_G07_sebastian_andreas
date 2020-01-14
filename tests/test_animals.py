@@ -140,21 +140,24 @@ def test_hunting():
     """
     herb_list = [Herbivore(100, 50), Herbivore(1, 15), Herbivore(4, 35)]
     hunter = Carnivore(3, 50)
-    hunter.new_parameters({'w_birth': 8.0,
-        'sigma_birth': 1.5,
-        'beta': 0.9,
-        'eta': 0.05,
-        'a_half': 40,
-        'phi_age': 0.2,
-        'w_half': 10,
-        'phi_weight': 0.1,
-        'mu': 0.25,
+    hunter.new_parameters({
+        'w_birth': 6.0,
+        'sigma_birth': 1.0,
+        'beta': 0.75,
+        'eta': 0.125,
+        'a_half': 60,
+        'phi_age': 0.4,
+        'w_half': 4.0,
+        'phi_weight': 0.4,
+        'mu': 0.4,
         'lambda_animal': 1,
-        'gamma': 0.2,
+        'gamma': 0.8,
         'zeta': 3.5,
-        'xi': 1.2,
-        'omega': 0.4,
-        'F': 10})
+        'xi': 1.1,
+        'omega': 0.9,
+        'F': 50,
+        'DeltaPhiMax': 10
+    })
     hunter.new_parameters({'DeltaPhiMax': 0.5})
     hunter.hunt(herb_list)
     assert hunter.weight > 50
