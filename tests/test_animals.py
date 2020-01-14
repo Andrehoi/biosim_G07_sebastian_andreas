@@ -191,6 +191,3 @@ def test_weight_loss():
     assert herb.weight == 19
 
 
-if __name__ == '__main__':
-    test_hunting_stops_when_full()
-

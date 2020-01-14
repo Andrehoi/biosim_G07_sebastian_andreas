@@ -14,6 +14,8 @@ from biosim.island_class import Map
 import textwrap
 import pandas as pd
 import re
+import numpy as np
+import seaborn as sns
 
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
@@ -65,6 +67,13 @@ class BioSim:
         self.map = Map(island_map)
         self.seed = seed
         self.current_year = 0
+
+        # the following will be initialized by _setup_graphics
+        self._fig = None
+        self._map_ax = None
+        self._img_axis = None
+        self._mean_ax = None
+        self._mean_line = None
 
         # Adds the initial population to the map.
         self.add_population(ini_pop)
@@ -457,8 +466,6 @@ class BioSim:
 
         return animal_dictionary
 
-
-
     @property
     def animal_distribution(self):
         """Pandas DataFrame with animal count per species for
@@ -489,13 +496,56 @@ class BioSim:
         return
 
     def heat_map_herbivores(self):
-        pass
+        animals = self.animal_distribution
+        animals = animals.pivot("Row", "Col", "Herbivore")
+        ax = sns.heatmap(animals, annot=True, vmax=5)
+        plt.title("Heatmap of the herbivore distribution")
+        plt.show()
 
     def heat_map_carnivores(self):
-        pass
+        animals = self.animal_distribution
+        animals = animals.pivot("Row", "Col", "Carnivore")
+        ax = sns.heatmap(animals, annot=True)
+        plt.title("Heatmap of the carnivore distribution")
+        plt.show()
+
 
     def create_colour_island(self):
         pass
+
+    def _setup_graphics(self, x_lim, y_lim):
+        """ Creates subplots for visualization """
+
+        # create new figure window
+        if self._fig is None:
+            self._fig = plt.figure()
+
+        # Add left subplot for images created with imshow().
+        # We cannot create the actual ImageAxis object before we know
+        # the size of the image, so we delay its creation.
+        if self._map_ax is None:
+            self._map_ax = self._fig.add_subplot(1, 2, 1)
+            self._img_axis = None
+
+        # Add right subplot for line graph of mean.
+        if self._mean_ax is None:
+            self._mean_ax = self._fig.add_subplot(1, 2, 2)
+            self._mean_ax.set_ylim(0, y_lim)
+
+        # needs updating on subsequent calls to simulate()
+        self._mean_ax.set_xlim(0, x_lim + 1)
+
+        if self._mean_line is None:
+            mean_plot = self._mean_ax.plot(np.arange(0, x_lim),
+                                           np.full(x_lim, np.nan))
+            self._mean_line = mean_plot[0]
+        else:
+            xdata, ydata = self._mean_line.get_data()
+            xnew = np.arange(xdata[-1] + 1, x_lim)
+            if len(xnew) > 0:
+                ynew = np.full(xnew.shape, np.nan)
+                self._mean_line.set_data(np.hstack((xdata, xnew)),
+                                         np.hstack((ydata, ynew)))
 
     def make_movie(self):
         """Create MPEG4 movie from visualization images saved."""
@@ -509,23 +559,20 @@ if __name__ == "__main__":
                    OSSSSSJJJJMMJJJJJJJOO
                    OSSSSSSSSSMMJJJJJJOOO
                    OSSSSSJJJJJJJJJJJJOOO
-                   OSSSSSJJJDDJJJSJJJOOO
-                   OSSJJJJJDDDJJJSSSSOOO
-                   OOSSSSJJJDDJJJSOOOOOO
-                   OSSSJJJJJDDJJJJJJJOOO
-                   OSSSSJJJJDDJJJJOOOOOO
-                   OOSSSSJJJJJJJJOOOOOOO
-                   OOOSSSSJJJJJJJOOOOOOO
                    OOOOOOOOOOOOOOOOOOOOO"""
 
     geogr = textwrap.dedent(geogr)
     k = BioSim(island_map=geogr, ini_pop=[
-        {"loc": (3, 6),
+        {"loc": (3, 3),
          "pop": [{"species": "Herbivore", "age": 7, "weight": 15.0}]},
-        {"loc": (3, 6),
+        {"loc": (4, 1),
          "pop": [{"species": "Herbivore", "age": 1, "weight": 15.0},
                  {"species": "Herbivore", "age": 1, "weight": 15.0},
-                 {"species": "Herbivore", "age": 1, "weight": 15.0}]}
+                 {"species": "Herbivore", "age": 1, "weight": 15.0},
+                 {"species": "Herbivore", "age": 1, "weight": 15.0},
+                 {"species": "Herbivore", "age": 1, "weight": 15.0},
+                 {"species": "Herbivore", "age": 1, "weight": 15.0}
+                 ]}
     ], seed=0)
 
     Carnivore.new_parameters({'DeltaPhiMax': 10})
@@ -533,21 +580,25 @@ if __name__ == "__main__":
 
     print(k.add_population([
             {
-                "loc": (3, 5),
+                "loc": (3, 3),
                 "pop": [
                     {"species": "Herbivore", "age": 9, "weight": 45.0},
                     {"species": "Herbivore", "age": 5, "weight": 17.0},
+                    {"species": "Herbivore", "age": 9, "weight": 45.0},
+                    {"species": "Herbivore", "age": 5, "weight": 17.0}
                 ],
             },
         ]
     ))
-    k.simulate(10, prints=True)
+    k.simulate(20, prints=True)
     print(k.num_animals)
     print('added carnivores to simulation')
     k.add_population([
             {
-                "loc": (3, 6),
+                "loc": (4, 1),
                 "pop": [
+                    {"species": "Carnivore", "age": 3, "weight": 45.0},
+                    {"species": "Carnivore", "age": 2, "weight": 17.0},
                     {"species": "Carnivore", "age": 3, "weight": 45.0},
                     {"species": "Carnivore", "age": 2, "weight": 17.0},
                 ],
@@ -555,11 +606,13 @@ if __name__ == "__main__":
         ])
     print(k.current_year)
 
-    k.simulate(10, prints=True)
+    k.simulate(20, prints=True)
     print(k.num_animals)
-    k.animal_distribution
+    print(k.animal_distribution)
+    print(k.heat_map_herbivores())
+    print(k.heat_map_carnivores())
+    print(k.map.array_map[2, 1].present_herbivores)
 
-    print(k.vis_number_of_species())
     """
     for map_cell in k.map.map_iterator():
         print(map_cell)
