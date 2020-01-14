@@ -66,6 +66,8 @@ class Animal:
         """
         for iterator in parameters:
             if iterator in cls.param_dict:
+                if iterator == 'F' and parameters[iterator] < 0:
+                    raise ValueError('F cannot be negative')
                 cls.param_dict[iterator] = parameters[iterator]
 
             else:
@@ -78,12 +80,7 @@ class Animal:
         self.phi = 0
         self.calculate_fitness()
         self.alive = True
-        self.has_fed = False
-        self.has_bred = False
         self.has_moved = False
-        self.has_aged = False
-        self.has_lost_weight = False
-        self.has_pot_died = False
         self.legal_biomes = ['Mountain', 'Ocean', 'Desert', 'Savannah',
                              'Jungle']
 
@@ -118,15 +115,6 @@ class Animal:
                        self._sigmodial_minus(self.weight,
                                              self.param_dict['w_half'],
                                              self.param_dict['phi_weight'])
-
-    def migrate(self, top_cell, bottom_cell, left_cell, right_cell):
-        """
-        Calculates the probability for an animal to move one cell, and
-        potentially moves it. The function also calculates the probability
-        of direction of movements, either east, west, north or south.
-        :return:
-        """
-        pass
 
     def breeding(self, n_animals_in_cell):
         """
@@ -217,11 +205,30 @@ class Herbivore(Animal):
         Calculates the probability for an animal to move one cell, and
         potentially moves it. The function also calculates the probability
         of direction of movements, either east, west, north or south.
-        :return:
+
+        Herbivores are inclined to move towards the cell with the most of
+        available fodder.
+
+        Herbivores are inclined to move towards the cell with the least
+        amount of herbivores.
+
+        :param top_cell: The cell north of current cell.
+        :param bottom_cell: The cell south of current cell.
+        :param left_cell: The cell west of current cell.
+        :param right_cell: The cell east of current cell.
+
+        :return: Target_cell. The target cell is the cell the animal moves to.
         """
+
+        # Calculates the probability of the herbivore moving.
         move_prob = self.param_dict['mu'] * self.phi
 
+        # Uses a random number to check if the hebivore moves.
         if move_prob <= random.random():
+
+            # e_xxx is a parameter used to calculate the propensity to to
+            # move to a cell. e_xxx depends on available food and number of
+            # herbivores in the cell.
             e_top = top_cell.available_food / (((len(
                 top_cell.present_herbivores) + 1) * self.param_dict['F']))
 
@@ -234,19 +241,28 @@ class Herbivore(Animal):
             e_right = right_cell.available_food / (((len(
                 right_cell.present_herbivores) + 1) * self.param_dict['F']))
 
+            # prop_xxx is the propensity to move towards cell xxx
             prop_top = exp(self.param_dict['lambda_animal'] * e_top)
             prop_bottom = exp(self.param_dict['lambda_animal'] * e_bottom)
             prop_left = exp(self.param_dict['lambda_animal'] * e_left)
             prop_right = exp(self.param_dict['lambda_animal'] * e_right)
 
+            # sum_prop is the probability of the animal migrating when it
+            # migrates and should be 1.
             sum_prop = prop_top + prop_right + prop_bottom + prop_left
+
+            # Creates 4 intervals of walking to the 4 different cells based
+            # on the probability of walking to the cells.
             top_prob = prop_top / sum_prop
             bottom_prob = prop_bottom / sum_prop
             left_prob = prop_left / sum_prop
             right_prob = prop_right / sum_prop
 
+            # Checks which direction the animal chooses to move. Returns the
+            # cell in the chosen direction.
             number = random.random()
             if 0 <= number < top_prob:
+                # Checks if the cell is in the legal biomes of the animal.
                 if not type(top_cell).__name__ in self.legal_biomes:
                     return None
                 return top_cell
@@ -375,52 +391,84 @@ class Carnivore(Animal):
         Calculates the probability for an animal to move one cell, and
         potentially moves it. The function also calculates the probability
         of direction of movements, either east, west, north or south.
-        :return:
+
+        Carnivores are inclined to move towards the cell with the most
+        herbivores measured in weight.
+
+        Carnivores also consider how many other carnivores are in the cells
+        around when it migrates. It is inclined to move towards a cell with
+        the least carnivores.
+        
+        :param top_cell: The cell north of current cell.
+        :param bottom_cell: The cell south of current cell.
+        :param left_cell: The cell west of current cell.
+        :param right_cell: The cell east of current cell.
+        
+        :return: The cell the animal migrates to (target_cell).
         """
+        
+        # Calculates the probability of moving.
         move_prob = self.param_dict['mu'] * self.phi
-
+        
+        # Checks if the animal moves based on the probability of moving.
         if move_prob <= random.random():
-            herb_wight = 0
-            for herbivore in top_cell.present_herbivores:
-                herb_wight += herbivore.weight
 
-            e_top = herb_wight / (((len(top_cell.present_carnivores) + 1)
+            # Create a variable to store the weight of all herbivores in the
+            # cell.
+            herb_weight = 0
+            for herbivore in top_cell.present_herbivores:
+                herb_weight += herbivore.weight
+
+            # e_xxx is a parameter for calculating propensity. It considers
+            # the amount of food in the cell as well as the amount of
+            # competing carnivores in the cell.
+            e_top = herb_weight / (((len(top_cell.present_carnivores) + 1)
                                    * self.param_dict['F']))
 
-            herb_wight = 0
+            herb_weight = 0
             for herbivore in bottom_cell.present_herbivores:
-                herb_wight += herbivore.weight
+                herb_weight += herbivore.weight
 
-            e_bottom = herb_wight / (((len(bottom_cell.present_carnivores) + 1)
+            e_bottom = herb_weight / (((len(bottom_cell.present_carnivores) + 1)
                                       * self.param_dict['F']))
 
-            herb_wight = 0
+            herb_weight = 0
             for herbivore in left_cell.present_herbivores:
-                herb_wight += herbivore.weight
+                herb_weight += herbivore.weight
 
-            e_left = herb_wight / (((len(left_cell.present_carnivores) + 1)
+            e_left = herb_weight / (((len(left_cell.present_carnivores) + 1)
                                     * self.param_dict['F']))
 
-            herb_wight = 0
+            herb_weight = 0
             for herbivore in right_cell.present_herbivores:
-                herb_wight += herbivore.weight
+                herb_weight += herbivore.weight
 
-            e_right = herb_wight / (((len(right_cell.present_carnivores) + 1)
+            e_right = herb_weight / (((len(right_cell.present_carnivores) + 1)
                                      * self.param_dict['F']))
 
+            # prop_xxx is the propensity to move to cell xxx.
             prop_top = exp(self.param_dict['lambda_animal'] * e_top)
             prop_bottom = exp(self.param_dict['lambda_animal'] * e_bottom)
             prop_left = exp(self.param_dict['lambda_animal'] * e_left)
             prop_right = exp(self.param_dict['lambda_animal'] * e_right)
 
+            # sum_prop is the probability of the animal migrating when it
+            # migrates and should be 1.
             sum_prop = prop_top + prop_right + prop_bottom + prop_left
+
+            # Creates 4 intervals of walking to the 4 different cells based
+            # on the probability of walking to the cells.
             top_prob = prop_top / sum_prop
             bottom_prob = prop_bottom / sum_prop
             left_prob = prop_left / sum_prop
             right_prob = prop_right / sum_prop
 
+            # Checks which direction the animal chooses to move. Returns the
+            # cell in the given direction.
             number = random.random()
             if 0 <= number < top_prob:
+                # Checks if the cell in a direction is in the legal biomes
+                # of the animal.
                 if not type(top_cell).__name__ in self.legal_biomes:
                     return None
                 return top_cell

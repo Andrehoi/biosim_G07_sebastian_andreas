@@ -331,6 +331,7 @@ class BioSim:
         :param num_years: number of years to simulate
         :param vis_years: years between visualization updates
         :param img_years: years between visualizations saved to files
+        :param prints: Option to print the actions in each cell.
         (default: vis_years)
 
         Image files will be numbered consecutively.
@@ -339,6 +340,7 @@ class BioSim:
 
         while True:
 
+            # Yearly actions for all animals.
             self.feeding_cycle(prints)
             self.breeding_cycle(prints)
             self.migration_cycle(prints)
@@ -346,6 +348,7 @@ class BioSim:
             self.weight_loss_cycle(prints)
             self.death_cycle(prints)
 
+            # Makes all animals able to move again next year.
             for cell in self.map.map_iterator():
                 for herbivore in cell.present_herbivores:
                     herbivore.has_moved = False
@@ -375,9 +378,6 @@ class BioSim:
             coordinates = dictionary['loc']
             animals_to_add = []
 
-            # TODO: Add check for legal animal areas, and non-negative age
-            #  and weight
-
             # Gets each new animal
             for element in dictionary['pop']:
                 animals_to_add.append(element)
@@ -386,13 +386,27 @@ class BioSim:
             # class type corresponding to species.
             # New class instance uses age and weight values from dictionary.
             for animal in animals_to_add:
+                if animal['age'] < 0 or animal['weight'] < 0:
+                    raise ValueError('Age and weight cannot be negative')
+
                 animal_class = animal['species']
+
                 if animal_class == 'Herbivore':
                     new_animal = Herbivore(animal['age'], animal['weight'])
+
+                    if type(self.map.array_map[coordinates]).__name__ not in\
+                            new_animal.legal_biomes:
+                        raise ValueError('This animal cannot be placed in '
+                                         'this biome')
                     self.map.array_map[coordinates].\
                         present_herbivores.append(new_animal)
+
                 if animal_class == 'Carnivore':
                     new_animal = Carnivore(animal['age'], animal['weight'])
+                    if type(self.map.array_map[coordinates]).__name__ not in\
+                            new_animal.legal_biomes:
+                        raise ValueError('This animal cannot be placed in '
+                                         'this biome')
                     self.map.array_map[coordinates].\
                         present_carnivores.append(new_animal)
 
@@ -496,7 +510,7 @@ if __name__ == "__main__":
         ])
     print(k.current_year)
 
-    k.simulate(10)
+    k.simulate(10, prints=True)
     print(k.num_animals)
 
     """
