@@ -351,6 +351,7 @@ class Carnivore(Animal):
         # Sorts the herbivore list in ascending fitness order.
         sorted_list_of_herbivores.sort(key=lambda x: x.phi)
         kill_probability = 0
+        weight_of_killed_animals = 0
 
         # Calculates the probability of successful kill.
         for herbivore in sorted_list_of_herbivores:
@@ -379,11 +380,9 @@ class Carnivore(Animal):
                 if herbivore.weight < self.param_dict['F']:
                     self.weight += self.param_dict['beta'] * herbivore.weight
                     herbivore.alive = False
+                    weight_of_killed_animals += herbivore.weight
                     print('ate herbivore')
-                    if self.weight > start_weight + self.param_dict['beta'] * \
-                            self.param_dict['F']:
-                        self.weight = start_weight + self.param_dict['beta']\
-                                      * self.param_dict['F']
+                    if weight_of_killed_animals >= self.param_dict['F']:
                         return
 
     def migrate(self, top_cell, bottom_cell, left_cell, right_cell):

@@ -76,34 +76,34 @@ class Map:
         :yields: Object in current cell.
         """
         # Starts in top left corner of map.
-        x = 0
-        y = 0
+        self.x = 0
+        self.y = 0
 
         # For each cell in the map yields the object.
         while True:
-            if y >= 1:
-                self.top = self.array_map[y-1, x]
+            if self.y >= 1:
+                self.top = self.array_map[self.y-1, self.x]
 
-            if y < len(self.biome_map.T[0]) - 1:
-                self.bottom = self.array_map[y+1, x]
+            if self.y < len(self.biome_map.T[0]) - 1:
+                self.bottom = self.array_map[self.y+1, self.x]
 
-            if x >= 1:
-                self.left = self.array_map[y, x-1]
+            if self.x >= 1:
+                self.left = self.array_map[self.y, self.x-1]
 
-            if x < len(self.biome_map[0]) - 1:
-                self.right = self.array_map[y, x+1]
+            if self.x < len(self.biome_map[0]) - 1:
+                self.right = self.array_map[self.y, self.x+1]
             # Use yield to be able to iterate through the map.
-            yield self.array_map[y, x]
-            x += 1
+            yield self.array_map[self.y, self.x]
+            self.x += 1
 
             # When it reaches the end of the row, start at the first column,
             # second row.
-            if x >= len(self.biome_map[0]):
-                y += 1
-                x = 0
+            if self.x >= len(self.biome_map[0]):
+                self.y += 1
+                self.x = 0
 
             # Stops when reaching bottom right cell of the map.
-            if y >= len(self.biome_map.T[0]):
+            if self.y >= len(self.biome_map.T[0]):
                 return
 
 

@@ -12,6 +12,7 @@ from biosim.geography import Mountain, Savannah, Jungle, Desert, Ocean
 from biosim.animals import Animal, Herbivore, Carnivore
 from biosim.island_class import Map
 import textwrap
+import pandas as pd
 
 
 class BioSim:
@@ -432,17 +433,27 @@ class BioSim:
 
     @property
     def num_animals_per_species(self):
-        """Number of animals per species in island, as dictionary."""
+        """
+        Number of animals per species in island, as dictionary.
+
+        :return: dictionary with number of animals per species
+        """
         animal_dictionary = {}
         herbivore_counter = 0
         carnivore_counter = 0
 
+        # Counts all animals in all cells
         for cell in self.map.map_iterator():
-            for herbivore in cell.presen_herbivores:
+            for herbivore in cell.present_herbivores:
                 herbivore_counter += 1
 
             for carnivore in cell.present_carnivores:
                 carnivore_counter += 1
+
+        animal_dictionary['Herbivore'] = herbivore_counter
+        animal_dictionary['Carnivore'] = carnivore_counter
+
+        return animal_dictionary
 
 
 
@@ -450,7 +461,24 @@ class BioSim:
     def animal_distribution(self):
         """Pandas DataFrame with animal count per species for
         each cell on island."""
-        pass
+        list_of_all_herbivores = []
+        list_of_all_carnivores = []
+        list_of_rows = []
+        list_of_columns = []
+        for cell in self.map.map_iterator():
+            list_of_all_herbivores.append(len(cell.present_herbivores))
+            list_of_all_carnivores.append(len(cell.present_carnivores))
+            list_of_rows.append(self.map.y)
+            list_of_columns.append(self.map.x)
+
+        distribution_dict = {'Herbivore': list_of_all_herbivores,
+                             'Carnivore': list_of_all_carnivores,
+                             'Row': list_of_rows, 'Col': list_of_columns}
+        data_frame = pd.DataFrame(distribution_dict, columns=['Row',
+                                                              'Col',
+                                                              'Carnivore',
+                                                              'Herbivore'])
+        return data_frame
 
     def make_movie(self):
         """Create MPEG4 movie from visualization images saved."""
@@ -512,6 +540,7 @@ if __name__ == "__main__":
 
     k.simulate(10, prints=True)
     print(k.num_animals)
+    k.animal_distribution
 
     """
     for map_cell in k.map.map_iterator():

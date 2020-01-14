@@ -173,7 +173,9 @@ def test_hunting_stops_when_full():
     hunter = Carnivore(3, 50)
     hunter.new_parameters({'DeltaPhiMax': 0.01})
     hunter.hunt(herb_list)
+    assert hunter.param_dict['DeltaPhiMax'] == 0.01
     assert hunter.weight > 50
+    herb_list.sort(key=lambda x: x.phi)
     assert not herb_list[0].alive
     assert not herb_list[1].alive
     assert herb_list[2].alive
@@ -186,4 +188,6 @@ def test_weight_loss():
     assert herb.weight == 19
 
 
+if __name__ == '__main__':
+    test_hunting_stops_when_full()
 
