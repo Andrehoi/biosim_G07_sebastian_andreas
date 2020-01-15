@@ -6,8 +6,6 @@
 __author__ = "Sebastian Kihle & Andreas Hoeimyr"
 __email__ = "sebaskih@nmbu.no & andrehoi@nmbu.no"
 
-
-
 from biosim.geography import Mountain, Savannah, Jungle, Desert, Ocean
 from biosim.animals import Animal, Herbivore, Carnivore
 from biosim.island_class import Map
@@ -23,14 +21,14 @@ from matplotlib.colors import ListedColormap
 
 class BioSim:
     def __init__(
-        self,
-        island_map,
-        ini_pop,
-        seed,
-        ymax_animals=None,
-        cmax_animals=None,
-        img_base=None,
-        img_fmt="png",
+            self,
+            island_map,
+            ini_pop,
+            seed,
+            ymax_animals=None,
+            cmax_animals=None,
+            img_base=None,
+            img_fmt="png",
     ):
         """
         :param island_map: Multi-line string specifying island geography
@@ -70,10 +68,10 @@ class BioSim:
 
         # the following will be initialized by _setup_graphics
         self._fig = None
-        self._map_ax = None
-        self._img_axis = None
-        self._mean_ax = None
-        self._mean_line = None
+        self._heatmap_ax = None
+        self._heatmap_graphics = None
+        self._line_graph_ax = None
+        self.line_graph = None
 
         # Adds the initial population to the map.
         self.add_population(ini_pop)
@@ -372,12 +370,12 @@ class BioSim:
 
             # Add a year to the counter
             year += 1
+            self.current_year += 1
             print('Current year in sim:', year)
 
             # Adds the amount of simulated years to the total year
             # count for the simulation.
             if year >= num_years:
-                self.current_year += year
                 return
 
     def add_population(self, population):
@@ -408,20 +406,20 @@ class BioSim:
                 if animal_class == 'Herbivore':
                     new_animal = Herbivore(animal['age'], animal['weight'])
 
-                    if type(self.map.array_map[coordinates]).__name__ not in\
+                    if type(self.map.array_map[coordinates]).__name__ not in \
                             new_animal.legal_biomes:
                         raise ValueError('This animal cannot be placed in '
                                          'this biome')
-                    self.map.array_map[coordinates].\
+                    self.map.array_map[coordinates]. \
                         present_herbivores.append(new_animal)
 
                 if animal_class == 'Carnivore':
                     new_animal = Carnivore(animal['age'], animal['weight'])
-                    if type(self.map.array_map[coordinates]).__name__ not in\
+                    if type(self.map.array_map[coordinates]).__name__ not in \
                             new_animal.legal_biomes:
                         raise ValueError('This animal cannot be placed in '
                                          'this biome')
-                    self.map.array_map[coordinates].\
+                    self.map.array_map[coordinates]. \
                         present_carnivores.append(new_animal)
 
     @property
@@ -489,12 +487,6 @@ class BioSim:
                                                               'Herbivore'])
         return data_frame
 
-    def vis_number_of_species(self):
-        animals = self.num_animals_per_species
-        year = self.current_year
-
-        return
-
     def heat_map_herbivores(self):
         animals = self.animal_distribution
         animals = animals.pivot("Row", "Col", "Herbivore")
@@ -509,12 +501,11 @@ class BioSim:
         plt.title("Heatmap of the carnivore distribution")
         plt.show()
 
-
     def create_colour_island(self):
         pass
 
-    def _setup_graphics(self, x_lim, y_lim):
-        """ Creates subplots for visualization """
+    def _setup_graphics(self, num_years):
+        """Creates subplots."""
 
         # create new figure window
         if self._fig is None:
@@ -523,29 +514,75 @@ class BioSim:
         # Add left subplot for images created with imshow().
         # We cannot create the actual ImageAxis object before we know
         # the size of the image, so we delay its creation.
-        if self._map_ax is None:
-            self._map_ax = self._fig.add_subplot(1, 2, 1)
-            self._img_axis = None
+        if self._heatmap_ax is None:
+            self._heatmap_ax = self._fig.add_subplot(1, 2, 1)
+            self._heatmap_graphics = None
 
         # Add right subplot for line graph of mean.
-        if self._mean_ax is None:
-            self._mean_ax = self._fig.add_subplot(1, 2, 2)
-            self._mean_ax.set_ylim(0, y_lim)
+        if self._line_graph_ax is None:
+            self._line_graph_ax = self._fig.add_subplot(1, 2, 2)
+            self._line_graph_ax.set_ylim(0, 0.02)
 
         # needs updating on subsequent calls to simulate()
-        self._mean_ax.set_xlim(0, x_lim + 1)
+        self._line_graph_ax.set_xlim(0, num_years + 1)
 
-        if self._mean_line is None:
-            mean_plot = self._mean_ax.plot(np.arange(0, x_lim),
-                                           np.full(x_lim, np.nan))
-            self._mean_line = mean_plot[0]
+        if self.line_graph is None:
+            plot_per_year = self._line_graph_ax.plot(np.arange(0, num_years),
+                                                     np.full(num_years,
+                                                             np.nan))
+            self.line_graph = plot_per_year[0]
         else:
-            xdata, ydata = self._mean_line.get_data()
-            xnew = np.arange(xdata[-1] + 1, x_lim)
-            if len(xnew) > 0:
-                ynew = np.full(xnew.shape, np.nan)
-                self._mean_line.set_data(np.hstack((xdata, xnew)),
-                                         np.hstack((ydata, ynew)))
+            years, herbivores = self.current_year, \
+                                self.num_animals_per_species['Herbivore']
+
+            carnivores = self.num_animals_per_species['Carnivore']
+
+            new_year = np.arange(years[-1] + 1, num_years)
+            if len(new_year) > 0:
+                herbivore_new = np.full(new_year.shape, np.nan)
+                self.line_graph.set_data(np.hstack((years, new_year)),
+                                         np.hstack((herbivores,
+                                                    herbivore_new)))
+
+                carnivore_new = np.full(new_year.shape, np.nan)
+                self.line_graph.set_data(np.hstack((years, new_year)),
+                                         np.hstack((carnivores,
+                                                    carnivore_new)))
+
+    def _update_system_map(self, sys_map):
+        '''Update the 2D-view of the system.'''
+
+        if self._heatmap_graphics is not None:
+            self._heatmap_graphics.set_data(sys_map)
+        else:
+            self._heatmap_graphics = self._heatmap_ax.imshow(sys_map,
+                                                             interpolation='nearest',
+                                                             vmin=0, vmax=1)
+            plt.colorbar(self._heatmap_graphics, ax=self._heatmap_ax,
+                         orientation='horizontal')
+
+    def _update_mean_graph(self, mean):
+        ydata = self.line_graph.get_ydata()
+        ydata[self._step] = mean
+        self.line_graph.set_ydata(ydata)
+
+    def _update_graphics(self):
+        """Updates graphics with current data."""
+
+        self._update_system_map(self._system.get_status())
+        self._update_mean_graph(self._system.mean_value())
+        plt.pause(1e-6)
+
+    def _save_graphics(self):
+        """Saves graphics to file if file name given."""
+
+        if self._img_base is None:
+            return
+
+        plt.savefig('{base}_{num:05d}.{type}'.format(base=self._img_base,
+                                                     num=self._img_ctr,
+                                                     type=self._img_fmt))
+        self._img_ctr += 1
 
     def make_movie(self):
         """Create MPEG4 movie from visualization images saved."""
@@ -553,8 +590,6 @@ class BioSim:
 
 
 if __name__ == "__main__":
-
-
     geogr = """\
                    OOOOOOOOOOOOOOOOOOOOO
                    OOOOOOOOSMMMMJJJJJJJO
@@ -581,31 +616,31 @@ if __name__ == "__main__":
     print(k.map.biome_map)
 
     print(k.add_population([
-            {
-                "loc": (3, 3),
-                "pop": [
-                    {"species": "Herbivore", "age": 9, "weight": 45.0},
-                    {"species": "Herbivore", "age": 5, "weight": 17.0},
-                    {"species": "Herbivore", "age": 9, "weight": 45.0},
-                    {"species": "Herbivore", "age": 5, "weight": 17.0}
-                ],
-            },
-        ]
+        {
+            "loc": (3, 3),
+            "pop": [
+                {"species": "Herbivore", "age": 9, "weight": 45.0},
+                {"species": "Herbivore", "age": 5, "weight": 17.0},
+                {"species": "Herbivore", "age": 9, "weight": 45.0},
+                {"species": "Herbivore", "age": 5, "weight": 17.0}
+            ],
+        },
+    ]
     ))
     k.simulate(100)
     print(k.num_animals)
     print('added carnivores to simulation')
     k.add_population([
-            {
-                "loc": (4, 1),
-                "pop": [
-                    {"species": "Carnivore", "age": 3, "weight": 45.0},
-                    {"species": "Carnivore", "age": 2, "weight": 17.0},
-                    {"species": "Carnivore", "age": 3, "weight": 45.0},
-                    {"species": "Carnivore", "age": 2, "weight": 17.0},
-                ],
-            },
-        ])
+        {
+            "loc": (4, 1),
+            "pop": [
+                {"species": "Carnivore", "age": 3, "weight": 45.0},
+                {"species": "Carnivore", "age": 2, "weight": 17.0},
+                {"species": "Carnivore", "age": 3, "weight": 45.0},
+                {"species": "Carnivore", "age": 2, "weight": 17.0},
+            ],
+        },
+    ])
     print(k.current_year)
 
     k.simulate(20)
