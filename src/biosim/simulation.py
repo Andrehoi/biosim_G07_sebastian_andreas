@@ -350,6 +350,7 @@ class BioSim:
         """
         year = 0
 
+        self._setup_graphics(num_years)
         while True:
 
             # Yearly actions for all animals.
@@ -369,6 +370,7 @@ class BioSim:
                     carnivore.has_moved = False
 
             # Add a year to the counter
+            self._update_graphics()
             year += 1
             self.current_year += 1
             print('Current year in sim:', year)
@@ -487,6 +489,28 @@ class BioSim:
                                                               'Herbivore'])
         return data_frame
 
+    @property
+    def herb_array(self):
+        x_length = len(self.map.array_map[0])
+        y_length = len(self.map.array_map.T[0])
+
+        herb_array = np.zeros((y_length, x_length))
+
+        for cell in self.map.map_iterator():
+            herb_array[self.map.y, self.map.x] = len(cell.present_herbivores)
+        return herb_array
+
+    @property
+    def carn_array(self):
+        x_length = len(self.map.array_map[0])
+        y_length = len(self.map.array_map.T[0])
+
+        carn_array = np.zeros(y_length, x_length)
+
+        for cell in self.map.map_iterator():
+            carn_array[self.map.y, self.map.x] = len(cell.present_carnivores)
+        return carn_array
+
     def heat_map_herbivores(self):
         animals = self.animal_distribution
         animals = animals.pivot("Row", "Col", "Herbivore")
@@ -521,7 +545,7 @@ class BioSim:
         # Add right subplot for line graph of mean.
         if self._line_graph_ax is None:
             self._line_graph_ax = self._fig.add_subplot(1, 2, 2)
-            self._line_graph_ax.set_ylim(0, 0.02)
+            self._line_graph_ax.set_ylim(0, 100)
 
         # needs updating on subsequent calls to simulate()
         self._line_graph_ax.set_xlim(0, num_years + 1)
@@ -532,10 +556,9 @@ class BioSim:
                                                              np.nan))
             self.line_graph = plot_per_year[0]
         else:
-            years, herbivores = self.current_year, \
-                                self.num_animals_per_species['Herbivore']
+            years, herbivores = self.line_graph.get_data()
 
-            carnivores = self.num_animals_per_species['Carnivore']
+            # carnivores = self.num_animals_per_species['Carnivore']
 
             new_year = np.arange(years[-1] + 1, num_years)
             if len(new_year) > 0:
@@ -544,33 +567,29 @@ class BioSim:
                                          np.hstack((herbivores,
                                                     herbivore_new)))
 
-                carnivore_new = np.full(new_year.shape, np.nan)
-                self.line_graph.set_data(np.hstack((years, new_year)),
-                                         np.hstack((carnivores,
-                                                    carnivore_new)))
-
-    def _update_system_map(self, sys_map):
+    def _update_system_map(self, animal_array):
         '''Update the 2D-view of the system.'''
 
         if self._heatmap_graphics is not None:
-            self._heatmap_graphics.set_data(sys_map)
+            self._heatmap_graphics.set_data(animal_array)
         else:
-            self._heatmap_graphics = self._heatmap_ax.imshow(sys_map,
-                                                             interpolation='nearest',
-                                                             vmin=0, vmax=1)
+            self._heatmap_graphics = \
+                self._heatmap_ax.imshow(animal_array, interpolation='nearest',
+                                        vmin=0, vmax=100)
             plt.colorbar(self._heatmap_graphics, ax=self._heatmap_ax,
                          orientation='horizontal')
 
-    def _update_mean_graph(self, mean):
+    def _update_num_animals_graph(self, num_animals):
         ydata = self.line_graph.get_ydata()
-        ydata[self._step] = mean
+        ydata[self.year] = num_animals
         self.line_graph.set_ydata(ydata)
 
     def _update_graphics(self):
         """Updates graphics with current data."""
 
-        self._update_system_map(self._system.get_status())
-        self._update_mean_graph(self._system.mean_value())
+        self._update_system_map(self.herb_array)
+        self._update_num_animals_graph(self.num_animals_per_species[
+                                           'Herbivore'])
         plt.pause(1e-6)
 
     def _save_graphics(self):
@@ -627,8 +646,9 @@ if __name__ == "__main__":
         },
     ]
     ))
-    k.simulate(100)
+    k.simulate(20)
     print(k.num_animals)
+    print(k.num_animals_per_species['Herbivore'])
     print('added carnivores to simulation')
     k.add_population([
         {
@@ -643,12 +663,12 @@ if __name__ == "__main__":
     ])
     print(k.current_year)
 
-    k.simulate(20)
+    # k.simulate(20)
     print(k.num_animals)
-    print(k.animal_distribution)
-    print(k.heat_map_herbivores())
-    print(k.heat_map_carnivores())
+    print(k.num_animals_per_species['Carnivore'])
+    # print(k.animal_distribution)
     print(k.map.array_map[2, 1].present_herbivores)
+    plt.show()
 
     """
     for map_cell in k.map.map_iterator():
