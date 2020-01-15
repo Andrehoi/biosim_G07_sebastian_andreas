@@ -505,7 +505,7 @@ class BioSim:
         x_length = len(self.map.array_map[0])
         y_length = len(self.map.array_map.T[0])
 
-        carn_array = np.zeros(y_length, x_length)
+        carn_array = np.zeros((y_length, x_length))
 
         for cell in self.map.map_iterator():
             carn_array[self.map.y, self.map.x] = len(cell.present_carnivores)
@@ -539,8 +539,11 @@ class BioSim:
         # We cannot create the actual ImageAxis object before we know
         # the size of the image, so we delay its creation.
         if self._heatmap_ax is None:
-            self._heatmap_ax = self._fig.add_subplot(1, 2, 1)
+            self._heatmap_ax = self._fig.add_subplot(3, 2, 3)
             self._heatmap_graphics = None
+
+            self._heatmap_c_ax = self._fig.add_subplot(3, 2, 5)
+            self._heatmap_c_graphics = None
 
         # Add right subplot for line graph of mean.
         if self._line_graph_ax is None:
@@ -567,7 +570,7 @@ class BioSim:
                                          np.hstack((herbivores,
                                                     herbivore_new)))
 
-    def _update_system_map(self, animal_array):
+    def _update_system_map_herbivore(self, animal_array):
         '''Update the 2D-view of the system.'''
 
         if self._heatmap_graphics is not None:
@@ -579,17 +582,43 @@ class BioSim:
             plt.colorbar(self._heatmap_graphics, ax=self._heatmap_ax,
                          orientation='horizontal')
 
-    def _update_num_animals_graph(self, num_animals):
+    def _update_system_map_carnivore(self, animal_array):
+        '''Update the 2D-view of the system.'''
+
+        if self._heatmap_c_graphics is not None:
+            self._heatmap_c_graphics.set_data(animal_array)
+        else:
+            self._heatmap_c_graphics = \
+                self._heatmap_c_ax.imshow(animal_array,
+                                          interpolation='nearest',
+                                        vmin=0, vmax=3)
+            plt.colorbar(self._heatmap_c_graphics, ax=self._heatmap_c_ax,
+                         orientation='horizontal')
+
+    def _update_num_animals_graph(self, num_herbivores, num_carnivores):
         ydata = self.line_graph.get_ydata()
-        ydata[self.year] = num_animals
+        ydata[self.year] = num_herbivores
         self.line_graph.set_ydata(ydata)
+
+        """
+        ydata = self.line_graph.get_ydata()
+        ydata[self.year] = num_carnivores
+        self.line_graph.set_ydata(ydata)
+        """
 
     def _update_graphics(self):
         """Updates graphics with current data."""
 
-        self._update_system_map(self.herb_array)
-        self._update_num_animals_graph(self.num_animals_per_species[
-                                           'Herbivore'])
+        self._update_system_map_herbivore(self.herb_array)
+
+        self._update_system_map_carnivore(self.carn_array)
+        self._update_num_animals_graph(
+
+            self.num_animals_per_species['Herbivore'],
+            self.num_animals_per_species['Carnivore']
+
+        )
+
         plt.pause(1e-6)
 
     def _save_graphics(self):
@@ -617,7 +646,17 @@ if __name__ == "__main__":
                    OSSSSSJJJJJJJJJJJJOOO
                    OOOOOOOOOOOOOOOOOOOOO"""
 
+    easy_sim = """\
+                   OOOOOO
+                   OJJJJO
+                   OOJJOO
+                   OOJOOO
+                   OOOOOO"""
+
     geogr = textwrap.dedent(geogr)
+    easy_sim = textwrap.dedent(easy_sim)
+
+    """
     k = BioSim(island_map=geogr, ini_pop=[
         {"loc": (3, 3),
          "pop": [{"species": "Herbivore", "age": 7, "weight": 15.0}]},
@@ -669,8 +708,29 @@ if __name__ == "__main__":
     # print(k.animal_distribution)
     print(k.map.array_map[2, 1].present_herbivores)
     plt.show()
+    """
 
     """
     for map_cell in k.map.map_iterator():
         print(map_cell)
     """
+
+    k = BioSim(island_map=easy_sim, ini_pop=[
+        {"loc": (1, 2),
+         "pop": [{"species": "Herbivore", "age": 7, "weight": 15.0}]},
+        {"loc": (1, 2),
+         "pop": [{"species": "Herbivore", "age": 1, "weight": 15.0},
+                 {"species": "Herbivore", "age": 1, "weight": 15.0},
+                 {"species": "Carnivore", "age": 1, "weight": 100.0},
+                 {"species": "Herbivore", "age": 1, "weight": 15.0},
+                 {"species": "Herbivore", "age": 1, "weight": 15.0},
+                 {"species": "Herbivore", "age": 1, "weight": 15.0}
+                 ]}
+    ], seed=0)
+
+    k.simulate(100)
+    print(k.num_animals)
+    print(k.num_animals_per_species['Carnivore'])
+    # print(k.animal_distribution)
+    print(k.map.array_map[2, 1].present_herbivores)
+    plt.show()
