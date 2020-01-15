@@ -140,11 +140,9 @@ class Animal:
                 self.weight -= birth_weight * self.param_dict['xi']
 
                 if type(self).__name__ == 'Herbivore':
-                    print('Herbivore born')
                     return Herbivore(0, birth_weight)
 
                 if type(self).__name__ == 'Carnivore':
-                    print('Carnivore born')
                     return Carnivore(0, birth_weight)
 
     def lose_weight(self):
@@ -261,25 +259,25 @@ class Herbivore(Animal):
             # Checks which direction the animal chooses to move. Returns the
             # cell in the chosen direction.
             number = random.random()
-            if 0 <= number < top_prob:
+            if number < top_prob:
                 # Checks if the cell is in the legal biomes of the animal.
                 if not type(top_cell).__name__ in self.legal_biomes:
                     return None
                 return top_cell
 
             if top_prob <= number < top_prob + bottom_prob:
-                if not type(top_cell).__name__ in self.legal_biomes:
+                if not type(bottom_cell).__name__ in self.legal_biomes:
                     return None
                 return bottom_cell
 
             if top_prob + bottom_prob <= number < top_prob + bottom_prob + \
                     left_prob:
-                if not type(top_cell).__name__ in self.legal_biomes:
+                if not type(left_cell).__name__ in self.legal_biomes:
                     return None
                 return left_cell
 
             if top_prob + bottom_prob + left_prob <= number < 1:
-                if not type(top_cell).__name__ in self.legal_biomes:
+                if not type(right_cell).__name__ in self.legal_biomes:
                     return None
                 return right_cell
 

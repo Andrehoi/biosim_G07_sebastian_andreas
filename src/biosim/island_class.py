@@ -111,9 +111,10 @@ if __name__ == '__main__':
 
     m = Map("OOOO\nOJJO\nOSSO\nOOOO")
     year_counter = 0
-    while True:
-        for cell in m.map_iterator():
-            print(cell)
-        year_counter += 1
-        if year_counter >= 10:
-            break
+    for cell in m.map_iterator():
+        print('current cell', m.y, m.x)
+        print('top', m.y - 1, m.x)
+        print('bottom', m.y + 1, m.x)
+        print('left', m.y, m.x - 1)
+        print('right', m.y, m.x + 1)
+        print('----------------')
