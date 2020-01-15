@@ -224,7 +224,7 @@ class Herbivore(Animal):
         move_prob = self.param_dict['mu'] * self.phi
 
         # Uses a random number to check if the hebivore moves.
-        if move_prob <= random.random():
+        if move_prob >= random.random():
 
             # e_xxx is a parameter used to calculate the propensity to to
             # move to a cell. e_xxx depends on available food and number of

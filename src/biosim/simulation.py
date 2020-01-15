@@ -553,13 +553,25 @@ class BioSim:
 
 
 if __name__ == "__main__":
-    geogr = """\
+
+    w = BioSim(island_map="OOOOO\nOOJOO\nOJJJO\nOOJOO\nOOOOO", seed=0,
+               ini_pop=[{"loc": (2, 2),
+         "pop": [{"species": "Herbivore", "age": 7, "weight": 100},
+                 {"species": "Herbivore", "age": 7, "weight": 100},
+                 {"species": "Herbivore", "age": 7, "weight": 100},
+                 {"species": "Herbivore", "age": 7, "weight": 100}]}])
+
+    w.simulate(10)
+    w.heat_map_herbivores()
+
+    """
+    geogr = ""\
                    OOOOOOOOOOOOOOOOOOOOO
                    OOOOOOOOSMMMMJJJJJJJO
                    OSSSSSJJJJMMJJJJJJJOO
                    OSSSSSSSSSMMJJJJJJOOO
                    OSSSSSJJJJJJJJJJJJOOO
-                   OOOOOOOOOOOOOOOOOOOOO"""
+                   OOOOOOOOOOOOOOOOOOOOO""
 
     geogr = textwrap.dedent(geogr)
     k = BioSim(island_map=geogr, ini_pop=[
@@ -612,6 +624,7 @@ if __name__ == "__main__":
     print(k.heat_map_herbivores())
     print(k.heat_map_carnivores())
     print(k.map.array_map[2, 1].present_herbivores)
+    """
 
     """
     for map_cell in k.map.map_iterator():
