@@ -226,3 +226,5 @@ dmypy.json
 doc/_build
 doc/_static
 doc/templates
+
+src/biosim/img/
