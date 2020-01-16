@@ -409,6 +409,7 @@ class BioSim:
             if img_years is not None:
                 if save_counter == img_years:
                     self._save_graphics()
+                    save_counter = 0
 
 
     def add_population(self, population):
@@ -681,13 +682,14 @@ class BioSim:
                                                      type=self._img_fmt))
         self._img_counter += 1
 
-    def make_movie(self, movie_fmt=_DEFAULT_MOVIE_FORMAT):
+    def make_movie(self):
         """
         Creates MPEG4 movie from visualization images saved.
         .. :note:
             Requires ffmpeg
         The movie is stored as img_base + movie_fmt
         """
+        movie_fmt = 'mp4'
 
         if self._img_base is None:
             raise RuntimeError("No filename defined.")
@@ -706,16 +708,7 @@ class BioSim:
                                                       movie_fmt)])
             except subprocess.CalledProcessError as err:
                 raise RuntimeError('ERROR: ffmpeg failed with: {}'.format(err))
-        elif movie_fmt == 'gif':
-            try:
-                subprocess.check_call([_CONVERT_BINARY,
-                                       '-delay', '1',
-                                       '-loop', '0',
-                                       '{}_*.png'.format(self._img_base),
-                                       '{}.{}'.format(self._img_base,
-                                                      movie_fmt)])
-            except subprocess.CalledProcessError as err:
-                raise RuntimeError('ERROR: convert failed with: {}'.format(err))
+
         else:
             raise ValueError('Unknown movie format: ' + movie_fmt)
 
@@ -750,7 +743,8 @@ if __name__ == "__main__":
                  {"species": "Herbivore", "age": 1, "weight": 15.0},
                  {"species": "Herbivore", "age": 1, "weight": 15.0}
                  ]}
-    ], seed=0)
+    ], seed=0, img_base="/Users/sebastiankihle/Documents/Python/INF200"
+                        "/biosim_G07_sebastian_andreas/biosim/src/biosim/img")
 
     Carnivore.new_parameters({'DeltaPhiMax': 10})
     print(k.map.biome_map)
@@ -767,7 +761,7 @@ if __name__ == "__main__":
         },
     ]
     ))
-    k.simulate(30)
+    k.simulate(30, vis_years=10)
     print(k.num_animals)
     print('added carnivores to simulation')
     k.add_population([
@@ -786,7 +780,7 @@ if __name__ == "__main__":
         },
     ])
 
-    k.simulate(50)
+    k.simulate(50, vis_years=10)
     print(k.num_animals)
     plt.show()
 
