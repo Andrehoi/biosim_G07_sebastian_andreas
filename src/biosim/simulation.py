@@ -57,11 +57,7 @@ class BioSim:
         where img_no are consecutive image numbers starting from 0.
         img_base should contain a path and beginning of a file name.
         """
-        """
-                Converts the multiline string input into a numpy array of same
-                dimensions.
-                :param island_map:
-                """
+
         self.map = Map(island_map)
         self.seed = random.seed(seed)
         self.current_year = 0
@@ -93,8 +89,6 @@ class BioSim:
             self.color_bar_max = 200
         else:
             self.color_bar_max = cmax_animals
-
-
 
     def set_animal_parameters(self, species, params):
         """
@@ -409,9 +403,14 @@ class BioSim:
 
     def add_population(self, population):
         """
-        Add a population to the island
+        Add a population to the island.
 
-        :param population: List of dictionaries specifying population
+        :param population: List of dictionaries specifying population.
+        E. g.
+        [{'loc': (y, x),
+        'pop': [{'species': 'Herbivore', 'age': 1, 'weight': 15},
+        {'species': 'Carnivore', 'age': 1, 'weight': 15}]
+        }]
         """
         # Unpacks the coordinates and animals to add.
         # Adds new animals to a temporary list.
@@ -518,6 +517,10 @@ class BioSim:
 
     @property
     def herb_array(self):
+        """
+        Creates an array of the distribution of herbivores on the island.
+        :return: herb_array
+        """
         x_length = len(self.map.array_map[0])
         y_length = len(self.map.array_map.T[0])
 
@@ -529,6 +532,10 @@ class BioSim:
 
     @property
     def carn_array(self):
+        """
+        Creates an array of the distribution of carnivores on the island
+        :return:
+        """
         x_length = len(self.map.array_map[0])
         y_length = len(self.map.array_map.T[0])
 
@@ -542,13 +549,22 @@ class BioSim:
         pass
 
     def _setup_graphics(self, num_years):
-        """Creates subplots."""
+        """
+        Creates a interface with 4 subplots. A map of the island with
+        colors, two heatmaps and one line graph.
+        Each heatmap depicts the distribution of an animal, one for
+        herbivores and one for carnivores. The line graph shows the total
+        number of animals on the island each year.
+
+        :param num_years: Number of years simulated.
+        :return:
+        """
 
         # create new figure window
         if self._fig is None:
             self._fig = plt.figure()
             self._fig.subplots_adjust(hspace=0.75)
-            self._fig.suptitle('Model of the Ecosystem of an Island')
+            self._fig.suptitle('Model of the Ecosystem of Rossoya')
 
         # Add left subplot for images created with imshow().
         # We cannot create the actual ImageAxis object before we know
@@ -578,16 +594,21 @@ class BioSim:
 
         if self.line_graph is None:
             herbivores_per_year = self._line_graph_ax.plot(
+
                 np.arange(0, num_years + self.current_year),
                 np.full(num_years + self.current_year, np.nan), 'g',
                 label='Herbivore count'
+
             )
 
             carnivores_per_year = self._line_graph_ax.plot(
+
                 np.arange(0, num_years + self.current_year),
                 np.full(num_years + self.current_year, np.nan), 'r',
                 label='Carnivore count'
+
             )
+
             if not self.legend_is_set_up:
                 self._line_graph_ax.legend(loc='upper left', mode='expand')
                 self.legend_is_set_up = True
@@ -616,7 +637,12 @@ class BioSim:
                 )
 
     def _update_system_map_herbivore(self, animal_array):
-        '''Update the 2D-view of the system.'''
+        """
+        Updates the heatmap for herbivore distribution.
+
+        :param animal_array: array of the distribution of animals
+        :return:
+        """
 
         if self._heatmap_herb_graphics is not None:
             self._heatmap_herb_graphics.set_data(animal_array)
@@ -629,7 +655,12 @@ class BioSim:
                          orientation='horizontal')
 
     def _update_system_map_carnivore(self, animal_array):
-        '''Update the 2D-view of the system.'''
+        """
+        Updates the heatmap for carnivore distribution.
+
+        :param animal_array: array of the distribution of animals
+        :return:
+        """
 
         if self._heatmap_carn_graphics is not None:
             self._heatmap_carn_graphics.set_data(animal_array)
@@ -643,6 +674,14 @@ class BioSim:
                          orientation='horizontal')
 
     def _update_num_animals_graph(self, num_herbivores, num_carnivores):
+        """
+        Updates the line graph with two lines. One for the number of
+        herbivores on the island and one for the number of carnivores
+        on the island.
+        :param num_herbivores: Number of herbivores on island.
+        :param num_carnivores: Number of carnivores on island.
+        :return:
+        """
         ydata = self.herbivore_line_graph.get_ydata()
         ydata[self.year] = num_herbivores
         self.herbivore_line_graph.set_ydata(ydata)
@@ -652,11 +691,17 @@ class BioSim:
         self.carnivore_line_graph.set_ydata(cdata)
 
     def _update_graphics(self):
-        """Updates graphics with current data."""
+        """
+        Updates all the subplots on the graphical interface with the new
+        graphics from _update_num_animals_graph,
+        _update_system_map_carnivore and _update_system_map_herbivore methods.
+        :return:
+        """
 
         self._update_system_map_herbivore(self.herb_array)
 
         self._update_system_map_carnivore(self.carn_array)
+
         self._update_num_animals_graph(
 
             self.num_animals_per_species['Herbivore'],
@@ -727,7 +772,7 @@ if __name__ == "__main__":
 
     geogr = textwrap.dedent(geogr)
     easy_sim = textwrap.dedent(easy_sim)
-
+    """
     k = BioSim(island_map=geogr, ini_pop=[
         {"loc": (3, 3),
          "pop": [{"species": "Herbivore", "age": 7, "weight": 15.0}]},
@@ -757,7 +802,7 @@ if __name__ == "__main__":
         },
     ]
     ))
-    k.simulate(2)
+    k.simulate(2, img_years=1)
     print(k.num_animals)
     print('added carnivores to simulation')
     k.add_population([
@@ -776,10 +821,10 @@ if __name__ == "__main__":
         },
     ])
 
-    k.simulate(2)
+    k.simulate(2, img_years=1)
     print(k.num_animals)
     plt.show()
-
+    """
 
     """
     for map_cell in k.map.map_iterator():
@@ -817,3 +862,31 @@ if __name__ == "__main__":
 
     plt.show()
     """
+
+    k = BioSim(island_map=geogr, ini_pop=[
+        {"loc": (3, 3),
+         "pop": [{"species": "Herbivore", "age": 7, "weight": 15.0}]},
+        {"loc": (4, 1),
+         "pop": [{"species": "Herbivore", "age": 1, "weight": 15.0},
+                 {"species": "Herbivore", "age": 1, "weight": 15.0}
+                 ]}
+    ], seed=0, img_base="/Users/Andreas/Documents/inf200_january/"
+                        "biosim_G07_sebastian_andreas/images/k",
+               ymax_animals=10, cmax_animals=5)
+
+    k.simulate(2, img_years=1)
+
+    print('added carnivores to simulation')
+    k.add_population([
+        {
+            "loc": (4, 1),
+            "pop": [
+                {"species": "Carnivore", "age": 3, "weight": 45.0},
+                {"species": "Carnivore", "age": 2, "weight": 17.0}
+            ],
+        },
+    ])
+
+    k.simulate(2, img_years=1)
+    print(k.num_animals)
+    plt.show()
