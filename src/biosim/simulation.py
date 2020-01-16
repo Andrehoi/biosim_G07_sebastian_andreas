@@ -13,10 +13,10 @@ import textwrap
 import pandas as pd
 import re
 import numpy as np
-import seaborn as sns
 
 import matplotlib.pyplot as plt
-from matplotlib.colors import ListedColormap
+import random
+
 
 
 class BioSim:
@@ -63,7 +63,7 @@ class BioSim:
                 :param island_map:
                 """
         self.map = Map(island_map)
-        self.seed = seed
+        self.seed = random.seed(seed)
         self.current_year = 0
         self.sim_year = 0
 
@@ -515,20 +515,6 @@ class BioSim:
             carn_array[self.map.y, self.map.x] = len(cell.present_carnivores)
         return carn_array
 
-    def heat_map_herbivores(self):
-        animals = self.animal_distribution
-        animals = animals.pivot("Row", "Col", "Herbivore")
-        ax = sns.heatmap(animals, annot=True)
-        plt.title("Heatmap of the herbivore distribution")
-        plt.show()
-
-    def heat_map_carnivores(self):
-        animals = self.animal_distribution
-        animals = animals.pivot("Row", "Col", "Carnivore")
-        ax = sns.heatmap(animals, annot=True)
-        plt.title("Heatmap of the carnivore distribution")
-        plt.show()
-
     def create_colour_island(self):
         pass
 
@@ -538,6 +524,8 @@ class BioSim:
         # create new figure window
         if self._fig is None:
             self._fig = plt.figure()
+            self._fig.subplots_adjust(hspace=0.75)
+            self._fig.suptitle('Model of the Ecosystem of an Island')
 
         # Add left subplot for images created with imshow().
         # We cannot create the actual ImageAxis object before we know
@@ -560,7 +548,7 @@ class BioSim:
         # Add right subplot for line graph of mean.
         if self._line_graph_ax is None:
             self._line_graph_ax = self._fig.add_subplot(1, 2, 2)
-            self._line_graph_ax.set_ylim(0, 2000)
+            self._line_graph_ax.set_ylim(0, 10000)
 
         # needs updating on subsequent calls to simulate()
         self._line_graph_ax.set_xlim(0, num_years + self.current_year)
@@ -578,8 +566,7 @@ class BioSim:
                 label='Carnivore count'
             )
             if not self.legend_is_set_up:
-                self._line_graph_ax.legend(bbox_to_anchor=(0., 1.05, 1., .102),
-                                           loc='upper left', mode='expand')
+                self._line_graph_ax.legend(loc='upper left', mode='expand')
                 self.legend_is_set_up = True
 
             self.herbivore_line_graph = herbivores_per_year[0]
@@ -627,7 +614,7 @@ class BioSim:
             self._heatmap_carn_graphics = \
                 self._heatmap_carn_ax.imshow(animal_array,
                                              interpolation='nearest',
-                                             vmin=0, vmax=70)
+                                             vmin=0, vmax=70, cmap='magma')
             plt.colorbar(self._heatmap_carn_graphics, ax=self._heatmap_carn_ax,
                          orientation='horizontal')
 
@@ -718,7 +705,7 @@ if __name__ == "__main__":
         },
     ]
     ))
-    k.simulate(70)
+    k.simulate(30)
     print(k.num_animals)
     print('added carnivores to simulation')
     k.add_population([
@@ -737,7 +724,7 @@ if __name__ == "__main__":
         },
     ])
 
-    k.simulate(70)
+    k.simulate(50)
     print(k.num_animals)
     plt.show()
 
