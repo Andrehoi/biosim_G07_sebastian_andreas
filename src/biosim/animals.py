@@ -371,7 +371,6 @@ class Carnivore(Animal):
                     self.weight += self.param_dict['beta'] * \
                                    self.param_dict['F']
                     herbivore.alive = False
-                    print('ate herbivore')
                     return
 
                 # Eats whole herbivore, and checks if its full.
@@ -379,7 +378,6 @@ class Carnivore(Animal):
                     self.weight += self.param_dict['beta'] * herbivore.weight
                     herbivore.alive = False
                     weight_of_killed_animals += herbivore.weight
-                    print('ate herbivore')
                     if weight_of_killed_animals >= self.param_dict['F']:
                         return
 
@@ -471,18 +469,18 @@ class Carnivore(Animal):
                 return top_cell
 
             if top_prob <= number < top_prob + bottom_prob:
-                if not type(top_cell).__name__ in self.legal_biomes:
+                if not type(bottom_cell).__name__ in self.legal_biomes:
                     return None
                 return bottom_cell
 
             if top_prob + bottom_prob <= number < top_prob + bottom_prob + \
                     left_prob:
-                if not type(top_cell).__name__ in self.legal_biomes:
+                if not type(left_cell).__name__ in self.legal_biomes:
                     return None
                 return left_cell
 
             if top_prob + bottom_prob + left_prob <= number < 1:
-                if not type(top_cell).__name__ in self.legal_biomes:
+                if not type(right_cell).__name__ in self.legal_biomes:
                     return None
                 return right_cell
 

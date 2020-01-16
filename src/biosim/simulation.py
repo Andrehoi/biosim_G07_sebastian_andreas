@@ -65,6 +65,7 @@ class BioSim:
         self.map = Map(island_map)
         self.seed = seed
         self.current_year = 0
+        self.sim_year = 0
 
         # the following will be initialized by _setup_graphics
         self._fig = None
@@ -348,7 +349,7 @@ class BioSim:
 
         Image files will be numbered consecutively.
         """
-        year = 0
+        self.sim_year = 0
 
         self._setup_graphics(num_years)
         while True:
@@ -370,15 +371,17 @@ class BioSim:
                     carnivore.has_moved = False
 
             # Add a year to the counter
-            self._update_graphics()
-            year += 1
+
+            self.sim_year += 1
             self.current_year += 1
-            print('Current year in sim:', year)
+            print('Current year in sim:', self.sim_year)
 
             # Adds the amount of simulated years to the total year
             # count for the simulation.
-            if year >= num_years:
+            if self.sim_year >= num_years:
                 return
+
+            self._update_graphics()
 
     def add_population(self, population):
         """
@@ -548,27 +551,44 @@ class BioSim:
         # Add right subplot for line graph of mean.
         if self._line_graph_ax is None:
             self._line_graph_ax = self._fig.add_subplot(1, 2, 2)
-            self._line_graph_ax.set_ylim(0, 100)
+            self._line_graph_ax.set_ylim(0, 2000)
 
         # needs updating on subsequent calls to simulate()
-        self._line_graph_ax.set_xlim(0, num_years + 1)
+        self._line_graph_ax.set_xlim(0, num_years)
 
         if self.line_graph is None:
-            plot_per_year = self._line_graph_ax.plot(np.arange(0, num_years),
-                                                     np.full(num_years,
-                                                             np.nan))
-            self.line_graph = plot_per_year[0]
+            herbivores_per_year = self._line_graph_ax.plot(
+                np.arange(0, num_years),
+                np.full(num_years, np.nan)
+            )
+
+            carnivores_per_year = self._line_graph_ax.plot(
+                np.arange(0, num_years),
+                np.full(num_years, np.nan)
+            )
+
+            self.herbivore_line_graph = herbivores_per_year[0]
+            self.carnivore_line_graph = carnivores_per_year[0]
         else:
-            years, herbivores = self.line_graph.get_data()
+            years, herbivores = self.herbivore_line_graph.get_data()
+            years, carnivores = self.carnivore_line_graph.get_data()
 
             # carnivores = self.num_animals_per_species['Carnivore']
 
             new_year = np.arange(years[-1] + 1, num_years)
             if len(new_year) > 0:
+
                 herbivore_new = np.full(new_year.shape, np.nan)
-                self.line_graph.set_data(np.hstack((years, new_year)),
-                                         np.hstack((herbivores,
-                                                    herbivore_new)))
+                self.herbivore_line_graph.set_data(
+                    np.hstack((years, new_year)),
+                    np.hstack((herbivores, herbivore_new))
+                )
+
+                carnivore_new = np.full(new_year.shape, np.nan)
+                self.carnivore_line_graph.set_data(
+                    np.hstack((years, new_year)),
+                    np.hstack((carnivores, carnivore_new))
+                )
 
     def _update_system_map_herbivore(self, animal_array):
         '''Update the 2D-view of the system.'''
@@ -578,7 +598,7 @@ class BioSim:
         else:
             self._heatmap_graphics = \
                 self._heatmap_ax.imshow(animal_array, interpolation='nearest',
-                                        vmin=0, vmax=100)
+                                        vmin=0, vmax=200)
             plt.colorbar(self._heatmap_graphics, ax=self._heatmap_ax,
                          orientation='horizontal')
 
@@ -590,15 +610,19 @@ class BioSim:
         else:
             self._heatmap_c_graphics = \
                 self._heatmap_c_ax.imshow(animal_array,
-                                          interpolation='nearest',
-                                        vmin=0, vmax=3)
+                                          interpolation='nearest', vmin=0,
+                                          vmax=70)
             plt.colorbar(self._heatmap_c_graphics, ax=self._heatmap_c_ax,
                          orientation='horizontal')
 
     def _update_num_animals_graph(self, num_herbivores, num_carnivores):
-        ydata = self.line_graph.get_ydata()
+        ydata = self.herbivore_line_graph.get_ydata()
         ydata[self.year] = num_herbivores
-        self.line_graph.set_ydata(ydata)
+        self.herbivore_line_graph.set_ydata(ydata)
+
+        cdata = self.carnivore_line_graph.get_ydata()
+        cdata[self.year] = num_carnivores
+        self.carnivore_line_graph.set_ydata(cdata)
 
         """
         ydata = self.line_graph.get_ydata()
@@ -721,16 +745,26 @@ if __name__ == "__main__":
         {"loc": (1, 2),
          "pop": [{"species": "Herbivore", "age": 1, "weight": 15.0},
                  {"species": "Herbivore", "age": 1, "weight": 15.0},
-                 {"species": "Carnivore", "age": 1, "weight": 100.0},
                  {"species": "Herbivore", "age": 1, "weight": 15.0},
                  {"species": "Herbivore", "age": 1, "weight": 15.0},
                  {"species": "Herbivore", "age": 1, "weight": 15.0}
                  ]}
     ], seed=0)
 
+    k.simulate(50)
+    print(k.num_animals_per_species['Herbivore'])
+
+    k.add_population([
+        {"loc": (1, 2),
+         "pop": [{"species": "Herbivore", "age": 7, "weight": 15.0},
+                 {"species": "Carnivore", "age": 1, "weight": 35.0},
+                 {"species": "Carnivore", "age": 1, "weight": 35.0},
+                 {"species": "Carnivore", "age": 1, "weight": 35.0},
+                 {"species": "Carnivore", "age": 1, "weight": 35.0},
+                 {"species": "Carnivore", "age": 1, "weight": 35.0},
+                 {"species": "Carnivore", "age": 1, "weight": 35.0},
+                 ]}])
     k.simulate(100)
-    print(k.num_animals)
-    print(k.num_animals_per_species['Carnivore'])
-    # print(k.animal_distribution)
-    print(k.map.array_map[2, 1].present_herbivores)
+    print(k.num_animals_per_species['Herbivore'])
+
     plt.show()
