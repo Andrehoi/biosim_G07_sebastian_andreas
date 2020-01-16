@@ -78,6 +78,22 @@ class BioSim:
         # Adds the initial population to the map.
         self.add_population(ini_pop)
 
+        #
+        self._img_base = img_base
+        self._img_fmt = img_fmt
+        self._img_counter = 0
+
+        #
+        if ymax_animals is None:
+            self.graph_ymax = 10000
+        else:
+            self.graph_ymax = ymax_animals
+
+        if cmax_animals is None:
+            self.color_bar_max = 200
+        else:
+            self.color_bar_max = cmax_animals
+
     def set_animal_parameters(self, species, params):
         """
         Set parameters for animal species.
@@ -351,6 +367,8 @@ class BioSim:
         Image files will be numbered consecutively.
         """
         self.sim_year = 0
+        vis_counter = 0
+        save_counter = 0
 
         self._setup_graphics(num_years)
         while True:
@@ -382,7 +400,16 @@ class BioSim:
             if self.sim_year >= num_years:
                 return
 
-            self._update_graphics()
+            vis_counter += 1
+            save_counter += 1
+
+            if vis_counter == vis_years:
+                self._update_graphics()
+                vis_counter = 0
+            if img_years is not None:
+                if save_counter == img_years:
+                    self._save_graphics()
+
 
     def add_population(self, population):
         """
@@ -548,7 +575,7 @@ class BioSim:
         # Add right subplot for line graph of mean.
         if self._line_graph_ax is None:
             self._line_graph_ax = self._fig.add_subplot(1, 2, 2)
-            self._line_graph_ax.set_ylim(0, 10000)
+            self._line_graph_ax.set_ylim(0, self.graph_ymax)
 
         # needs updating on subsequent calls to simulate()
         self._line_graph_ax.set_xlim(0, num_years + self.current_year)
@@ -601,7 +628,7 @@ class BioSim:
             self._heatmap_herb_graphics = \
                 self._heatmap_herb_ax.imshow(animal_array,
                                              interpolation='nearest',
-                                             vmin=0, vmax=200)
+                                             vmin=0, vmax=self.color_bar_max)
             plt.colorbar(self._heatmap_herb_graphics, ax=self._heatmap_herb_ax,
                          orientation='horizontal')
 
@@ -614,7 +641,8 @@ class BioSim:
             self._heatmap_carn_graphics = \
                 self._heatmap_carn_ax.imshow(animal_array,
                                              interpolation='nearest',
-                                             vmin=0, vmax=70, cmap='magma')
+                                             vmin=0, vmax=self.color_bar_max,
+                                             cmap='magma')
             plt.colorbar(self._heatmap_carn_graphics, ax=self._heatmap_carn_ax,
                          orientation='horizontal')
 
@@ -649,9 +677,9 @@ class BioSim:
             return
 
         plt.savefig('{base}_{num:05d}.{type}'.format(base=self._img_base,
-                                                     num=self._img_ctr,
+                                                     num=self._img_counter,
                                                      type=self._img_fmt))
-        self._img_ctr += 1
+        self._img_counter += 1
 
     def make_movie(self):
         """Create MPEG4 movie from visualization images saved."""
