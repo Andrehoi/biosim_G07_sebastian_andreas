@@ -16,7 +16,7 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 import random
-
+import subprocess
 
 
 class BioSim:
@@ -93,6 +93,8 @@ class BioSim:
             self.color_bar_max = 200
         else:
             self.color_bar_max = cmax_animals
+
+
 
     def set_animal_parameters(self, species, params):
         """
@@ -367,7 +369,6 @@ class BioSim:
         Image files will be numbered consecutively.
         """
         self.sim_year = 0
-        vis_counter = 0
         save_counter = 0
 
         self._setup_graphics(num_years)
@@ -400,17 +401,15 @@ class BioSim:
             if self.sim_year >= num_years:
                 return
 
-            vis_counter += 1
             save_counter += 1
 
-            if vis_counter == vis_years:
+            if self.current_year % vis_years == 0:
                 self._update_graphics()
-                vis_counter = 0
+
             if img_years is not None:
-                if save_counter == img_years:
+                if self.current_year % img_years == 0:
                     self._save_graphics()
                     save_counter = 0
-
 
     def add_population(self, population):
         """
@@ -689,6 +688,7 @@ class BioSim:
             Requires ffmpeg
         The movie is stored as img_base + movie_fmt
         """
+        _FFMPEG_BINARY = 'ffmpeg'
         movie_fmt = 'mp4'
 
         if self._img_base is None:
@@ -743,8 +743,8 @@ if __name__ == "__main__":
                  {"species": "Herbivore", "age": 1, "weight": 15.0},
                  {"species": "Herbivore", "age": 1, "weight": 15.0}
                  ]}
-    ], seed=0, img_base="/Users/sebastiankihle/Documents/Python/INF200"
-                        "/biosim_G07_sebastian_andreas/biosim/src/biosim/img")
+    ], seed=0, img_base="/Users/Andreas/Documents/inf200_january/"
+                        "biosim_G07_sebastian_andreas/images/")
 
     Carnivore.new_parameters({'DeltaPhiMax': 10})
     print(k.map.biome_map)
@@ -780,9 +780,10 @@ if __name__ == "__main__":
         },
     ])
 
-    k.simulate(50, vis_years=10)
+    k.simulate(50, img_years=10)
     print(k.num_animals)
     plt.show()
+    k.make_movie()
 
     """
     for map_cell in k.map.map_iterator():
