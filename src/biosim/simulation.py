@@ -369,7 +369,6 @@ class BioSim:
         Image files will be numbered consecutively.
         """
         self.sim_year = 0
-        save_counter = 0
 
         self._setup_graphics(num_years)
         while True:
@@ -390,6 +389,13 @@ class BioSim:
                 for carnivore in cell.present_carnivores:
                     carnivore.has_moved = False
 
+            if self.current_year % vis_years == 0:
+                self._update_graphics()
+
+            if img_years is not None:
+                if self.current_year % img_years == 0:
+                    self._save_graphics()
+
             # Add a year to the counter
 
             self.sim_year += 1
@@ -400,16 +406,6 @@ class BioSim:
             # count for the simulation.
             if self.sim_year >= num_years:
                 return
-
-            save_counter += 1
-
-            if self.current_year % vis_years == 0:
-                self._update_graphics()
-
-            if img_years is not None:
-                if self.current_year % img_years == 0:
-                    self._save_graphics()
-                    save_counter = 0
 
     def add_population(self, population):
         """
@@ -744,7 +740,7 @@ if __name__ == "__main__":
                  {"species": "Herbivore", "age": 1, "weight": 15.0}
                  ]}
     ], seed=0, img_base="/Users/Andreas/Documents/inf200_january/"
-                        "biosim_G07_sebastian_andreas/images/")
+                        "biosim_G07_sebastian_andreas/images/k")
 
     Carnivore.new_parameters({'DeltaPhiMax': 10})
     print(k.map.biome_map)
@@ -761,7 +757,7 @@ if __name__ == "__main__":
         },
     ]
     ))
-    k.simulate(30, vis_years=10)
+    k.simulate(2)
     print(k.num_animals)
     print('added carnivores to simulation')
     k.add_population([
@@ -780,10 +776,10 @@ if __name__ == "__main__":
         },
     ])
 
-    k.simulate(50, img_years=10)
+    k.simulate(2)
     print(k.num_animals)
     plt.show()
-    k.make_movie()
+
 
     """
     for map_cell in k.map.map_iterator():
