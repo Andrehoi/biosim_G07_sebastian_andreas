@@ -69,10 +69,11 @@ class BioSim:
 
         # the following will be initialized by _setup_graphics
         self._fig = None
-        self._heatmap_ax = None
-        self._heatmap_graphics = None
+        self._heatmap_herb_ax = None
+        self._heatmap_herb_graphics = None
         self._line_graph_ax = None
         self.line_graph = None
+        self.legend_is_set_up = False
 
         # Adds the initial population to the map.
         self.add_population(ini_pop)
@@ -541,12 +542,20 @@ class BioSim:
         # Add left subplot for images created with imshow().
         # We cannot create the actual ImageAxis object before we know
         # the size of the image, so we delay its creation.
-        if self._heatmap_ax is None:
-            self._heatmap_ax = self._fig.add_subplot(3, 2, 3)
-            self._heatmap_graphics = None
+        if self._heatmap_herb_ax is None:
+            self._heatmap_herb_ax = self._fig.add_subplot(3, 2, 3)
+            self._heatmap_herb_graphics = None
 
-            self._heatmap_c_ax = self._fig.add_subplot(3, 2, 5)
-            self._heatmap_c_graphics = None
+            self._heatmap_carn_ax = self._fig.add_subplot(3, 2, 5)
+            self._heatmap_carn_graphics = None
+
+            if not self.legend_is_set_up:
+                self._heatmap_herb_ax.title.set_text('Herbivore heatmap')
+                self._heatmap_carn_ax.title.set_text('Carnivore heatmap')
+                self._heatmap_herb_ax.get_xaxis().set_visible(False)
+                self._heatmap_herb_ax.get_yaxis().set_visible(False)
+                self._heatmap_carn_ax.get_xaxis().set_visible(False)
+                self._heatmap_carn_ax.get_yaxis().set_visible(False)
 
         # Add right subplot for line graph of mean.
         if self._line_graph_ax is None:
@@ -554,18 +563,24 @@ class BioSim:
             self._line_graph_ax.set_ylim(0, 2000)
 
         # needs updating on subsequent calls to simulate()
-        self._line_graph_ax.set_xlim(0, num_years)
+        self._line_graph_ax.set_xlim(0, num_years + self.current_year)
 
         if self.line_graph is None:
             herbivores_per_year = self._line_graph_ax.plot(
-                np.arange(0, num_years),
-                np.full(num_years, np.nan)
+                np.arange(0, num_years + self.current_year),
+                np.full(num_years + self.current_year, np.nan), 'g',
+                label='Herbivore count'
             )
 
             carnivores_per_year = self._line_graph_ax.plot(
-                np.arange(0, num_years),
-                np.full(num_years, np.nan)
+                np.arange(0, num_years + self.current_year),
+                np.full(num_years + self.current_year, np.nan), 'r',
+                label='Carnivore count'
             )
+            if not self.legend_is_set_up:
+                self._line_graph_ax.legend(bbox_to_anchor=(0., 1.05, 1., .102),
+                                           loc='upper left', mode='expand')
+                self.legend_is_set_up = True
 
             self.herbivore_line_graph = herbivores_per_year[0]
             self.carnivore_line_graph = carnivores_per_year[0]
@@ -593,26 +608,27 @@ class BioSim:
     def _update_system_map_herbivore(self, animal_array):
         '''Update the 2D-view of the system.'''
 
-        if self._heatmap_graphics is not None:
-            self._heatmap_graphics.set_data(animal_array)
+        if self._heatmap_herb_graphics is not None:
+            self._heatmap_herb_graphics.set_data(animal_array)
         else:
-            self._heatmap_graphics = \
-                self._heatmap_ax.imshow(animal_array, interpolation='nearest',
-                                        vmin=0, vmax=200)
-            plt.colorbar(self._heatmap_graphics, ax=self._heatmap_ax,
+            self._heatmap_herb_graphics = \
+                self._heatmap_herb_ax.imshow(animal_array,
+                                             interpolation='nearest',
+                                             vmin=0, vmax=200)
+            plt.colorbar(self._heatmap_herb_graphics, ax=self._heatmap_herb_ax,
                          orientation='horizontal')
 
     def _update_system_map_carnivore(self, animal_array):
         '''Update the 2D-view of the system.'''
 
-        if self._heatmap_c_graphics is not None:
-            self._heatmap_c_graphics.set_data(animal_array)
+        if self._heatmap_carn_graphics is not None:
+            self._heatmap_carn_graphics.set_data(animal_array)
         else:
-            self._heatmap_c_graphics = \
-                self._heatmap_c_ax.imshow(animal_array,
-                                          interpolation='nearest', vmin=0,
-                                          vmax=70)
-            plt.colorbar(self._heatmap_c_graphics, ax=self._heatmap_c_ax,
+            self._heatmap_carn_graphics = \
+                self._heatmap_carn_ax.imshow(animal_array,
+                                             interpolation='nearest',
+                                             vmin=0, vmax=70)
+            plt.colorbar(self._heatmap_carn_graphics, ax=self._heatmap_carn_ax,
                          orientation='horizontal')
 
     def _update_num_animals_graph(self, num_herbivores, num_carnivores):
@@ -623,12 +639,6 @@ class BioSim:
         cdata = self.carnivore_line_graph.get_ydata()
         cdata[self.year] = num_carnivores
         self.carnivore_line_graph.set_ydata(cdata)
-
-        """
-        ydata = self.line_graph.get_ydata()
-        ydata[self.year] = num_carnivores
-        self.line_graph.set_ydata(ydata)
-        """
 
     def _update_graphics(self):
         """Updates graphics with current data."""
@@ -680,7 +690,6 @@ if __name__ == "__main__":
     geogr = textwrap.dedent(geogr)
     easy_sim = textwrap.dedent(easy_sim)
 
-    """
     k = BioSim(island_map=geogr, ini_pop=[
         {"loc": (3, 3),
          "pop": [{"species": "Herbivore", "age": 7, "weight": 15.0}]},
@@ -709,9 +718,8 @@ if __name__ == "__main__":
         },
     ]
     ))
-    k.simulate(20)
+    k.simulate(70)
     print(k.num_animals)
-    print(k.num_animals_per_species['Herbivore'])
     print('added carnivores to simulation')
     k.add_population([
         {
@@ -721,24 +729,24 @@ if __name__ == "__main__":
                 {"species": "Carnivore", "age": 2, "weight": 17.0},
                 {"species": "Carnivore", "age": 3, "weight": 45.0},
                 {"species": "Carnivore", "age": 2, "weight": 17.0},
+                {"species": "Carnivore", "age": 3, "weight": 45.0},
+                {"species": "Carnivore", "age": 2, "weight": 17.0},
+                {"species": "Carnivore", "age": 3, "weight": 45.0},
+                {"species": "Carnivore", "age": 2, "weight": 17.0}
             ],
         },
     ])
-    print(k.current_year)
 
-    # k.simulate(20)
+    k.simulate(70)
     print(k.num_animals)
-    print(k.num_animals_per_species['Carnivore'])
-    # print(k.animal_distribution)
-    print(k.map.array_map[2, 1].present_herbivores)
     plt.show()
-    """
 
     """
     for map_cell in k.map.map_iterator():
         print(map_cell)
     """
 
+    """
     k = BioSim(island_map=easy_sim, ini_pop=[
         {"loc": (1, 2),
          "pop": [{"species": "Herbivore", "age": 7, "weight": 15.0}]},
@@ -764,7 +772,8 @@ if __name__ == "__main__":
                  {"species": "Carnivore", "age": 1, "weight": 35.0},
                  {"species": "Carnivore", "age": 1, "weight": 35.0},
                  ]}])
-    k.simulate(100)
+    k.simulate(120)
     print(k.num_animals_per_species['Herbivore'])
 
     plt.show()
+    """
