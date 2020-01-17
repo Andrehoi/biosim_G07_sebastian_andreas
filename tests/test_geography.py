@@ -33,8 +33,8 @@ def test_regrowth_savannah():
     :return:
     """
     # This test might fail if not used with default parameters
+    Savannah.biome_parameters({'f_max': 300, 'alpha': 0.3})
     svh = Savannah()
-    svh.biome_parameters({'f_max': 300})
     assert svh.available_food == svh.param_dict['f_max']
 
     svh.available_food -= 50
@@ -56,17 +56,31 @@ def test_regrowth_biome():
     assert bio.available_food == 0
 
 
-def test_locations():
-    """
-    Test that the tiles are in the right place
-    :return:
-    """
-    pass
-
-
-def test_no_food_in_mountains_or_desert():
+def test_no_food_in_mountains_desert_or_ocean():
     """
     Test if there is any food in the mountains or in the desert
     :return:
     """
-    pass
+    mtn = Mountain()
+    dst = Desert()
+    ocn = Ocean()
+
+    assert mtn.available_food == 0
+    assert dst.available_food == 0
+    assert ocn.available_food == 0
+
+
+def test_set_biome_parameters():
+    """
+    Test that you can change the parameters for a biome.
+    :return:
+    """
+    desert = Desert()
+    assert desert.param_dict['f_max'] == 0
+
+    Desert.biome_parameters({'f_max': 125})
+    dsrt = Desert()
+    assert dsrt.param_dict['f_max'] == 125
+
+    Desert.biome_parameters({'f_max': 0})
+

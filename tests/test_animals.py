@@ -4,7 +4,10 @@ __author__ = "Sebastian Kihle & Andreas Hoeimyr"
 __email__ = "sebaskih@nmbu.no & andrehoi@nmbu.no"
 
 from biosim.animals import Animal, Herbivore, Carnivore
+from biosim.island_class import Map
+from biosim.simulation import BioSim
 
+import random
 """
 Test file for animal properties
 """
@@ -84,7 +87,33 @@ def test_mountain_and_water_impassable():
     Test that animals cannot move through mountains or water
     :return:
     """
-    pass
+    test_map = 'OOOOO\nOMMMO\nOMJMO\nOMMMO\nOOOOO'
+    sim = BioSim(island_map=test_map, ini_pop=[
+        {"loc": (2, 2),
+         "pop": [{"species": "Herbivore", "age": 7, "weight": 15.0},
+                 {"species": "Herbivore", "age": 7, "weight": 15.0},
+                 {"species": "Carnivore", "age": 7, "weight": 15.0}]}],
+                 seed=random.random())
+    sim.simulate(10)
+    assert len(sim.map.array_map[1, 1].present_herbivores) == 0
+    assert len(sim.map.array_map[1, 1].present_carnivores) == 0
+    assert len(sim.map.array_map[1, 2].present_herbivores) == 0
+    assert len(sim.map.array_map[1, 2].present_carnivores) == 0
+    assert len(sim.map.array_map[1, 3].present_herbivores) == 0
+    assert len(sim.map.array_map[1, 3].present_carnivores) == 0
+    assert len(sim.map.array_map[2, 1].present_herbivores) == 0
+    assert len(sim.map.array_map[2, 1].present_carnivores) == 0
+    assert len(sim.map.array_map[2, 3].present_herbivores) == 0
+    assert len(sim.map.array_map[1, 3].present_carnivores) == 0
+    assert len(sim.map.array_map[3, 1].present_herbivores) == 0
+    assert len(sim.map.array_map[3, 1].present_carnivores) == 0
+    assert len(sim.map.array_map[3, 2].present_herbivores) == 0
+    assert len(sim.map.array_map[3, 2].present_carnivores) == 0
+    assert len(sim.map.array_map[3, 3].present_herbivores) == 0
+    assert len(sim.map.array_map[3, 3].present_carnivores) == 0
+
+
+
 
 
 def test_eating():
@@ -185,6 +214,10 @@ def test_hunting_stops_when_full():
 
 
 def test_weight_loss():
+    """
+    Test that the weight loss method works as intended.
+    :return:
+    """
     herb = Herbivore(3, 20)
     assert herb.weight == 20
     herb.lose_weight()
