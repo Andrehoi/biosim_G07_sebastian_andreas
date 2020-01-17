@@ -6,6 +6,7 @@ __email__ = "sebaskih@nmbu.no & andrehoi@nmbu.no"
 from biosim.animals import Animal, Herbivore, Carnivore
 from biosim.island_class import Map
 from biosim.simulation import BioSim
+from biosim.geography import Jungle, Ocean, Mountain, Desert
 
 import random
 """
@@ -76,10 +77,84 @@ def test_lose_weight():
 
 def test_move():
     """
-    Test that both animal types can move properly
+    Test that both animal types can move properly. Checks that herbivores
+    prefers the jungle biome over the desert biome.
     :return:
     """
-    pass
+
+    top_cell = Jungle()
+    bottom_cell = Jungle()
+    right_cell = Jungle()
+    left_cell = Jungle()
+
+    herbivore = Herbivore(1, 300)
+    target_cell = herbivore.migrate(top_cell, bottom_cell, left_cell,
+                                   right_cell)
+    assert type(target_cell).__name__ == 'Jungle'
+
+
+def test_move_towards_cell_without_other_herbivores():
+    """
+    Checks that it is more likely for a herbivore to go to a jungle cell
+    without other Herbivores than a cell with other herbivores.
+
+    This also holds carnivores. Both move functions take into account the
+    number of animals of same species in the cells when calculating the
+    probability to move.
+    :return:
+    """
+
+    top_cell = Jungle()
+    top_cell.present_herbivores.append(Herbivore(1, 15))
+    top_cell.present_herbivores.append(Herbivore(1, 15))
+    top_cell.present_herbivores.append(Herbivore(1, 15))
+
+    right_cell = Jungle()
+    bottom_cell = Ocean()
+    left_cell = Ocean()
+    herb = Herbivore(1, 300)
+
+    right_counter = 0
+    top_counter = 0
+    for _ in range(100):
+        outcome = herb.migrate(top_cell, bottom_cell, left_cell, right_cell)
+        if outcome == right_cell:
+            right_counter += 1
+
+        if outcome == top_cell:
+            top_counter += 1
+
+    assert right_counter > top_counter
+
+
+def test_carnivore_move():
+    """
+    Tests that a carnivore is inclined to move towards a cell containing
+    herbivores.
+    :return:
+    """
+    top_cell = Jungle()
+    top_cell.present_herbivores.append(Herbivore(1, 15))
+    top_cell.present_herbivores.append(Herbivore(1, 15))
+    top_cell.present_herbivores.append(Herbivore(1, 15))
+
+    right_cell = Jungle()
+    bottom_cell = Ocean()
+    left_cell = Ocean()
+    carn = Carnivore(1, 300)
+
+    right_counter = 0
+    top_counter = 0
+
+    for _ in range(100):
+        outcome = carn.migrate(top_cell, bottom_cell, left_cell, right_cell)
+        if outcome == right_cell:
+            right_counter += 1
+
+        if outcome == top_cell:
+            top_counter += 1
+
+    assert top_counter > right_counter
 
 
 def test_mountain_and_water_impassable():
@@ -112,9 +187,22 @@ def test_mountain_and_water_impassable():
     assert len(sim.map.array_map[3, 3].present_herbivores) == 0
     assert len(sim.map.array_map[3, 3].present_carnivores) == 0
 
+def test_water_mountain_impassable():
+    """
+    Tests that carnivore or herbivores cannot enter cells of Ocean biome or
+    Mountain biome.
+    :return:
+    """
 
+    top_cell = Ocean()
+    bottom_cell = Mountain()
+    right_cell = Mountain()
+    left_cell = Ocean()
 
+    herbi = Herbivore(1, 100)
 
+    outcome = herbi.migrate(top_cell, bottom_cell, left_cell, right_cell)
+    assert outcome is None
 
 def test_eating():
     """
@@ -169,6 +257,7 @@ def test_hunting():
     """
     herb_list = [Herbivore(100, 50), Herbivore(1, 15), Herbivore(4, 35)]
     hunter = Carnivore(3, 50)
+    Herbivore.new_parameters({'eta': 0.05})
     hunter.new_parameters({
         'w_birth': 6.0,
         'sigma_birth': 1.0,

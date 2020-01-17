@@ -3,7 +3,8 @@
 __author__ = "Sebastian Kihle & Andreas Hoeimyr"
 __email__ = "sebaskih@nmbu.no & andrehoi@nmbu.no"
 
-from biosim.geography import Mountain, Savannah, Jungle, Desert, Ocean
+from biosim.geography import Mountain, Savannah, Jungle, Desert, Ocean, \
+    OutOfBounds
 import numpy as np
 import re
 
@@ -17,10 +18,10 @@ class Map:
         self.island_multiline_sting = island_multiline_sting
         self.x = 0
         self.y = 0
-        self.top = Ocean()
-        self.bottom = Ocean()
-        self.left = Ocean()
-        self.right = Ocean()
+        self.top = OutOfBounds()
+        self.bottom = OutOfBounds()
+        self.left = OutOfBounds()
+        self.right = OutOfBounds()
 
         # Splits the multiline string and converts it into an array.
         area = self.island_multiline_sting.split()
@@ -73,7 +74,14 @@ class Map:
         Yields the object in the current cell of the map.
         The yield allows the code to produce a series of cells over time,
         rather than computing them at once and sending them back like a list.
+
+        The map_iterator saves the surrounding cells around the current
+        cell. If the current cell is on the edge of the map,
+        the neighbouring cell outside the map is set to be an ocean cell.
+        These neighbouring cells are used in the migrating
+
         :yields: Object in current cell.
+
         """
         # Starts in top left corner of map.
         self.x = 0
@@ -83,15 +91,23 @@ class Map:
         while True:
             if self.y >= 1:
                 self.top = self.array_map[self.y-1, self.x]
+            else:
+                self.top = OutOfBounds()
 
             if self.y < len(self.biome_map.T[0]) - 1:
                 self.bottom = self.array_map[self.y+1, self.x]
+            else:
+                self.bottom = OutOfBounds()
 
             if self.x >= 1:
                 self.left = self.array_map[self.y, self.x-1]
+            else:
+                self.left = OutOfBounds()
 
             if self.x < len(self.biome_map[0]) - 1:
                 self.right = self.array_map[self.y, self.x+1]
+            else:
+                self.right = OutOfBounds()
             # Use yield to be able to iterate through the map.
             yield self.array_map[self.y, self.x]
             self.x += 1

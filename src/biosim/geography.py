@@ -117,3 +117,15 @@ class Ocean(Biome):
 
     def __init__(self):
         super().__init__()
+
+
+class OutOfBounds:
+    """
+    Class surrounding map that is impassable for all animals. Cannot add
+    animals to this cell and no animal can access it.
+
+    These cells are created around the map by the map iterator to make sure
+    noe animals can escape the map.
+    """
+    def __init__(self):
+        pass

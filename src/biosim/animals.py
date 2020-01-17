@@ -66,8 +66,12 @@ class Animal:
         """
         for iterator in parameters:
             if iterator in cls.param_dict:
-                if iterator == 'F' and parameters[iterator] < 0:
-                    raise ValueError('F cannot be negative')
+                if iterator == 'eta' and parameters[iterator] >= 1:
+                    raise ValueError('eta must be less or equal to 1')
+                if iterator == 'DeltaPhiMax' and parameters[iterator] <= 0:
+                    raise ValueError('DeltaPhiMax must be larger than zero')
+                if parameters[iterator] < 0:
+                    raise ValueError('{} cannot be negative'.format(iterator))
                 cls.param_dict[iterator] = parameters[iterator]
 
             else:
@@ -371,14 +375,21 @@ class Carnivore(Animal):
                     self.weight += self.param_dict['beta'] * \
                                    self.param_dict['F']
                     herbivore.alive = False
+                    self.calculate_fitness()
                     return
 
                 # Eats whole herbivore, and checks if its full.
                 if herbivore.weight < self.param_dict['F']:
+
                     self.weight += self.param_dict['beta'] * herbivore.weight
                     herbivore.alive = False
+                    self.calculate_fitness()
+
                     weight_of_killed_animals += herbivore.weight
+
                     if weight_of_killed_animals >= self.param_dict['F']:
+                        self.weight = start_weight + self.param_dict['beta']\
+                                      * self.param_dict['F']
                         return
 
     def migrate(self, top_cell, bottom_cell, left_cell, right_cell):
@@ -489,10 +500,6 @@ if __name__ == '__main__':
 
     herb_list = [Herbivore(100, 35), Herbivore(100, 35), Herbivore(4, 35)]
     hunter = Carnivore(3, 50)
-    hunter.new_parameters({'DeltaPhiMax': 0.01})
     hunter.hunt(herb_list)
     print(hunter.param_dict['DeltaPhiMax'])
-    print(hunter.weight)
-    print(herb_list[0].phi, herb_list[0].alive)
-    print(herb_list[1].phi, herb_list[1].alive)
-    print(herb_list[2].phi, herb_list[2].alive)
+
