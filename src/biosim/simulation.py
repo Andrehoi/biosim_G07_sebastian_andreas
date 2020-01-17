@@ -114,7 +114,6 @@ class BioSim:
         :return:
         """
 
-        # Iterates through the map.
         for cell in self.map.map_iterator():
             if prints:
                 print('Current cell:', type(cell).__name__, 'Feeding')
@@ -151,7 +150,6 @@ class BioSim:
         :return:
         """
 
-        # For each cell in the map.
         for cell in self.map.map_iterator():
             if prints:
                 print('Current cell:', type(cell).__name__, 'Breeding')
@@ -191,7 +189,7 @@ class BioSim:
         :param prints: prints relevant actions
         :return:
         """
-        # For each cell in the map.
+
         for cell in self.map.map_iterator():
             if prints:
                 print('Current cell:', type(cell).__name__, 'migration')
@@ -206,7 +204,6 @@ class BioSim:
             # Herbivores that leave the current cell.
             exited_herbivores = []
 
-            # For all the herbivores in cell that has not yet moved.
             for herbivore in migrating_herbivores:
                 if not herbivore.has_moved:
                     target_cell = herbivore.migrate(self.map.top,
@@ -234,7 +231,6 @@ class BioSim:
             # Carnivores that leave the current cell.
             exited_carnivores = []
 
-            # For all the carnivores that have not yet moved.
             for carnivore in migrating_carnivores:
                 if not carnivore.has_moved:
                     target_cell = carnivore.migrate(self.map.top,
@@ -264,7 +260,6 @@ class BioSim:
         :return:
         """
 
-        # For each cell in the map.
         for cell in self.map.map_iterator():
             if prints:
                 print('Current cell:', type(cell).__name__, 'ageing')
@@ -310,7 +305,6 @@ class BioSim:
         :return:
         """
 
-        # For each cell in the map.
         for cell in self.map.map_iterator():
             if prints:
                 print('Current cell:', type(cell).__name__, 'death')
@@ -387,14 +381,11 @@ class BioSim:
                 if self.current_year % img_years == 0:
                     self._save_graphics()
 
-            # Add a year to the counter
-
             self.sim_year += 1
             self.current_year += 1
-            print('Current year in sim:', self.sim_year)
+            if prints:
+                print('Current year in sim:', self.sim_year)
 
-            # Adds the amount of simulated years to the total year
-            # count for the simulation.
             if self.sim_year >= num_years:
                 self._update_graphics()
                 return
@@ -635,8 +626,6 @@ class BioSim:
         else:
             years, herbivores = self.herbivore_line_graph.get_data()
             years, carnivores = self.carnivore_line_graph.get_data()
-
-            # carnivores = self.num_animals_per_species['Carnivore']
 
             new_year = np.arange(years[-1] + 1, num_years)
             if len(new_year) > 0:

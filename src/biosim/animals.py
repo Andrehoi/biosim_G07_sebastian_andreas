@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
-"""
-"""
-
 __author__ = "Sebastian Kihle & Andreas Hoeimyr"
 __email__ = "sebaskih@nmbu.no & andrehoi@nmbu.no"
+
+"""
+File with the animal classes, such as Herbivore and Carnivore.
+"""
 
 from math import exp
 import random
@@ -127,7 +128,8 @@ class Animal:
         animals are in the cell. Potentially creates a new animal with
         weight decided from a gaussian distribution. The mother animal loses
         weight relative to the wight of the offspring times a constant xi.
-        :return: None if no animal is born, or a dict with newborn parameters
+        :return: None if no animal is born, or a newborn class instance of
+        same animal species.
         """
 
         if self.weight < self.param_dict['zeta'] * \
@@ -205,7 +207,7 @@ class Herbivore(Animal):
         super().__init__(age, weight)
         self.legal_biomes = ['Desert', 'Savannah', 'Jungle']
 
-    def _propensity(self, cell):
+    def _propensity_herb(self, cell):
         """
         Calculates the propensity an animal has to move to a cell.
         :param cell:
@@ -218,6 +220,7 @@ class Herbivore(Animal):
         prop_cell = exp(self.param_dict['lambda_animal'] * e_cell)
 
         return prop_cell
+
 
     def migrate(self, top_cell, bottom_cell, left_cell, right_cell):
         """
@@ -239,19 +242,15 @@ class Herbivore(Animal):
         :return: Target_cell. The target cell is the cell the animal moves to.
         """
 
-        # Calculates the probability of the herbivore moving.
         move_prob = self.param_dict['mu'] * self.phi
 
         # Uses a random number to check if the hebivore moves.
         if move_prob >= random.random():
 
-            # e_xxx is a parameter used to calculate the propensity to to
-            # move to a cell. e_xxx depends on available food and number of
-            # herbivores in the cell.
-            prop_top = self._propensity(top_cell)
-            prop_bottom = self._propensity(bottom_cell)
-            prop_left = self._propensity(left_cell)
-            prop_right = self._propensity(right_cell)
+            prop_top = self._propensity_herb(top_cell)
+            prop_bottom = self._propensity_herb(bottom_cell)
+            prop_left = self._propensity_herb(left_cell)
+            prop_right = self._propensity_herb(right_cell)
 
             # sum_prop is the probability of the animal migrating when it
             # migrates and should be 1.
@@ -354,11 +353,9 @@ class Carnivore(Animal):
         # Saves initial weight for comparison later.
         start_weight = self.weight
 
-        # Sorts the herbivore list in ascending fitness order.
         kill_probability = 0
         weight_of_killed_animals = 0
 
-        # Calculates the probability of successful kill.
         for herbivore in sorted_list_of_herbivores:
             if self.phi <= herbivore.phi:
                 kill_probability = 0
@@ -395,6 +392,24 @@ class Carnivore(Animal):
                                       * self.param_dict['F']
                         return
 
+    def _propensity_carn(self, cell):
+        """
+        Calculates the propensity an animal has to move to a cell.
+        :param cell:
+        :return:
+        """
+
+        herb_weight = 0
+        for herbivore in cell.present_herbivores:
+            herb_weight += herbivore.weight
+
+        e_cell = herb_weight / (((len(cell.present_carnivores) + 1)
+                                * self.param_dict['F']))
+
+        prop_cell = exp(self.param_dict['lambda_animal'] * e_cell)
+
+        return prop_cell
+
     def migrate(self, top_cell, bottom_cell, left_cell, right_cell):
         """
         Calculates the probability for an animal to move one cell, and
@@ -415,51 +430,17 @@ class Carnivore(Animal):
         
         :return: The cell the animal migrates to (target_cell).
         """
-        
-        # Calculates the probability of moving.
+
         move_prob = self.param_dict['mu'] * self.phi
         
         # Checks if the animal moves based on the probability of moving.
         if move_prob <= random.random():
 
-            # Create a variable to store the weight of all herbivores in the
-            # cell.
-            herb_weight = 0
-            for herbivore in top_cell.present_herbivores:
-                herb_weight += herbivore.weight
-
-            # e_xxx is a parameter for calculating propensity. It considers
-            # the amount of food in the cell as well as the amount of
-            # competing carnivores in the cell.
-            e_top = herb_weight / (((len(top_cell.present_carnivores) + 1)
-                                   * self.param_dict['F']))
-
-            herb_weight = 0
-            for herbivore in bottom_cell.present_herbivores:
-                herb_weight += herbivore.weight
-
-            e_bottom = herb_weight / (((len(bottom_cell.present_carnivores) + 1)
-                                      * self.param_dict['F']))
-
-            herb_weight = 0
-            for herbivore in left_cell.present_herbivores:
-                herb_weight += herbivore.weight
-
-            e_left = herb_weight / (((len(left_cell.present_carnivores) + 1)
-                                    * self.param_dict['F']))
-
-            herb_weight = 0
-            for herbivore in right_cell.present_herbivores:
-                herb_weight += herbivore.weight
-
-            e_right = herb_weight / (((len(right_cell.present_carnivores) + 1)
-                                     * self.param_dict['F']))
-
             # prop_xxx is the propensity to move to cell xxx.
-            prop_top = exp(self.param_dict['lambda_animal'] * e_top)
-            prop_bottom = exp(self.param_dict['lambda_animal'] * e_bottom)
-            prop_left = exp(self.param_dict['lambda_animal'] * e_left)
-            prop_right = exp(self.param_dict['lambda_animal'] * e_right)
+            prop_top = self._propensity_carn(top_cell)
+            prop_bottom = self._propensity_carn(bottom_cell)
+            prop_left = self._propensity_carn(left_cell)
+            prop_right = self._propensity_carn(right_cell)
 
             # sum_prop is the probability of the animal migrating when it
             # migrates and should be 1.
