@@ -396,9 +396,11 @@ class BioSim:
             self.current_year += 1
             print('Current year in sim:', self.sim_year)
 
+
             # Adds the amount of simulated years to the total year
             # count for the simulation.
             if self.sim_year >= num_years:
+                self._update_graphics()
                 return
 
     def add_population(self, population):
@@ -595,16 +597,16 @@ class BioSim:
         if self.line_graph is None:
             herbivores_per_year = self._line_graph_ax.plot(
 
-                np.arange(0, num_years + self.current_year),
-                np.full(num_years + self.current_year, np.nan), 'g',
+                np.arange(0, num_years + self.current_year + 1),
+                np.full(num_years + self.current_year + 1, np.nan), 'g',
                 label='Herbivore count'
 
             )
 
             carnivores_per_year = self._line_graph_ax.plot(
 
-                np.arange(0, num_years + self.current_year),
-                np.full(num_years + self.current_year, np.nan), 'r',
+                np.arange(0, num_years + self.current_year + 1),
+                np.full(num_years + self.current_year + 1, np.nan), 'r',
                 label='Carnivore count'
 
             )
@@ -831,7 +833,6 @@ if __name__ == "__main__":
         print(map_cell)
     """
 
-    """
     k = BioSim(island_map=easy_sim, ini_pop=[
         {"loc": (1, 2),
          "pop": [{"species": "Herbivore", "age": 7, "weight": 15.0}]},
@@ -861,8 +862,8 @@ if __name__ == "__main__":
     print(k.num_animals_per_species['Herbivore'])
 
     plt.show()
-    """
 
+    """
     k = BioSim(island_map=geogr, ini_pop=[
         {"loc": (3, 3),
          "pop": [{"species": "Herbivore", "age": 7, "weight": 15.0}]},
@@ -870,11 +871,11 @@ if __name__ == "__main__":
          "pop": [{"species": "Herbivore", "age": 1, "weight": 15.0},
                  {"species": "Herbivore", "age": 1, "weight": 15.0}
                  ]}
-    ], seed=0, img_base="/Users/Andreas/Documents/inf200_january/"
-                        "biosim_G07_sebastian_andreas/images/k",
+    ], seed=0, img_base="/Users/sebastiankihle/Documents/Python/INF200"
+                        "/biosim_G07_sebastian_andreas/biosim/src/biosim/img/k",
                ymax_animals=10, cmax_animals=5)
 
-    k.simulate(2, img_years=1)
+    k.simulate(10)
 
     print('added carnivores to simulation')
     k.add_population([
@@ -887,6 +888,8 @@ if __name__ == "__main__":
         },
     ])
 
-    k.simulate(2, img_years=1)
+    k.simulate(10)
     print(k.num_animals)
+    k.simulate(10)
     plt.show()
+    """
