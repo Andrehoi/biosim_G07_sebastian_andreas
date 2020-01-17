@@ -3,15 +3,15 @@
 __author__ = "Sebastian Kihle & Andreas Hoeimyr"
 __email__ = "sebaskih@nmbu.no & andrehoi@nmbu.no"
 
-from biosim.animals import Animal, Herbivore, Carnivore
-from biosim.island_class import Map
-from biosim.simulation import BioSim
-from biosim.geography import Jungle, Ocean, Mountain, Desert
-
-import random
 """
 Test file for animal properties
 """
+
+from biosim.animals import Herbivore, Carnivore
+from biosim.simulation import BioSim
+from biosim.geography import Jungle, Ocean, Mountain
+
+import random
 
 
 def test_ageing():
@@ -77,11 +77,11 @@ def test_lose_weight():
 
 def test_move():
     """
-    Test that both animal types can move properly. Checks that herbivores
-    prefers the jungle biome over the desert biome.
+    Test that herbivores moves when supposed to.
     :return:
     """
 
+    Herbivore.param_dict['mu'] = 1
     top_cell = Jungle()
     bottom_cell = Jungle()
     right_cell = Jungle()
@@ -89,8 +89,9 @@ def test_move():
 
     herbivore = Herbivore(1, 300)
     target_cell = herbivore.migrate(top_cell, bottom_cell, left_cell,
-                                   right_cell)
+                                    right_cell)
     assert type(target_cell).__name__ == 'Jungle'
+    Herbivore.param_dict['mu'] = 0.25
 
 
 def test_move_towards_cell_without_other_herbivores():
@@ -187,6 +188,7 @@ def test_mountain_and_water_impassable():
     assert len(sim.map.array_map[3, 3].present_herbivores) == 0
     assert len(sim.map.array_map[3, 3].present_carnivores) == 0
 
+
 def test_water_mountain_impassable():
     """
     Tests that carnivore or herbivores cannot enter cells of Ocean biome or
@@ -203,6 +205,7 @@ def test_water_mountain_impassable():
 
     outcome = herbi.migrate(top_cell, bottom_cell, left_cell, right_cell)
     assert outcome is None
+
 
 def test_eating():
     """
@@ -311,5 +314,3 @@ def test_weight_loss():
     assert herb.weight == 20
     herb.lose_weight()
     assert herb.weight == 19
-
-

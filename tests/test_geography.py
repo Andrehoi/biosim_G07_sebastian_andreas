@@ -8,7 +8,6 @@ Test file for the geography of the landscape
 """
 
 from biosim.geography import Biome, Mountain, Ocean, Desert, Savannah, Jungle
-import numpy as np
 
 
 def test_regrowth_jungle():
@@ -83,4 +82,3 @@ def test_set_biome_parameters():
     assert dsrt.param_dict['f_max'] == 125
 
     Desert.biome_parameters({'f_max': 0})
-

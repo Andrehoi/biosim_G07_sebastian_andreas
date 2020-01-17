@@ -6,12 +6,10 @@
 __author__ = "Sebastian Kihle & Andreas Hoeimyr"
 __email__ = "sebaskih@nmbu.no & andrehoi@nmbu.no"
 
-from biosim.geography import Mountain, Savannah, Jungle, Desert, Ocean
-from biosim.animals import Animal, Herbivore, Carnivore
+from biosim.animals import Herbivore, Carnivore
 from biosim.island_class import Map
 import textwrap
 import pandas as pd
-import re
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -63,7 +61,7 @@ class BioSim:
         self.current_year = 0
         self.sim_year = 0
 
-        # the following will be initialized by _setup_graphics
+        # The following will be initialized by _setup_graphics.
         self._fig = None
         self._heatmap_herb_ax = None
         self._heatmap_herb_graphics = None
@@ -71,15 +69,12 @@ class BioSim:
         self.line_graph = None
         self.legend_is_set_up = False
 
-        # Adds the initial population to the map.
         self.add_population(ini_pop)
 
-        #
         self._img_base = img_base
         self._img_fmt = img_fmt
         self._img_counter = 0
 
-        #
         if ymax_animals is None:
             self.graph_ymax = 10000
         else:
@@ -90,7 +85,8 @@ class BioSim:
         else:
             self.color_bar_max = cmax_animals
 
-    def set_animal_parameters(self, species, params):
+    @staticmethod
+    def set_animal_parameters(species, params):
         """
         Set parameters for animal species.
 
@@ -103,7 +99,7 @@ class BioSim:
 
     def set_landscape_parameters(self, landscape, params):
         """
-        Set parameters for landscape type.
+        Set parameters for biome type.
 
         :param landscape: String, code letter for landscape
         :param params: Dict with valid parameter specification for landscape
@@ -383,8 +379,8 @@ class BioSim:
                 for carnivore in cell.present_carnivores:
                     carnivore.has_moved = False
 
-            if self.current_year % vis_years == 0:
-                self._update_graphics()
+            # if self.current_year % vis_years == 0:
+                # self._update_graphics()
 
             if img_years is not None:
                 if self.current_year % img_years == 0:
@@ -395,7 +391,6 @@ class BioSim:
             self.sim_year += 1
             self.current_year += 1
             print('Current year in sim:', self.sim_year)
-
 
             # Adds the amount of simulated years to the total year
             # count for the simulation.
@@ -548,7 +543,26 @@ class BioSim:
         return carn_array
 
     def create_colour_island(self):
-        pass
+        int_map = self.map.biome_map
+        for row in range((len(int_map[0]))):
+            for col in range((len(int_map[0].T))):
+                if col == 'O':
+                    int_map[row, col] = 0
+
+                if col == 'D':
+                    int_map[row, col] = 1
+
+                if col == 'S':
+                    int_map[row, col] = 2
+
+                if col == 'J':
+                    int_map[row, col] = 3
+
+                if col == 'M':
+                    int_map[row, col] = 4
+        print(int_map)
+
+
 
     def _setup_graphics(self, num_years):
         """
@@ -577,6 +591,9 @@ class BioSim:
 
             self._heatmap_carn_ax = self._fig.add_subplot(3, 2, 5)
             self._heatmap_carn_graphics = None
+
+            self.landscape_map = self._fig.add_subplot(3, 2, 1)
+
 
             if not self.legend_is_set_up:
                 self._heatmap_herb_ax.title.set_text('Herbivore heatmap')
@@ -739,10 +756,12 @@ class BioSim:
 
         if movie_fmt == 'mp4':
             try:
-                # Parameters chosen according to http://trac.ffmpeg.org/wiki/Encode/H.264,
+                # Parameters chosen according to
+                # http://trac.ffmpeg.org/wiki/Encode/H.264,
                 # section "Compatibility"
                 subprocess.check_call([_FFMPEG_BINARY,
-                                       '-i', '{}_%05d.png'.format(self._img_base),
+                                       '-i', '{}_%05d.png'.format
+                                       (self._img_base),
                                        '-y',
                                        '-profile:v', 'baseline',
                                        '-level', '3.0',
@@ -845,8 +864,7 @@ if __name__ == "__main__":
                  ]}
     ], seed=0)
 
-    k.simulate(50)
-    print(k.num_animals_per_species['Herbivore'])
+    k.simulate(50, vis_years=200)
 
     k.add_population([
         {"loc": (1, 2),
@@ -858,10 +876,9 @@ if __name__ == "__main__":
                  {"species": "Carnivore", "age": 1, "weight": 35.0},
                  {"species": "Carnivore", "age": 1, "weight": 35.0},
                  ]}])
-    k.simulate(120)
+    k.simulate(120, vis_years=200)
     print(k.num_animals_per_species['Herbivore'])
 
-    plt.show()
 
     """
     k = BioSim(island_map=geogr, ini_pop=[

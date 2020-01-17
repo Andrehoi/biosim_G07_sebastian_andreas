@@ -1,3 +1,12 @@
+# -*- coding: utf-8 -*-
+
+__author__ = "Sebastian Kihle & Andreas Hoeimyr"
+__email__ = "sebaskih@nmbu.no & andrehoi@nmbu.no"
+
+"""
+Test file for the Map class
+"""
+
 from biosim.island_class import Map
 
 
@@ -49,7 +58,7 @@ def test_neighbouring_cells():
     m = Map(new_test_map)
 
     counter = 0
-    for cell in m.map_iterator():
+    for _ in m.map_iterator():
         if counter == 5:
             assert type(m.top).__name__ == 'Ocean'
             assert type(m.bottom).__name__ == 'Mountain'

@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
-"""
-"""
-
 __author__ = "Sebastian Kihle & Andreas Hoeimyr"
 __email__ = "sebaskih@nmbu.no & andrehoi@nmbu.no"
+
+"""
+File with all classes for the different kinds of biomes that the map can have.
+"""
 
 import numpy as np
 
