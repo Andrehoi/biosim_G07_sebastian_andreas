@@ -94,6 +94,7 @@ class Animal:
         :return:
         """
         self.age += 1
+        self.calculate_fitness()
 
     def _sigmodial_plus(self, x, x_half, phi):
         """ Used to calculated fitness """
@@ -144,9 +145,11 @@ class Animal:
                 self.weight -= birth_weight * self.param_dict['xi']
 
                 if type(self).__name__ == 'Herbivore':
+                    self.calculate_fitness()
                     return Herbivore(0, birth_weight)
 
                 if type(self).__name__ == 'Carnivore':
+                    self.calculate_fitness()
                     return Carnivore(0, birth_weight)
 
     def lose_weight(self):

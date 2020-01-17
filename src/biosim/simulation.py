@@ -379,8 +379,8 @@ class BioSim:
                 for carnivore in cell.present_carnivores:
                     carnivore.has_moved = False
 
-            # if self.current_year % vis_years == 0:
-                # self._update_graphics()
+            if self.current_year % vis_years == 0:
+                self._update_graphics()
 
             if img_years is not None:
                 if self.current_year % img_years == 0:
@@ -562,8 +562,6 @@ class BioSim:
                     int_map[row, col] = 4
         print(int_map)
 
-
-
     def _setup_graphics(self, num_years):
         """
         Creates a interface with 4 subplots. A map of the island with
@@ -593,7 +591,6 @@ class BioSim:
             self._heatmap_carn_graphics = None
 
             self.landscape_map = self._fig.add_subplot(3, 2, 1)
-
 
             if not self.legend_is_set_up:
                 self._heatmap_herb_ax.title.set_text('Herbivore heatmap')
@@ -864,7 +861,7 @@ if __name__ == "__main__":
                  ]}
     ], seed=0)
 
-    k.simulate(50, vis_years=200)
+    k.simulate(50, vis_years=1000)
 
     k.add_population([
         {"loc": (1, 2),
@@ -876,7 +873,7 @@ if __name__ == "__main__":
                  {"species": "Carnivore", "age": 1, "weight": 35.0},
                  {"species": "Carnivore", "age": 1, "weight": 35.0},
                  ]}])
-    k.simulate(120, vis_years=200)
+    k.simulate(120, vis_years=1000)
     print(k.num_animals_per_species['Herbivore'])
 
 
