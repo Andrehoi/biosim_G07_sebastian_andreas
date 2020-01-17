@@ -132,6 +132,7 @@ class BioSim:
                 if prints:
                     print('Weight of herbivore:', herbivore.weight)
 
+            cell.present_herbivores.sort(key=lambda x: x.phi)
             # Eating method for each carnivore in cell.
             for carnivore in cell.present_carnivores:
                 carnivore.hunt(cell.present_herbivores)
@@ -873,7 +874,7 @@ if __name__ == "__main__":
                  {"species": "Carnivore", "age": 1, "weight": 35.0},
                  {"species": "Carnivore", "age": 1, "weight": 35.0},
                  ]}])
-    k.simulate(120, vis_years=1000)
+    k.simulate(50, vis_years=1000)
     print(k.num_animals_per_species['Herbivore'])
 
 

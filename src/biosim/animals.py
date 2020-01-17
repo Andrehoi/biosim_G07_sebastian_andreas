@@ -205,6 +205,20 @@ class Herbivore(Animal):
         super().__init__(age, weight)
         self.legal_biomes = ['Desert', 'Savannah', 'Jungle']
 
+    def _propensity(self, cell):
+        """
+        Calculates the propensity an animal has to move to a cell.
+        :param cell:
+        :return:
+        """
+
+        e_cell = cell.available_food / (((len(
+            cell.present_herbivores) + 1) * self.param_dict['F']))
+
+        prop_cell = exp(self.param_dict['lambda_animal'] * e_cell)
+
+        return prop_cell
+
     def migrate(self, top_cell, bottom_cell, left_cell, right_cell):
         """
         Calculates the probability for an animal to move one cell, and
@@ -234,23 +248,10 @@ class Herbivore(Animal):
             # e_xxx is a parameter used to calculate the propensity to to
             # move to a cell. e_xxx depends on available food and number of
             # herbivores in the cell.
-            e_top = top_cell.available_food / (((len(
-                top_cell.present_herbivores) + 1) * self.param_dict['F']))
-
-            e_bottom = bottom_cell.available_food / (((len(
-                bottom_cell.present_herbivores) + 1) * self.param_dict['F']))
-
-            e_left = left_cell.available_food / (((len(
-                left_cell.present_herbivores) + 1) * self.param_dict['F']))
-
-            e_right = right_cell.available_food / (((len(
-                right_cell.present_herbivores) + 1) * self.param_dict['F']))
-
-            # prop_xxx is the propensity to move towards cell xxx
-            prop_top = exp(self.param_dict['lambda_animal'] * e_top)
-            prop_bottom = exp(self.param_dict['lambda_animal'] * e_bottom)
-            prop_left = exp(self.param_dict['lambda_animal'] * e_left)
-            prop_right = exp(self.param_dict['lambda_animal'] * e_right)
+            prop_top = self._propensity(top_cell)
+            prop_bottom = self._propensity(bottom_cell)
+            prop_left = self._propensity(left_cell)
+            prop_right = self._propensity(right_cell)
 
             # sum_prop is the probability of the animal migrating when it
             # migrates and should be 1.
@@ -354,7 +355,6 @@ class Carnivore(Animal):
         start_weight = self.weight
 
         # Sorts the herbivore list in ascending fitness order.
-        sorted_list_of_herbivores.sort(key=lambda x: x.phi)
         kill_probability = 0
         weight_of_killed_animals = 0
 
