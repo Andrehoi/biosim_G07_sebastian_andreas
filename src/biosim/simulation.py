@@ -851,7 +851,7 @@ if __name__ == "__main__":
                  ]}
     ], seed=0)
 
-    k.simulate(50, vis_years=1000)
+    k.simulate(50)
 
     k.add_population([
         {"loc": (1, 2),
@@ -863,9 +863,8 @@ if __name__ == "__main__":
                  {"species": "Carnivore", "age": 1, "weight": 35.0},
                  {"species": "Carnivore", "age": 1, "weight": 35.0},
                  ]}])
-    k.simulate(50, vis_years=1000)
+    k.simulate(50)
     print(k.num_animals_per_species['Herbivore'])
-
 
     """
     k = BioSim(island_map=geogr, ini_pop=[

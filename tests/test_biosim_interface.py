@@ -312,17 +312,11 @@ def test_population_to_cell():
         sim.map.array_map[1, 1].present_carnivores) == 3
 
 
-def test_map_iterator():
-    """ Tests that map_iterator iterates through map and yields the class
-    stored in each cell for the map."""
-
-    ocean_map = Map("OOO\nOOO\nOOO")
-
-    cell = ocean_map.map_iterator()
-
-    for cell in ocean_map.map_iterator():
-        assert type(cell).__name__ == 'Ocean'
-
-
-
-
+def test_axes_is_set_up(plain_sim):
+    """ Test that the axis for the interface is set up after simulation """
+    plain_sim.simulate(1)
+    assert plain_sim._fig is not None
+    assert plain_sim.legend_is_set_up
+    assert plain_sim._heatmap_herb_ax is not None
+    assert plain_sim._heatmap_carn_ax is not None
+    assert plain_sim._line_graph_ax is not None
