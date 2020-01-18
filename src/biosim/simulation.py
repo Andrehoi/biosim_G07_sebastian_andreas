@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-"""
-"""
 
 __author__ = "Sebastian Kihle & Andreas Hoeimyr"
 __email__ = "sebaskih@nmbu.no & andrehoi@nmbu.no"
@@ -57,6 +55,7 @@ class BioSim:
         """
 
         self.map = Map(island_map)
+        self.island_map = island_map
         self.seed = random.seed(seed)
         self.current_year = 0
         self.sim_year = 0
@@ -76,7 +75,7 @@ class BioSim:
         self._img_counter = 0
 
         if ymax_animals is None:
-            self.graph_ymax = 10000
+            self.graph_ymax = 8000
         else:
             self.graph_ymax = ymax_animals
 
@@ -534,25 +533,28 @@ class BioSim:
             carn_array[self.map.y, self.map.x] = len(cell.present_carnivores)
         return carn_array
 
-    def create_colour_island(self):
-        int_map = self.map.biome_map
-        for row in range((len(int_map[0]))):
-            for col in range((len(int_map[0].T))):
-                if col == 'O':
-                    int_map[row, col] = 0
+    def _create_colour_island(self, map):
+        """
+        Creates a colored map of the island.
+        :param map: The sting map
+        :return:
+        """
+        self.rgb_value = {'O': (0.0, 0.0, 1.0),  # blue
+                          'M': (0.5, 0.5, 0.5),  # grey
+                          'J': (0.0, 0.6, 0.0),  # dark green
+                          'S': (0.5, 1.0, 0.5),  # light green
+                          'D': (1.0, 1.0, 0.5)}  # light yellow
 
-                if col == 'D':
-                    int_map[row, col] = 1
+        map_rgb = [[self.rgb_value[column] for column in row] for row in
+                   map.splitlines()]
 
-                if col == 'S':
-                    int_map[row, col] = 2
+        self._landscape_map_ax.imshow(map_rgb)
+        self._landscape_map_ax.grid(True)
+        self._landscape_map_ax.set_xticks(range(len(map_rgb[0])))
+        self._landscape_map_ax.set_xticklabels(range(len(map_rgb[0])))
+        self._landscape_map_ax.set_yticks(range(len(map_rgb)))
+        self._landscape_map_ax.set_yticklabels(range(len(map_rgb)))
 
-                if col == 'J':
-                    int_map[row, col] = 3
-
-                if col == 'M':
-                    int_map[row, col] = 4
-        print(int_map)
 
     def _setup_graphics(self, num_years):
         """
@@ -582,11 +584,26 @@ class BioSim:
             self._heatmap_carn_ax = self._fig.add_subplot(3, 2, 5)
             self._heatmap_carn_graphics = None
 
-            self.landscape_map = self._fig.add_subplot(3, 2, 1)
+            self._landscape_map_ax = self._fig.add_subplot(3, 2, 1)
+
+            self._create_colour_island(self.island_map)
+
+            axlg = self._fig.add_axes([0.02, 0.72, 0.08, 0.15])
+            axlg.axis('off')
+            for ix, name in enumerate(('Ocn', 'Mtn', 'Jgl',
+                                       'Svn', 'Dst')):
+                axlg.add_patch(plt.Rectangle((0., ix * 0.2), 0.3, 0.1,
+                                             edgecolor='none',
+                                             facecolor=self.rgb_value[name[
+                                                 0]]))
+                axlg.text(0.35, ix * 0.2, name, transform=axlg.transAxes)
 
             if not self.legend_is_set_up:
+                self._landscape_map_ax.title.set_text('Island map')
                 self._heatmap_herb_ax.title.set_text('Herbivore heatmap')
                 self._heatmap_carn_ax.title.set_text('Carnivore heatmap')
+                self._landscape_map_ax.get_xaxis().set_visible(False)
+                self._landscape_map_ax.get_yaxis().set_visible(False)
                 self._heatmap_herb_ax.get_xaxis().set_visible(False)
                 self._heatmap_herb_ax.get_yaxis().set_visible(False)
                 self._heatmap_carn_ax.get_xaxis().set_visible(False)
@@ -766,8 +783,8 @@ if __name__ == "__main__":
     geogr = """\
                    OOOOOOOOOOOOOOOOOOOOO
                    OOOOOOOOSMMMMJJJJJJJO
-                   OSSSSSJJJJMMJJJJJJJOO
-                   OSSSSSSSSSMMJJJJJJOOO
+                   OSSSSSJJJJMMJJJDDJJOO
+                   OSSSSSSSSSMMJJJDJJOOO
                    OSSSSSJJJJJJJJJJJJOOO
                    OOOOOOOOOOOOOOOOOOOOO"""
 
@@ -780,7 +797,7 @@ if __name__ == "__main__":
 
     geogr = textwrap.dedent(geogr)
     easy_sim = textwrap.dedent(easy_sim)
-    """
+
     k = BioSim(island_map=geogr, ini_pop=[
         {"loc": (3, 3),
          "pop": [{"species": "Herbivore", "age": 7, "weight": 15.0}]},
@@ -810,7 +827,7 @@ if __name__ == "__main__":
         },
     ]
     ))
-    k.simulate(2, img_years=1)
+    k.simulate(50)
     print(k.num_animals)
     print('added carnivores to simulation')
     k.add_population([
@@ -829,16 +846,15 @@ if __name__ == "__main__":
         },
     ])
 
-    k.simulate(2, img_years=1)
+    k.simulate(50)
     print(k.num_animals)
     plt.show()
-    """
 
     """
     for map_cell in k.map.map_iterator():
         print(map_cell)
     """
-
+    """
     k = BioSim(island_map=easy_sim, ini_pop=[
         {"loc": (1, 2),
          "pop": [{"species": "Herbivore", "age": 7, "weight": 15.0}]},
@@ -865,6 +881,7 @@ if __name__ == "__main__":
                  ]}])
     k.simulate(50)
     print(k.num_animals_per_species['Herbivore'])
+    """
 
     """
     k = BioSim(island_map=geogr, ini_pop=[
