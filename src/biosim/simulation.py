@@ -27,31 +27,31 @@ class BioSim:
             img_fmt="png",
     ):
         """
-        :param island_map: Multi-line string specifying island geography
-        :param ini_pop: List of dictionaries specifying initial population
-        :param seed: Integer used as random number seed
-        :param ymax_animals: Number specifying y-axis limit for graph showing
-        animal numbers
-        :param cmax_animals: Dict specifying color-code limits for animal
-        densities
-        :param img_base: String with beginning of file name for figures,
-        including path
-        :param img_fmt: String with file type for figures, e.g. 'png'
+        :param island_map: Multi-line string specifying island geography.
 
-        If ymax_animals is None, the y-axis limit should be adjusted
-        automatically.
+        :param ini_pop: List of dictionaries specifying initial population.
 
-        If cmax_animals is None, sensible, fixed default values should be used.
-        cmax_animals is a dict mapping species names to numbers, e.g.,
-           {'Herbivore': 50, 'Carnivore': 20}
+        :param seed: Integer used as random number seed.
 
-        If img_base is None, no figures are written to file.
+        :param ymax_animals: Number specifying y-axis limit for graph.
+        Shows the population of each animal species. If ymax_animals is None,
+        the y-axis limit is set to a fixed number, e.g., 8000.
+
+        :param cmax_animals: Dictionary specifying color-code limits.
+        If cmax_animals is None, sensible, fixed default values should be
+        used. cmax_animals is a dict mapping species names to numbers, e.g.,
+        {'Herbivore': 50, 'Carnivore': 20}
+
+        :param img_base: String with beginning of file name for figures.
+        Must include path. If img_base is None, no figures are written to file.
         Filenames are formed as
 
             '{}_{:05d}.{}'.format(img_base, img_no, img_fmt)
 
         where img_no are consecutive image numbers starting from 0.
-        img_base should contain a path and beginning of a file name.
+        img_base should contain a path and beginning of a file name
+
+        :param img_fmt: String with file type for figures, e.g. 'png'
         """
 
         self.map = Map(island_map)
@@ -80,9 +80,11 @@ class BioSim:
             self.graph_ymax = ymax_animals
 
         if cmax_animals is None:
-            self.color_bar_max = 200
+            self.color_bar_max_herb = 150
+            self.color_bar_max_carn = 100
         else:
-            self.color_bar_max = cmax_animals
+            self.color_bar_max_herb = cmax_animals['Herbivore']
+            self.color_bar_max_carn = cmax_animals['Carnivore']
 
     @staticmethod
     def set_animal_parameters(species, params):
@@ -110,7 +112,6 @@ class BioSim:
         Eating cycle for each animal in each cell
 
         :param prints: prints relevant actions
-        :return:
         """
 
         for cell in self.map.map_iterator():
@@ -674,7 +675,8 @@ class BioSim:
             self._heatmap_herb_graphics = \
                 self._heatmap_herb_ax.imshow(animal_array,
                                              interpolation='nearest',
-                                             vmin=0, vmax=self.color_bar_max)
+                                             vmin=0,
+                                             vmax=self.color_bar_max_herb)
             plt.colorbar(self._heatmap_herb_graphics, ax=self._heatmap_herb_ax,
                          orientation='horizontal')
 
@@ -692,7 +694,8 @@ class BioSim:
             self._heatmap_carn_graphics = \
                 self._heatmap_carn_ax.imshow(animal_array,
                                              interpolation='nearest',
-                                             vmin=0, vmax=self.color_bar_max,
+                                             vmin=0,
+                                             vmax=self.color_bar_max_carn,
                                              cmap='magma')
             plt.colorbar(self._heatmap_carn_graphics, ax=self._heatmap_carn_ax,
                          orientation='horizontal')
