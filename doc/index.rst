@@ -6,59 +6,33 @@
 Welcome to BioSim G.07 Sebastian & Andreas's documentation!
 ***********************************************************
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
-
 Introduction:
 =============
 
 
-Animals
-=======
-
-Herbivores
-----------
-
-Carnivores
-----------
-
-
-Geography
-=========
-
-Jungle
-------
-
-Savannah
---------
-
-Desert
-------
-
-Mountain
---------
-
-Ocean
------
-
-Map creation
-============
-
-
 The BioSim interface
-====================
+--------------------
 
 
-Testing
-=======
+Map creation & Geography
+------------------------
+
+
+Animals
+-------
+
+
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+   biosim_interface
+   animals
+   geography
+   map_iterator
+   examples
+   installations
+
+
+
