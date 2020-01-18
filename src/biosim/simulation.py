@@ -536,7 +536,7 @@ class BioSim:
     def _create_colour_island(self, map):
         """
         Creates a colored map of the island.
-        :param map: The sting map
+        :param map: The string map
         :return:
         """
         self.rgb_value = {'O': (0.0, 0.0, 1.0),  # blue
@@ -555,14 +555,14 @@ class BioSim:
         self._landscape_map_ax.set_yticks(range(len(map_rgb)))
         self._landscape_map_ax.set_yticklabels(range(len(map_rgb)))
 
-
     def _setup_graphics(self, num_years):
         """
         Creates a interface with 4 subplots. A map of the island with
-        colors, two heatmaps and one line graph.
+        colors, two heatmaps, one line graph and a colored map of the island.
         Each heatmap depicts the distribution of an animal, one for
         herbivores and one for carnivores. The line graph shows the total
-        number of animals on the island each year.
+        number of animals on the island each year. The colored map shows the
+        position of the biomes on the map.
 
         :param num_years: Number of years simulated.
         :return:
@@ -588,17 +588,18 @@ class BioSim:
 
             self._create_colour_island(self.island_map)
 
-            axlg = self._fig.add_axes([0.02, 0.72, 0.08, 0.15])
-            axlg.axis('off')
-            for ix, name in enumerate(('Ocn', 'Mtn', 'Jgl',
-                                       'Svn', 'Dst')):
-                axlg.add_patch(plt.Rectangle((0., ix * 0.2), 0.3, 0.1,
-                                             edgecolor='none',
-                                             facecolor=self.rgb_value[name[
-                                                 0]]))
-                axlg.text(0.35, ix * 0.2, name, transform=axlg.transAxes)
-
+            # Create the legend for the graphics
             if not self.legend_is_set_up:
+                axlg = self._fig.add_axes([0.02, 0.72, 0.08, 0.15])
+                axlg.axis('off')
+                for ix, name in enumerate(('Ocn', 'Mtn', 'Jgl',
+                                           'Svn', 'Dst')):
+                    axlg.add_patch(plt.Rectangle((0., ix * 0.2), 0.3, 0.1,
+                                                 edgecolor='none',
+                                                 facecolor=self.rgb_value[name[
+                                                     0]]))
+                    axlg.text(0.35, ix * 0.2, name, transform=axlg.transAxes)
+
                 self._landscape_map_ax.title.set_text('Island map')
                 self._heatmap_herb_ax.title.set_text('Herbivore heatmap')
                 self._heatmap_carn_ax.title.set_text('Carnivore heatmap')
@@ -809,7 +810,7 @@ if __name__ == "__main__":
                  {"species": "Herbivore", "age": 1, "weight": 15.0},
                  {"species": "Herbivore", "age": 1, "weight": 15.0}
                  ]}
-    ], seed=0, img_base="/Users/Andreas/Documents/inf200_january/"
+    ], seed=3, img_base="/Users/Andreas/Documents/inf200_january/"
                         "biosim_G07_sebastian_andreas/images/k")
 
     Carnivore.new_parameters({'DeltaPhiMax': 10})
@@ -881,6 +882,7 @@ if __name__ == "__main__":
                  ]}])
     k.simulate(50)
     print(k.num_animals_per_species['Herbivore'])
+    plt.show()
     """
 
     """

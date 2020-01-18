@@ -18,7 +18,6 @@ Notes:
 __author__ = "Hans Ekkehard Plesser"
 __email__ = "hans.ekkehard.plesser@nmbu.no"
 
-
 import pytest
 import pandas
 import glob
@@ -26,6 +25,7 @@ import os
 import os.path
 
 from biosim.simulation import BioSim
+from biosim.animals import Carnivore
 from biosim.island_class import Map
 from biosim.geography import Mountain, Savannah, Jungle, Desert, Ocean
 
@@ -95,6 +95,25 @@ def test_set_param_animals(species, extra):
     BioSim(island_map="O", ini_pop=[], seed=1).set_animal_parameters(
         species, params
     )
+
+    Carnivore.new_parameters({
+        'w_birth': 6.0,
+        'sigma_birth': 1.0,
+        'beta': 0.75,
+        'eta': 0.125,
+        'a_half': 60,
+        'phi_age': 0.4,
+        'w_half': 4.0,
+        'phi_weight': 0.4,
+        'mu': 0.4,
+        'lambda_animal': 1,
+        'gamma': 0.8,
+        'zeta': 3.5,
+        'xi': 1.1,
+        'omega': 0.9,
+        'F': 50,
+        'DeltaPhiMax': 10
+    })
 
 
 @pytest.mark.parametrize(
@@ -320,3 +339,134 @@ def test_axes_is_set_up(plain_sim):
     assert plain_sim._heatmap_herb_ax is not None
     assert plain_sim._heatmap_carn_ax is not None
     assert plain_sim._line_graph_ax is not None
+
+
+@pytest.fixture
+def sim_test():
+    """ Simple island with herbivores used to test """
+    return BioSim(island_map='OOO\nOJO\nOOO',
+                  seed=0,
+                  ini_pop=[
+                      {"loc": (1, 1),
+                       "pop": [{"species": "Herbivore", "age": 7,
+                                "weight": 40.0},
+                               {"species": "Herbivore", "age": 7,
+                                "weight": 40.0},
+                               {"species": "Herbivore", "age": 7,
+                                "weight": 40.0}]}])
+
+
+def test_feeding_cycle(plain_sim):
+    """ Test the feeding cycle for herbivores """
+    plain_sim.add_population(
+        [
+            {"loc": (1, 1),
+             "pop": [{"species": "Herbivore", "age": 7,
+                      "weight": 40.0},
+                     {"species": "Herbivore", "age": 7,
+                      "weight": 40.0},
+                     {"species": "Herbivore", "age": 7,
+                      "weight": 40.0},
+                     ]},
+            {"loc": (1, 2),
+             "pop": [{"species": "Herbivore", "age": 7,
+                      "weight": 40.0},
+                     {"species": "Herbivore", "age": 7,
+                      "weight": 40.0}
+                     ]}
+        ]
+    )
+
+    plain_sim.feeding_cycle()
+    for herbivores in plain_sim.map.array_map[1, 1].present_herbivores:
+        assert herbivores.weight > 40
+    for herbivores in plain_sim.map.array_map[1, 2].present_herbivores:
+        assert herbivores.weight > 40
+
+
+def test_breeding_cycle(plain_sim):
+    """ Test that the animals have multiplied during breeding cycle. """
+    plain_sim.add_population(
+        [
+            {"loc": (1, 1),
+             "pop": [{"species": "Herbivore", "age": 7,
+                      "weight": 100.0},
+                     {"species": "Herbivore", "age": 7,
+                      "weight": 100.0},
+                     {"species": "Herbivore", "age": 7,
+                      "weight": 100.0},
+                     ]},
+            {"loc": (1, 2),
+             "pop": [{"species": "Carnivore", "age": 7,
+                      "weight": 100.0},
+                     {"species": "Carnivore", "age": 7,
+                      "weight": 100.0},
+                     {"species": "Carnivore", "age": 7,
+                      "weight": 100.0},
+                     ]}
+        ]
+    )
+    plain_sim.breeding_cycle()
+    plain_sim.breeding_cycle()
+    plain_sim.breeding_cycle()
+    assert len(plain_sim.map.array_map[1, 1].present_herbivores) > 3
+    assert len(plain_sim.map.array_map[1, 2].present_carnivores) > 3
+
+
+def test_aging_cycle(plain_sim):
+    """ Test that all animals age by one year after aging cycle """
+    plain_sim.add_population(
+        [
+            {"loc": (1, 1),
+             "pop": [{"species": "Herbivore", "age": 7,
+                      "weight": 100.0},
+                     {"species": "Herbivore", "age": 7,
+                      "weight": 100.0},
+                     {"species": "Herbivore", "age": 7,
+                      "weight": 100.0},
+                     ]},
+            {"loc": (1, 2),
+             "pop": [{"species": "Carnivore", "age": 7,
+                      "weight": 100.0},
+                     {"species": "Carnivore", "age": 7,
+                      "weight": 100.0},
+                     {"species": "Carnivore", "age": 7,
+                      "weight": 100.0},
+                     ]}
+        ]
+    )
+    plain_sim.ageing_cycle()
+    for herbivore in plain_sim.map.array_map[1, 1].present_herbivores:
+        assert herbivore.age == 8
+    for carnivore in plain_sim.map.array_map[1, 2].present_carnivores:
+        assert carnivore.age == 8
+
+
+def test_weight_loss_cycle(plain_sim):
+    """ Test that all animals lose weight during weight loss cycle """
+    plain_sim.add_population(
+        [
+            {"loc": (1, 1),
+             "pop": [{"species": "Herbivore", "age": 7,
+                      "weight": 100.0},
+                     {"species": "Herbivore", "age": 7,
+                      "weight": 100.0},
+                     {"species": "Herbivore", "age": 7,
+                      "weight": 100.0},
+                     ]},
+            {"loc": (1, 2),
+             "pop": [{"species": "Carnivore", "age": 7,
+                      "weight": 100.0},
+                     {"species": "Carnivore", "age": 7,
+                      "weight": 100.0},
+                     {"species": "Carnivore", "age": 7,
+                      "weight": 100.0},
+                     ]}
+        ]
+    )
+    plain_sim.weight_loss_cycle()
+    for herbivore in plain_sim.map.array_map[1, 1].present_herbivores:
+        assert herbivore.weight == 95
+
+    for carnivore in plain_sim.map.array_map[1, 2].present_carnivores:
+        assert carnivore.weight == 87.5
