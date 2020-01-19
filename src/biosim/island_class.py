@@ -11,8 +11,28 @@ import re
 
 class Map:
     """
-    Class that handles and creates the island map. Converts if from a
-    multiline string to an array with objects.
+    The Map class takes a multiline string as input and creates a numpy
+    array of it.
+    The numpy array will contain one letter in each position and is saved as
+    biome_map.
+
+    The biome_map is then used to create a numpy array of class instances
+    named array_map. E. g. if a position in the biome_map is 'J' it will be
+    the class Jungle in the array_map.
+
+    The Map class also checks that the input string fulfills certain criteria.
+    Each row of the multiline string must have the same amount of letters,
+    else a ValueError is raised.
+    The string can only contain the letters which has corresponding classes.
+    This is checked using regular expression. As of now the only legal
+    letters are J, D, S, O and M, corresponding to the biomes Jungle,
+    Desert, Savannah, Ocean and Mountain. If there are different letters in
+    the input string a ValueError is raised.
+    It checks that the string gives a map where all edge cells are ocean,
+    if not a ValueError is raised. See ``Examples`` for an example of an
+    accepted input string.
+
+    :param : A multiline string with letters J, S, D, O, M
     """
     def __init__(self, island_multiline_sting):
         self.island_multiline_sting = island_multiline_sting
@@ -69,16 +89,19 @@ class Map:
 
     def map_iterator(self):
         """
-        Iterates through each cell in the map. X iterates through columns in
-        the map matrix, and Y iterates through rows of the map matrix.
+        The map_iterator method iterates through each cell in array_map.
+        self.x is used to iterate through columns in array_map, and self.y is
+        used to
+        iterate through the rows in self.array_map(numpy array with class
+        instances in each position).
         Yields the object in the current cell of the map.
         The yield allows the code to produce a series of cells over time,
         rather than computing them at once and sending them back like a list.
 
         The map_iterator saves the surrounding cells around the current
         cell. If the current cell is on the edge of the map,
-        the neighbouring cell outside the map is set to be an ocean cell.
-        These neighbouring cells are used in the migrating
+        the neighbouring cell outside the map is set to be OutOfBounds cell.
+        These neighbouring cells are stored and used when animals migrate.
 
         :yields: Object in current cell.
 

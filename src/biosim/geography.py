@@ -15,8 +15,8 @@ class Biome:
     The Biome class stores information about the animals present in the
     cells of the island. The Biome class does not represent a specific
     biome, it is however, a super class that each type  of biome inherits
-    specific properties, e.g. the ability to contain animals and the ability
-    to regrow food.
+    specific properties from, e.g. the ability to contain animals and the
+    ability to regrow food.
 
     The global variables for the biomes are stored in a dictionary named
     param_dict. The global variables are,
@@ -30,14 +30,17 @@ class Biome:
     @classmethod
     def biome_parameters(cls, parameters):
         """
-        The biome_parameters method redefines available amount of food (
-        f_max) and the regrowth constant (alpha).
+        The biome_parameters method updated the values of available amount of
+        food(f_max) and the regrowth constant (alpha).
 
         The method raises an error if there are undefined parameters within
         the dictionary or illegal values for the parameters. E.g. if the
-        value of f_max is given as less than zero.
+        value of f_max is given as less than zero. Furthermore, the size of
+        the dictionary param_dict may vary from biome to biome, e. g. there
+        is only one element in det dictionary for the jungle biome(f_max),
+        but in the Savannah both alpha and f_max is present.
 
-        :param parameters: A dictionary containing f_max and alpha
+        :param A dictionary containing f_max and alpha
         """
         for iterator in parameters:
             if iterator in cls.param_dict:
@@ -67,7 +70,7 @@ class Biome:
 class Mountain(Biome):
     """
     The Mountain class is a sub-class of the super-class Biome. The mountain
-    biome has no food for herbivores nor regrowth of food.
+    biome has no food for herbivores nor regrowth of  by default.
     """
 
     def __init__(self):
@@ -91,7 +94,7 @@ class Jungle(Biome):
 
     def regrow(self):
         """
-        The regrow method for the jungle biome redefines the amount of
+        The regrow method for the jungle biome restores the amount of
         available food to f_max when called.
         """
         self.available_food = self.param_dict['f_max']
@@ -101,7 +104,7 @@ class Savannah(Biome):
     """
     The Savannah class is a sub-class of the super-class Biome. The Savannah
     biome is able to contain animals and contains food for herbivores.
-    The amount of available food in the Savannah is initially defined as
+    The amount of available food in the Savannah is initially put as
     f_max = 300, which is drastically less than in the jungle biome.
     Furthermore the amount of available food in the Savannah is dependent of
     how much of the available food in the Savannah was eaten the previous year.
@@ -116,13 +119,14 @@ class Savannah(Biome):
     def regrow(self):
         """
         The regrow method calculates and redefines the amount of available
-        food based on the amount of available food left from the previous year.
-        The regrowth factor alpha and is calculated by the following formula:
+        food based on the amount of available food left from the previous
+        year and the regrowth factor alpha. The amount of available food
+        after regrowth is calculated by the following formula:
 
         # TODO: Write mathematical formula for regrowth in Savannah.
 
         where f_{available} is the new amount of available food,
-        f_{remaining} is the food left after previous year, \alpha is the
+        f_{remaining} is the food left after previous year, alpha is the
         regrowth constant and f_{max} is the maximum available food in the
         Savannah.
 
@@ -137,7 +141,7 @@ class Savannah(Biome):
 class Desert(Biome):
     """
     The Desert class is a sub-class of the Biome super-class. The desert may
-    contain animals, however it is no food for herbivores available.
+    contain animals, however it has no food for herbivores by default.
     In the desert biome carnivores may still hunt and kill herbivores.
     """
 
@@ -149,7 +153,7 @@ class Ocean(Biome):
     """
     The Ocean class is a sub-class of the Biome super-class. The Ocean may
     contain animals, however there is no food nor regrowth of food in the
-    biome.
+    biome by default.
 
     """
 
@@ -159,14 +163,14 @@ class Ocean(Biome):
 
 class OutOfBounds:
     """
-    Class surrounding map that is impassable for all animals. Cannot add
-    animals to this cell and no animal can access it.
+    Class surrounding the map that is impassable for all animals. Cannot add
+    animals to this type of cell and no animal can access it.
 
     These cells are created around the map by the map iterator to make sure
     noe animals can escape the map.
 
     The sole purpose of this biome is to trap all types of animals within
-    the borders of the map. If one for example creates a fish or a
+    the borders of the map. If one for example creates a fish or an
     amphibious animal it will not be able to swim beyond the borders of the
     map.
     """

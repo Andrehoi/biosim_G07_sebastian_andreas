@@ -11,6 +11,10 @@ Also includes the iterator
 .. autoclass:: biosim.island_class.Map
     :inherited-members:
 
+
+Types of Biomes
+---------------
+
 .. autoclass:: biosim.geography.Biome
     :inherited-members:
 
