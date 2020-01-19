@@ -236,6 +236,21 @@ def test_eating():
     assert herb.weight == 50.3
 
 
+def test_maximum_weight():
+    """ Test that no animals can surpass their maximum weight with default
+    values. These are calculated by hand from
+    w + F * beta - eta * (w + F * beta) = w """
+    herb = Herbivore(3, 171)
+    herb.eat(300)
+    herb.lose_weight()
+    assert herb.weight == 171
+
+    carn = Carnivore(3, 262.5)
+    carn.weight += 37.5  # maximum weight a carnivore can gain in one year
+    carn.lose_weight()
+    assert carn.weight == 262.5
+
+
 def test_mating_and_weight():
     """
     Test the mating function, and that there is no offspring if offsprings

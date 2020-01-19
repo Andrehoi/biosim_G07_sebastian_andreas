@@ -31,7 +31,7 @@ class BioSim:
         to input a string with the map geography and add animals such as
         herbivores and carnivores to simulate. The class will display an
         interface with a colored map of the island, a heatmap for the
-        herbivores, a heatmap for the carnivores and population graph.
+        herbivores, a heatmap for the carnivores and a population graph.
         This interface will be updated every year by default, but these
         parameters can be changed. You will also have the option to save
         frames(pictures) of the simulation, and be able to construct a video
