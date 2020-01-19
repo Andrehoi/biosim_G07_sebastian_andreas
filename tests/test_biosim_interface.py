@@ -25,9 +25,7 @@ import os
 import os.path
 
 from biosim.simulation import BioSim
-from biosim.animals import Carnivore
-from biosim.island_class import Map
-from biosim.geography import Mountain, Savannah, Jungle, Desert, Ocean
+from biosim.animals import Carnivore, Herbivore
 
 
 def test_empty_island():
@@ -470,3 +468,35 @@ def test_weight_loss_cycle(plain_sim):
 
     for carnivore in plain_sim.map.array_map[1, 2].present_carnivores:
         assert carnivore.weight == 87.5
+
+
+def test_death_cycle(plain_sim):
+    """ Tests that the death cycle works as intended. """
+    Herbivore.new_parameters({'omega': 0.99})
+    Carnivore.new_parameters({'omega': 0.99})
+    plain_sim.add_population(
+        [
+            {"loc": (1, 1),
+             "pop": [{"species": "Herbivore", "age": 100,
+                      "weight": 0.1},
+                     {"species": "Herbivore", "age": 7,
+                      "weight": 100.0},
+                     {"species": "Herbivore", "age": 100,
+                      "weight": 0.1},
+                     ]},
+            {"loc": (1, 2),
+             "pop": [{"species": "Carnivore", "age": 7,
+                      "weight": 100.0},
+                     {"species": "Carnivore", "age": 100,
+                      "weight": 1.0},
+                     {"species": "Carnivore", "age": 7,
+                      "weight": 100.0},
+                     ]}
+        ]
+    )
+    plain_sim.death_cycle()
+
+    assert len(plain_sim.map.array_map[1, 2].present_carnivores) == 2
+    assert len(plain_sim.map.array_map[1, 1].present_herbivores) == 1
+    Herbivore.new_parameters({'omega': 0.40})
+    Carnivore.new_parameters({'omega': 0.90})
