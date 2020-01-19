@@ -329,3 +329,17 @@ def test_weight_loss():
     assert herb.weight == 20
     herb.lose_weight()
     assert herb.weight == 19
+
+
+def test_propensity():
+    """ Test that the propensity is calculated correctly for both animals """
+    jgl = Jungle()
+    jgl.available_food = 100
+    jgl.present_herbivores.append(Herbivore(3, 20))
+    jgl.present_herbivores.append(Herbivore(2, 15))
+    jgl.present_carnivores.append(Carnivore(2, 20))
+    carn = Carnivore(2, 40)
+    herb = Herbivore(4, 53)
+
+    assert abs(carn._propensity_carn(jgl) - 1.419) < 0.001
+    assert abs(herb._propensity_herb(jgl) - 28.032) < 0.001
