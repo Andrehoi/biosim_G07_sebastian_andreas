@@ -26,7 +26,6 @@ def test_map_iterator():
     """
     Tests that the map iterator iterates through all the cells of the map
     and returns the correct class instance for the corresponding cell.
-    :return:
     """
     new_test_map = 'OOO\nODO\nOOO'
 
@@ -50,7 +49,6 @@ def test_neighbouring_cells():
     Tests that the map iterator updates the four neighbouring cells for the
     current cell. If a neighbouring cell is not on the map the neighbouring
     cell should be OutOfBounds.
-    :return:
     """
 
     new_test_map = 'OOOO\nODJO\nOMSO\nOOOO'

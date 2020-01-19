@@ -202,7 +202,7 @@ class BioSim:
         parameter that tracks if the animal has moved during the year. This
         is to keep animals from moving twice. Animals move depending on
         fitness, where the animal of each species with the highest fitness
-        moves first.
+        moves first. Herbivores move first.
 
         :param prints: Prints relevant actions if True.
         """
@@ -268,6 +268,14 @@ class BioSim:
             cell.present_carnivores = [animal for animal in
                                        migrating_carnivores if animal not in
                                        exited_carnivores]
+
+        # Makes all animals able to move again next year.
+        for cell in self.map.map_iterator():
+            for herbivore in cell.present_herbivores:
+                herbivore.has_moved = False
+
+            for carnivore in cell.present_carnivores:
+                carnivore.has_moved = False
 
     def ageing_cycle(self, prints=False):
         """
@@ -387,14 +395,6 @@ class BioSim:
             self.ageing_cycle(prints)
             self.weight_loss_cycle(prints)
             self.death_cycle(prints)
-
-            # Makes all animals able to move again next year.
-            for cell in self.map.map_iterator():
-                for herbivore in cell.present_herbivores:
-                    herbivore.has_moved = False
-
-                for carnivore in cell.present_carnivores:
-                    carnivore.has_moved = False
 
             if self.current_year % vis_years == 0:
                 self._update_graphics()

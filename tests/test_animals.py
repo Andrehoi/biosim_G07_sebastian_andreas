@@ -16,8 +16,7 @@ import random
 
 def test_init():
     """
-    Test that the init method works for both carnivores and herbivores
-    :return:
+    Test that the init method works for both carnivores and herbivores.
     """
     carn = Carnivore(3, 40)
     herb = Herbivore(2, 27)
@@ -34,7 +33,6 @@ def test_ageing():
     Test that age increases by one when when ageing method is called.
     Ageing method is defined in super-class Animal and is equally inherit
     in both Herbivore class and Carnivore class.
-    :return:
     """
 
     herbivore = Herbivore(3, 12)
@@ -49,7 +47,6 @@ def test_fitness():
     Test that the fitness is calculated properly. Fitness is defined in the
     super-class and should be equal calculated equally. However the fitness
     parameters a_half, phi_age, w_half and phi_weight differs.
-    :return:
     """
     herbivore = Herbivore(10, 0)
     assert herbivore.phi == 0
@@ -72,7 +69,6 @@ def test_lose_weight():
     """
     Tests if the method for yearly weight loss calculates correctly. The
     weight loss constant differs for the animals.
-    :return:
     """
 
     herbivore = Herbivore(3, 12)
@@ -93,7 +89,6 @@ def test_lose_weight():
 def test_move():
     """
     Test that herbivores moves when supposed to.
-    :return:
     """
 
     Herbivore.param_dict['mu'] = 1
@@ -117,7 +112,6 @@ def test_move_towards_cell_without_other_herbivores():
     This also holds carnivores. Both move functions take into account the
     number of animals of same species in the cells when calculating the
     probability to move.
-    :return:
     """
 
     top_cell = Jungle()
@@ -147,7 +141,6 @@ def test_carnivore_move():
     """
     Tests that a carnivore is inclined to move towards a cell containing
     herbivores.
-    :return:
     """
     top_cell = Jungle()
     top_cell.present_herbivores.append(Herbivore(1, 15))
@@ -176,7 +169,6 @@ def test_carnivore_move():
 def test_mountain_and_water_impassable():
     """
     Test that animals cannot move through mountains or water
-    :return:
     """
     test_map = 'OOOOO\nOMMMO\nOMJMO\nOMMMO\nOOOOO'
     sim = BioSim(island_map=test_map, ini_pop=[
@@ -208,7 +200,6 @@ def test_water_mountain_impassable():
     """
     Tests that carnivore or herbivores cannot enter cells of Ocean biome or
     Mountain biome.
-    :return:
     """
 
     top_cell = Ocean()
@@ -227,7 +218,6 @@ def test_eating():
     Test that eating works as it should for the Herbivore class.
     That it returns correct new food available in cell, and that it gains
     weight according to beta * F.
-    :return:
     """
     herb = Herbivore(3, 35)
     assert herb.eat(300) == 290
@@ -257,7 +247,6 @@ def test_mating_and_weight():
     weight surpasses the weight of the mother. This tests the super-class
     method, and therefore tests for both herbivores and carnivores since it
     inherits.
-    :return:
     """
     test_herb = Herbivore(1, 100)
     test_herb.breeding(100)
@@ -269,8 +258,7 @@ def test_mating_and_weight():
 
 def test_death():
     """
-    Test that an animal dies if its fitness is 0
-    :return:
+    Test that an animal dies if its fitness is 0.
     """
     herbivore = Herbivore(3, 0)
     assert herbivore.alive
@@ -286,7 +274,6 @@ def test_hunting():
     """
     Test the hunting capabilities of the predators. Go for the herbivore
     with lowest fitness and stop if all herbivores have been attempted
-    :return:
     """
     herb_list = [Herbivore(100, 50), Herbivore(1, 15), Herbivore(4, 35)]
     hunter = Carnivore(3, 50)
@@ -321,7 +308,6 @@ def test_hunting():
 def test_hunting_stops_when_full():
     """
     Tests that a carnivore stops killing when its full.
-    :return:
     """
     herb_list = [Herbivore(100, 35), Herbivore(100, 35), Herbivore(4, 35)]
     hunter = Carnivore(3, 50)
@@ -338,7 +324,6 @@ def test_hunting_stops_when_full():
 def test_weight_loss():
     """
     Test that the weight loss method works as intended.
-    :return:
     """
     herb = Herbivore(3, 20)
     assert herb.weight == 20
