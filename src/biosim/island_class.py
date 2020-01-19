@@ -17,7 +17,11 @@ class Map:
     biome_map.
 
     The biome_map is then used to create a numpy array of class instances
-    named array_map. E. g. if a position in the biome_map is 'J' it will be
+    named array_map. This is done with a dictionary. Each position in the
+    biome_map is a single letter string. In the dictionary(biome_dict) the
+    string is a key with a class instance as a value. The class instances in
+    the dictionary are the different classes defined in the geography file.
+    E. g. if a position in the biome_map is 'J' it will be
     the class Jungle in the array_map.
 
     The Map class also checks that the input string fulfills certain criteria.
@@ -97,6 +101,10 @@ class Map:
         Yields the object in the current cell of the map.
         The yield allows the code to produce a series of cells over time,
         rather than computing them at once and sending them back like a list.
+
+        Each time the map_iterator is called the values of x and y are reset
+        to zero. The iterator then yields each cell until it has yielded
+        each cell in the array_map.
 
         The map_iterator saves the surrounding cells around the current
         cell. If the current cell is on the edge of the map,

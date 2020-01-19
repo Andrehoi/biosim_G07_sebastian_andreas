@@ -16,7 +16,9 @@ class Biome:
     cells of the island. The Biome class does not represent a specific
     biome, it is however, a super class that each type  of biome inherits
     specific properties from, e.g. the ability to contain animals and the
-    ability to regrow food.
+    ability to regrow food. The animals in a biome are sorted into two
+    lists, one for herbivores(present_herbivores) and one for carnivores(
+    present_carnivores).
 
     The global variables for the biomes are stored in a dictionary named
     param_dict. The global variables are,
