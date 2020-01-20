@@ -11,22 +11,16 @@ Introduction:
 
 
 The BioSim interface
---------------------
+====================
 
-
-Map creation & Geography
-------------------------
-
-
-Animals
--------
+.. autoclass:: biosim.simulation.BioSim
+    :inherited-members:
+    :member-order: bysource
 
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-
-   biosim_interface
 
    animals
 
