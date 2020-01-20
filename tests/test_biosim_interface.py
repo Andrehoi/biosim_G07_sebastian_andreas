@@ -263,7 +263,7 @@ def test_set_plot_limits():
         ini_pop=[],
         seed=1,
         ymax_animals=20,
-        cmax_animals={"Herbivore": 10, "Carnivore": 20, "Vulture":15},
+        cmax_animals={"Herbivore": 10, "Carnivore": 20, "Vulture": 15},
     )
 
 

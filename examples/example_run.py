@@ -1,11 +1,17 @@
-Examples
-========
+# -*- coding: utf-8 -*-
 
-Example
--------
+import textwrap
+from biosim.simulation import BioSim
+import matplotlib.pyplot as plt
 
-.. code-block:: python
+"""
+Example run for the BioSim interface
+"""
 
+__author__ = "Sebastian Kihle & Andreas Hoeimyr"
+__email__ = "sebaskih@nmbu.no & andrehoi@nmbu.no"
+
+if __name__ == '__main__':
     geogr = """\
                OOOOOOOOOOOOOOOOOOOOO
                OOOOOOOOSMMMMJJJJJJJO
@@ -28,9 +34,6 @@ Example
                  {"species": "Herbivore", "age": 1, "weight": 15.0}
                  ]}
     ], seed=3, img_base=None)
-
-    Carnivore.new_parameters({'DeltaPhiMax': 10})
-    print(k.map.biome_map)
 
     print(k.add_population([
         {
@@ -89,5 +92,3 @@ Example
     print('Added Vultures to simulation')
     k.simulate(50)
     plt.show()
-
-

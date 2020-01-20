@@ -7,8 +7,6 @@ __email__ = "sebaskih@nmbu.no & andrehoi@nmbu.no"
 File with all classes for the different kinds of biomes that the map can have.
 """
 
-import numpy as np
-
 
 class Biome:
     """
@@ -42,7 +40,7 @@ class Biome:
         is only one element in det dictionary for the jungle biome(f_max),
         but in the Savannah both alpha and f_max is present.
 
-        :param A dictionary containing f_max and alpha
+        :param parameters: A dictionary containing f_max and alpha
         """
         for iterator in parameters:
             if iterator in cls.param_dict:
@@ -127,7 +125,8 @@ class Savannah(Biome):
         year and the regrowth factor alpha. The amount of available food
         after regrowth is calculated by the following formula:
 
-        # TODO: Write mathematical formula for regrowth in Savannah.
+        .. math::
+            f_{new, j} = f_{old, j} + \alpha (f_{max} - f_{old, j})
 
         where f_{available} is the new amount of available food,
         f_{remaining} is the food left after previous year, alpha is the
@@ -135,8 +134,9 @@ class Savannah(Biome):
         Savannah.
 
         """
-        self.available_food += self.param_dict['alpha'] * \
-                               (self.param_dict['f_max'] - self.available_food)
+        self.available_food += self.param_dict['alpha'] \
+                               * (self.param_dict[
+                                      'f_max'] - self.available_food)
 
         if self.available_food > self.param_dict['f_max']:
             self.available_food = self.param_dict['f_max']
@@ -178,5 +178,6 @@ class OutOfBounds:
     amphibious animal it will not be able to swim beyond the borders of the
     map.
     """
+
     def __init__(self):
         pass

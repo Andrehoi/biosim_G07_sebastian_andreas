@@ -778,12 +778,3 @@ class Vulture(Animal):
                 if not type(right_cell).__name__ in self.legal_biomes:
                     return None
                 return right_cell
-
-
-if __name__ == '__main__':
-
-    herb_list = [Herbivore(100, 35), Herbivore(100, 35), Herbivore(4, 35)]
-    hunter = Carnivore(3, 50)
-    hunter.hunt(herb_list)
-    print(hunter.param_dict['DeltaPhiMax'])
-

@@ -389,6 +389,3 @@ def test_vulture_prefers_left_overs():
             other_counter += 1
 
     assert dst_counter > other_counter
-
-
-

@@ -152,16 +152,3 @@ class Map:
             # Stops when reaching bottom right cell of the map.
             if self.y >= len(self.biome_map.T[0]):
                 return
-
-
-if __name__ == '__main__':
-
-    m = Map("OOOO\nOJJO\nOSSO\nOOOO")
-    year_counter = 0
-    for cell in m.map_iterator():
-        print('current cell', m.y, m.x)
-        print('top', m.y - 1, m.x)
-        print('bottom', m.y + 1, m.x)
-        print('left', m.y, m.x - 1)
-        print('right', m.y, m.x + 1)
-        print('----------------')
