@@ -75,7 +75,7 @@ class BioSim:
         self._heatmap_herb_ax = None
         self._heatmap_herb_graphics = None
         self._line_graph_ax = None
-        self.line_graph = None
+        self.herbivore_line_graph = None
         self.legend_is_set_up = False
 
         self.add_population(ini_pop)
@@ -409,7 +409,6 @@ class BioSim:
                 print('Current year in sim:', self.sim_year)
 
             if self.sim_year >= num_years:
-                self._update_graphics()
                 return
 
     def add_population(self, population):
@@ -651,19 +650,19 @@ class BioSim:
         # needs updating on subsequent calls to simulate()
         self._line_graph_ax.set_xlim(0, num_years + self.current_year)
 
-        if self.line_graph is None:
+        if self.herbivore_line_graph is None:
             herbivores_per_year = self._line_graph_ax.plot(
 
-                np.arange(0, num_years + self.current_year + 1),
-                np.full(num_years + self.current_year + 1, np.nan), 'g',
+                np.arange(0, num_years + self.current_year),
+                np.full(num_years + self.current_year, np.nan), 'g',
                 label='Herbivore count'
 
             )
 
             carnivores_per_year = self._line_graph_ax.plot(
 
-                np.arange(0, num_years + self.current_year + 1),
-                np.full(num_years + self.current_year + 1, np.nan), 'r',
+                np.arange(0, num_years + self.current_year),
+                np.full(num_years + self.current_year, np.nan), 'r',
                 label='Carnivore count'
 
             )
@@ -678,7 +677,7 @@ class BioSim:
             years, herbivores = self.herbivore_line_graph.get_data()
             years, carnivores = self.carnivore_line_graph.get_data()
 
-            new_year = np.arange(years[-1] + 1, num_years)
+            new_year = np.arange(years[-1] + 1, num_years + self.current_year)
             if len(new_year) > 0:
 
                 herbivore_new = np.full(new_year.shape, np.nan)
