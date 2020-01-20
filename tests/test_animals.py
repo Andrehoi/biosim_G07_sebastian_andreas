@@ -9,7 +9,7 @@ Test file for animal properties
 
 from biosim.animals import Herbivore, Carnivore, Vulture
 from biosim.simulation import BioSim
-from biosim.geography import Jungle, Ocean, Mountain
+from biosim.geography import Jungle, Ocean, Mountain, Desert, Savannah
 
 import random
 
@@ -305,14 +305,14 @@ def test_hunting():
     hunter.new_parameters({'DeltaPhiMax': 10})
 
 
-def test_hunting_stops_when_full():
+def test_hunting_stops_when_full_and_returns_left_overs():
     """
     Tests that a carnivore stops killing when its full.
     """
     herb_list = [Herbivore(100, 35), Herbivore(100, 35), Herbivore(4, 35)]
     hunter = Carnivore(3, 50)
     hunter.new_parameters({'DeltaPhiMax': 0.01})
-    assert hunter.hunt(herb_list) == 20
+    assert hunter.hunt(herb_list) == 20  # Also tests if it returns leftovers
     assert hunter.param_dict['DeltaPhiMax'] == 0.01
     assert hunter.weight > 50
     herb_list.sort(key=lambda x: x.phi)
@@ -354,7 +354,41 @@ def test_vulture_breeding():
 
 
 def test_vulture_scavange():
+    """ Test that the vultures gain weight from scavenging """
     vult = Vulture(3, 20)
     assert vult.weight == 20
     vult.scavenge(20)
     assert vult.weight > 20
+
+
+def test_vulture_can_be_in_mountain():
+    """ Test that a vulture can be added to a mountain biome """
+    mountain_map = 'OOO\nOMO\nOOO'
+    test = BioSim(island_map=mountain_map, ini_pop=[], seed=2)
+    test.add_population([{'loc': (1, 1),
+                          'pop': [{'species': 'Vulture', 'age': 1,
+                                  'weight': 10}]}])
+    assert len(test.map.array_map[1, 1].present_vultures) == 1
+
+
+def test_vulture_prefers_left_overs():
+    """ Test that a vulture prefers moving to a biome with left overs """
+    vult = Vulture(2, 13)
+    jgl = Jungle()
+    dst = Desert()
+    svn = Savannah()
+    mtn = Mountain()
+    dst.left_overs = 200
+
+    dst_counter = 0
+    other_counter = 0
+    for _ in range(10):
+        if vult.migrate(svn, mtn, jgl, dst) == dst:
+            dst_counter += 1
+        else:
+            other_counter += 1
+
+    assert dst_counter > other_counter
+
+
+

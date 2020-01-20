@@ -769,7 +769,7 @@ class BioSim:
                 self._heatmap_vult_ax.get_xaxis().set_visible(False)
                 self._heatmap_vult_ax.get_yaxis().set_visible(False)
 
-        # Add right subplot for line graph of mean.
+        # Add right subplot for line graph of population.
         if self._line_graph_ax is None:
             self._line_graph_ax = plt.subplot2grid((3, 2), (1, 1),
                                                    rowspan=2, colspan=1)
@@ -778,7 +778,7 @@ class BioSim:
             self._line_graph_ax.title.set_text('Population of species over '
                                                'time')
 
-        # needs updating on subsequent calls to simulate()
+        # Needs updating on subsequent calls to simulate()
         self._line_graph_ax.set_xlim(0, num_years + self.current_year)
 
         if self.herbivore_line_graph is None:

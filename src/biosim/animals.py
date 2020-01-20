@@ -625,7 +625,9 @@ class Carnivore(Animal):
 
 class Vulture(Animal):
     """
-    An animal that can fly and eats left overs from carnivore kills.
+    An animal that can fly into the mountains and eats left overs from
+    carnivore kills.
+    Has a lot of the same parameters as a carnivore for simplicity's sake.
     """
     param_dict = {
         'w_birth': 2.0,
@@ -651,6 +653,12 @@ class Vulture(Animal):
         self.legal_biomes = ['Desert', 'Savannah', 'Jungle', 'Mountain']
 
     def scavenge(self, left_overs):
+        """
+        Eats the left overs from carnivore kills. Left overs stay in a cell
+        for a year before they rot away.
+        :param left_overs: Left overs from kills
+        :return: The new amount of left overs in the cell
+        """
 
         if left_overs >= self.param_dict['F']:
             self.weight += self.param_dict['beta'] * self.param_dict['F']
@@ -665,8 +673,8 @@ class Vulture(Animal):
     def _propensity_vult(self, cell):
         """
         Calculates the propensity an animal has to move to a cell.
-        :param cell:
-        :return:
+        :param cell: Cell to calculate propensity for.
+        :return: The propensity of the cell.
         """
 
         e_cell = cell.left_overs / (((len(
@@ -682,12 +690,12 @@ class Vulture(Animal):
         potentially moves it. The function also calculates the probability
         of direction of movements, either east, west, north or south.
 
-        Carnivores are inclined to move towards the cell with the most
-        herbivores measured in weight.
+        Vultures are inclined to move towards the cell with the most
+        left overs.
 
-        Carnivores also consider how many other carnivores are in the cells
+        Vultures also consider how many other vultures are in the cells
         around when it migrates. It is inclined to move towards a cell with
-        the least carnivores.
+        the least vultures. Vultures can fly into the mountains.
 
         :param top_cell: The cell north of current cell.
         :param bottom_cell: The cell south of current cell.

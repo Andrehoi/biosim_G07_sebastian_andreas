@@ -214,6 +214,7 @@ def test_get_animals_per_species(plain_sim):
     assert plain_sim.num_animals_per_species == {
         "Herbivore": 0,
         "Carnivore": 0,
+        "Vulture": 0
     }
 
 
@@ -242,7 +243,8 @@ def test_get_animal_distribution(plain_sim):
     data = plain_sim.animal_distribution
     assert isinstance(data, pandas.DataFrame)
     assert len(data) == 12
-    assert set(data.columns) == {"Row", "Col", "Herbivore", "Carnivore"}
+    assert set(data.columns) == {"Row", "Col", "Herbivore", "Carnivore",
+                                 "Vulture"}
 
     data.set_index(["Row", "Col"], inplace=True)
     assert data.loc[(1, 1)].Herbivore == 1
@@ -261,7 +263,7 @@ def test_set_plot_limits():
         ini_pop=[],
         seed=1,
         ymax_animals=20,
-        cmax_animals={"Herbivore": 10, "Carnivore": 20},
+        cmax_animals={"Herbivore": 10, "Carnivore": 20, "Vulture":15},
     )
 
 
