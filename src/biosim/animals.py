@@ -13,10 +13,20 @@ import random
 
 class Animal:
     """
-    Class Animal contains characteristics the animals on Rossoya has in
+    Class Animal contains characteristics the animals on Rossoya have in
     common as well as actions. Each animal has weight, age and fitness
     properties. I also keeps track of if the animals has moved this year,
     if it is alive and what biomes it can stay in.
+
+    The class takes age and weight as input and checks that the value of
+    these are not negative. Then based on the value of the age and weight
+    calculate the initial fitness of the animal(phi).
+
+    The animal class is a super-class for all animals on the island and
+    therefore has no biome constrictions except for the OutOfBounds biome.
+
+    The animal class has a dictionary param_dict that contains all global
+    parameters for animals on the island. These variables are zero by default.
     """
     param_dict = {
         'w_birth': 0,
@@ -40,31 +50,48 @@ class Animal:
     @classmethod
     def new_parameters(cls, parameters):
         """
-        Takes a dictionary of parameters as input. Overrides default
-        parameter values. If illegal parameters of parameter values are
-        input raise ValueError.
+        Takes a dictionary of parameters as input. It overrides the default
+        parameter values. If illegal parameters or parameter values are
+        input it raises a raise ValueError. E. g. the parameter eta must be
+        between zero and one.
 
-        :param parameters:
+        :param: A dictionary of parameters.
+        The different parameters for an animal are the following:
+
             w_birth: Average weight of offspring.
+
             sigma_birth: Standard deviation of w_birth.
+
             beta: Constant that defines gained weight from food.
+
             eta: Weigh loss constant.
+
             a_half: Age component of fitness calculation.
+
             phi_age: Age component of fitness calculation.
+
             w_half: Weight component of fitness calculation.
+
             phi_weight: Weight component of fitness calculation.
+
             mu: Probability of migrating constant.
+
             lambda_herbivore: Direction preference dependent on food.
+
             gamma: Probability of birth constant.
+
             zeta: Birth possibility constant relative to weight.
+
             xi: Fraction of offspring weight the mother loses at birth.
+
             omega: Death probability factor.
+
             F: Maximum food capacity.
+
             DeltaPhiMax: Maximum difference in fitness between carnivore
             and herbivore
-
-        :return:
         """
+
         for iterator in parameters:
             if iterator in cls.param_dict:
                 if iterator == 'eta' and parameters[iterator] >= 1:
@@ -80,12 +107,23 @@ class Animal:
                                  "animal")
 
     def __init__(self, age, weight):
-        self.age = age
-        self.weight = weight
+
+        if age < 0:
+            raise ValueError('The animal cannot have a negative age')
+        else:
+            self.age = age
+
+        if weight < 0:
+            raise ValueError('The animal cannot have a negative weight')
+        else:
+            self.weight = weight
+
         self.phi = 0
         self.calculate_fitness()
+
         self.alive = True
         self.has_moved = False
+
         self.legal_biomes = ['Mountain', 'Ocean', 'Desert', 'Savannah',
                              'Jungle']
 
