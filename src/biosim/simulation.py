@@ -92,9 +92,11 @@ class BioSim:
         if cmax_animals is None:
             self.color_bar_max_herb = 150
             self.color_bar_max_carn = 100
+            self.color_bar_max_vult = 20
         else:
             self.color_bar_max_herb = cmax_animals['Herbivore']
             self.color_bar_max_carn = cmax_animals['Carnivore']
+            self.color_bar_max_carn = cmax_animals['Vulture']
 
     @staticmethod
     def set_animal_parameters(species, params):
@@ -485,6 +487,10 @@ class BioSim:
             if prints:
                 print('Current year in sim:', self.sim_year)
 
+            # Left overs from carnivore kills rot
+            for cell in self.map.map_iterator():
+                cell.left_overs = 0
+
             if self.sim_year >= num_years:
                 return
 
@@ -725,22 +731,22 @@ class BioSim:
         # We cannot create the actual ImageAxis object before we know
         # the size of the image, so we delay its creation.
         if self._heatmap_herb_ax is None:
-            self._heatmap_herb_ax = self._fig.add_subplot(3, 2, 2)
+            self._heatmap_herb_ax = self._fig.add_subplot(3, 2, 1)
             self._heatmap_herb_graphics = None
 
-            self._heatmap_carn_ax = self._fig.add_subplot(3, 2, 5)
+            self._heatmap_carn_ax = self._fig.add_subplot(3, 2, 3)
             self._heatmap_carn_graphics = None
 
-            self._heatmap_vult_ax = self._fig.add_subplot(3, 2, 3)
+            self._heatmap_vult_ax = self._fig.add_subplot(3, 2, 5)
             self._heatmap_vult_graphics = None
 
-            self._landscape_map_ax = self._fig.add_subplot(3, 2, 1)
+            self._landscape_map_ax = self._fig.add_subplot(3, 2, 2)
 
             self._create_colour_island(self.island_map)
 
             # Create the legend for the graphics
             if not self.legend_is_set_up:
-                axlg = self._fig.add_axes([0.02, 0.72, 0.08, 0.15])
+                axlg = self._fig.add_axes([0.915, 0.725, 0.08, 0.15])
                 axlg.axis('off')
                 for ix, name in enumerate(('Ocn', 'Mtn', 'Jgl',
                                            'Svn', 'Dst')):
@@ -765,8 +771,12 @@ class BioSim:
 
         # Add right subplot for line graph of mean.
         if self._line_graph_ax is None:
-            self._line_graph_ax = self._fig.add_subplot(1, 2, 2)
+            self._line_graph_ax = plt.subplot2grid((3, 2), (1, 1),
+                                                   rowspan=2, colspan=1)
             self._line_graph_ax.set_ylim(0, self.graph_ymax)
+            self._line_graph_ax.yaxis.tick_right()
+            self._line_graph_ax.title.set_text('Population of species over '
+                                               'time')
 
         # needs updating on subsequent calls to simulate()
         self._line_graph_ax.set_xlim(0, num_years + self.current_year)
@@ -879,9 +889,9 @@ class BioSim:
             self._heatmap_vult_graphics = \
                 self._heatmap_vult_ax.imshow(animal_array,
                                              interpolation='nearest',
-                                             vmin=0,
+                                             vmin=self.color_bar_max_vult,
                                              vmax=5,
-                                             cmap='magma')
+                                             cmap='cividis')
             plt.colorbar(self._heatmap_vult_graphics, ax=self._heatmap_vult_ax,
                          orientation='horizontal')
 
