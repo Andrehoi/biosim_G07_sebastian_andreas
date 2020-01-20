@@ -50,7 +50,7 @@ class BioSim:
         :param cmax_animals: Dictionary specifying color-code limits.
         If cmax_animals is None, sensible, fixed default values should be
         used. cmax_animals is a dict mapping species names to numbers, e.g.,
-        {'Herbivore': 50, 'Carnivore': 20}
+        {'Herbivore': 50, 'Carnivore': 20, 'Vulture': 15}
 
         :param img_base: String with beginning of file name for figures.
         Must include path. If img_base is None, no figures are written to file.
@@ -103,6 +103,9 @@ class BioSim:
         """
         Set parameters for animal species.
 
+        Calls the class method 'new_parameters' for the requested species of
+        animals.
+
         :param species: String, name of animal species.
         :param params: Dictionary with parameter specification for species.
         """
@@ -114,6 +117,9 @@ class BioSim:
         """
         Set parameters for biome type.
 
+        Calls the 'biome_parameters' class method for the respective biome
+        class.
+
         :param landscape: String, code letter for biome.
         :param params: Dictionary with valid parameter specification for biome.
         """
@@ -124,6 +130,8 @@ class BioSim:
         Eating cycle for each animal in each cell. The animal with the
         highest fitness eats first for each species. The carnivores will try to
         eat the herbivores with the lowest fitness first.
+
+        Calls the respective feeding method for each animal.
 
         :param prints: Prints relevant actions if True.
         """
@@ -166,9 +174,9 @@ class BioSim:
         """
         Method for yearly breeding for all animals. All animals breed.
         Animals have no gender, so there only needs to be one other animal
-        of same species in the cell to reproduce. The weight of the newborn
-        is drawn from a Gaussian distribution, and the mother loses the
-        weight of the newborn.
+        of same species in the cell to reproduce. Creates a list for the
+        newborn animals and appends them to the cell at the end of the cycle
+        for each species.
 
         :param prints: Prints relevant actions if True.
         """
@@ -225,7 +233,8 @@ class BioSim:
         parameter that tracks if the animal has moved during the year. This
         is to keep animals from moving twice. Animals move depending on
         fitness, where the animal of each species with the highest fitness
-        moves first. Herbivores move first.
+        moves first. Herbivores move first. Removes the animals that have
+        left the cell.
 
         :param prints: Prints relevant actions if True.
         """
@@ -333,7 +342,8 @@ class BioSim:
 
     def ageing_cycle(self, prints=False):
         """
-        Ages all animals on the map by one year.
+        Ages all animals on the map by one year by calling the 'ageing'
+        method for each animal.
 
         :param prints: Prints relevant actions if True.
         """
@@ -360,7 +370,8 @@ class BioSim:
 
     def weight_loss_cycle(self, prints=False):
         """
-        Each animal on the map loses weight.
+        Each animal on the map loses weight by calling the 'lose_weight'
+        method for each animal.
 
         :param prints: Prints relevant actions if True.
         """
@@ -387,7 +398,7 @@ class BioSim:
     def death_cycle(self, prints=False):
         """
         Each animal has a chance of dying. Probability is depending on the
-        fitness. The lowers the fitness, the higher the chances of dying.
+        fitness. The lower the fitness, the higher the chances of dying.
         Removes dead animals.
 
         :param prints: Prints relevant actions if True.
@@ -450,10 +461,10 @@ class BioSim:
         going through the feeding cycle of all animals, then the breeding
         cycle for all animals, then migration cycle, aging cycle weight loss
         cycle and lastly the death cycle. Visualization will happen at the
-        end of each year, along with the resetting of the has_moved parameter.
+        end of each year.
         The simulation will run until it has reached the desired number of
-        years simulated. The simulation also tracks the amount of years that
-        have been simulated.
+        years simulated (num_years). The simulation also tracks the amount of
+        years that have been simulated (current_year).
 
         :param num_years: number of years to simulate.
         :param vis_years: years between visualization updates.
@@ -500,10 +511,10 @@ class BioSim:
 
         :param population: List of dictionaries specifying population and place
         E. g.
-        [{'loc': (y, x),
+        ``[{'loc': (y, x),
         'pop': [{'species': 'Herbivore', 'age': 1, 'weight': 15},
         {'species': 'Carnivore', 'age': 1, 'weight': 15}]
-        }]
+        }]``
         """
         # Unpacks the coordinates and animals to add.
         # Adds new animals to a temporary list.
@@ -557,6 +568,7 @@ class BioSim:
     def year(self):
         """
         Property that returns the current year.
+        
         :return: Last year simulated.
         """""
         return self.current_year
@@ -565,6 +577,7 @@ class BioSim:
     def num_animals(self):
         """
         Counts the total number of all animals on the island.
+
         :return: Total number of animals on island.
         """
         animal_counter = 0
@@ -614,6 +627,7 @@ class BioSim:
         """
         Creates a Pandas DataFrame with animal count per species for
         each cell on island.
+
         :return: Pandas DataFrame with animal distribution.
         """
         list_of_all_herbivores = []
@@ -644,6 +658,7 @@ class BioSim:
         """
         Creates an array of the distribution of herbivores on the island.
         This is used to create the heatmaps.
+
         :return: A Numpy array with population of herbivores in each cell.
         """
         x_length = len(self.map.array_map[0])
@@ -660,6 +675,7 @@ class BioSim:
         """
         Creates an array of the distribution of carnivores on the island.
         This is used to create the heatmap for carnivores.
+
         :return: A Numpy array with population of herbivores in each cell.
         """
         x_length = len(self.map.array_map[0])
@@ -676,6 +692,7 @@ class BioSim:
         """
         Creates an array of the distribution of herbivores on the island.
         This is used to create the heatmaps.
+
         :return: A Numpy array with population of herbivores in each cell.
         """
         x_length = len(self.map.array_map[0])
@@ -690,8 +707,8 @@ class BioSim:
     def _create_colour_island(self, map):
         """
         Creates a colored map of the island.
+
         :param map: The string map
-        :return:
         """
         self.rgb_value = {'O': (0.0, 0.0, 1.0),  # blue
                           'M': (0.5, 0.5, 0.5),  # grey
@@ -953,8 +970,14 @@ class BioSim:
     def make_movie(self):
         """
         Creates MPEG4 movie from visualization images saved.
+        Saves the movie in a requested folder:
+        E. g. "/Users/User/Documents/inf200_january/biosim/movie"
+
+        where movie will the name of the file in folder biosim.
+
         .. :note:
             Requires ffmpeg
+
         The movie is stored as img_base + movie_fmt
         """
         _FFMPEG_BINARY = 'ffmpeg'
