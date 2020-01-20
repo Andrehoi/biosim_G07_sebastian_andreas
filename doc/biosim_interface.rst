@@ -8,5 +8,5 @@ Her står det mer utfyllende om biosim classen og methodene den inneholder.
 
 .. autoclass:: biosim.simulation.BioSim
     :inherited-members:
-    :member-order: bysource
 
+    :member-order: bysource

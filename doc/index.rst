@@ -28,11 +28,17 @@ Animals
    :caption: Contents:
 
    biosim_interface
+
    animals
+
    geography
+
    map_iterator
+
    examples
+
    installations
+
 
 
 
