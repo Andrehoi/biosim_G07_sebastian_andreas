@@ -4,7 +4,7 @@
 __author__ = "Sebastian Kihle & Andreas Hoeimyr"
 __email__ = "sebaskih@nmbu.no & andrehoi@nmbu.no"
 
-from biosim.animals import Herbivore, Carnivore
+from biosim.animals import Herbivore, Carnivore, Vulture
 from biosim.island_class import Map
 import textwrap
 import pandas as pd
@@ -135,6 +135,7 @@ class BioSim:
             # Sorts each list in according to order of descending fitness.
             cell.present_herbivores.sort(key=lambda x: x.phi, reverse=True)
             cell.present_carnivores.sort(key=lambda x: x.phi, reverse=True)
+            cell.present_vultures.sort(key=lambda x: x.phi, reverse=True)
 
             # Eating method for the herbivores.
             for herbivore in cell.present_herbivores:
@@ -145,13 +146,17 @@ class BioSim:
             cell.present_herbivores.sort(key=lambda x: x.phi)
             # Eating method for each carnivore in cell.
             for carnivore in cell.present_carnivores:
-                carnivore.hunt(cell.present_herbivores)
+                cell.left_overs += carnivore.hunt(cell.present_herbivores)
 
                 # Only keeps the herbivores that survived the hunt
                 alive_herbivores = [herbivore for herbivore in
                                     cell.present_herbivores if herbivore.alive]
 
                 cell.present_herbivores = alive_herbivores
+
+            # Vultures eat the left overs from the carnivore hunt.
+            for vulture in cell.present_vultures:
+                cell.left_overs = vulture.scavenge(cell.left_overs)
 
     def breeding_cycle(self, prints=False):
         """
@@ -196,6 +201,20 @@ class BioSim:
             # Updates the carnivores present in the cell.
             cell.present_carnivores = current_carnivores + newborn_carnivores
 
+            # Creates new list so that newborns dont breed.
+            current_vultures = cell.present_vultures
+            newborn_vultures = []
+            for vulture in cell.present_vultures:
+                # Checks if there is born a new animal, and potentially
+                # adds it to a list of newborn animals in the cell.
+                new_vulture = vulture.breeding(len(
+                    current_vultures))
+                if new_vulture is not None:
+                    newborn_herbivores.append(new_vulture)
+
+            # Updates the herbivores present in the cell.
+            cell.present_vultures = current_vultures + newborn_vultures
+
     def migration_cycle(self, prints=False):
         """
         Migration method that moves all animals on the map. Animals have a
@@ -214,6 +233,7 @@ class BioSim:
             # Sorts each list in according to order of descending fitness.
             cell.present_herbivores.sort(key=lambda x: x.phi, reverse=True)
             cell.present_carnivores.sort(key=lambda x: x.phi, reverse=True)
+            cell.present_vultures.sort(key=lambda x: x.phi, reverse=True)
 
             # Herbivores in cell at start of cycle.
             migrating_herbivores = cell.present_herbivores
@@ -269,6 +289,33 @@ class BioSim:
                                        migrating_carnivores if animal not in
                                        exited_carnivores]
 
+            # Herbivores in cell at start of cycle.
+            migrating_vultures = cell.present_vultures
+
+            # Herbivores that leave the current cell.
+            exited_vultures = []
+
+            for vulture in migrating_vultures:
+                if not vulture.has_moved:
+
+                    target_cell = vulture.migrate(self.map.top,
+                                                  self.map.bottom,
+                                                  self.map.left,
+                                                  self.map.right)
+                    vulture.has_moved = True
+
+                    # Moves to the target cell unless it is an invalid biome.
+                    if target_cell is not None:
+                        target_cell.present_vultures.append(vulture)
+                        exited_vultures.append(vulture)
+                        if prints:
+                            print('An animal moved to ',
+                                  type(target_cell).__name__)
+
+            # Updates present vultures in the cell.
+            cell.present_vultures = [animal for animal in migrating_vultures
+                                     if animal not in exited_vultures]
+
         # Makes all animals able to move again next year.
         for cell in self.map.map_iterator():
             for herbivore in cell.present_herbivores:
@@ -276,6 +323,9 @@ class BioSim:
 
             for carnivore in cell.present_carnivores:
                 carnivore.has_moved = False
+
+            for vulture in cell.present_vultures:
+                vulture.has_moved = False
 
     def ageing_cycle(self, prints=False):
         """
@@ -299,6 +349,11 @@ class BioSim:
                 if prints:
                     print('Age:', carnivore.age)
 
+            for vulture in cell.present_vultures:
+                vulture.ageing()
+                if prints:
+                    print('Age:', vulture.age)
+
     def weight_loss_cycle(self, prints=False):
         """
         Each animal on the map loses weight.
@@ -320,6 +375,11 @@ class BioSim:
                 if prints:
                     print('Weight after loss:', carnivore.weight)
 
+            for vulture in cell.present_vultures:
+                vulture.lose_weight()
+                if prints:
+                    print('Weight after loss:', vulture.weight)
+
     def death_cycle(self, prints=False):
         """
         Each animal has a chance of dying. Probability is depending on the
@@ -333,14 +393,16 @@ class BioSim:
             if prints:
                 print('Current cell:', type(cell).__name__, 'death')
 
-            # Checks if the herbivores dies, then the carnivores.
             for herbivore in cell.present_herbivores:
                 herbivore.potential_death()
 
             for carnivore in cell.present_carnivores:
                 carnivore.potential_death()
 
-            # Removes animals killed from natural causes.
+            for vulture in cell.present_vultures:
+                vulture.potential_death()
+
+            # Removes herbivores killed from natural causes.
             alive_herbivores = [herbivore for herbivore in
                                 cell.present_herbivores if herbivore.alive]
 
@@ -364,6 +426,19 @@ class BioSim:
 
             # Updates living carnivores in cell.
             cell.present_carnivores = alive_carnivores
+
+            # Removes vultures killed from natural causes.
+            alive_vultures = [vulture for vulture in cell.present_vultures
+                              if vulture.alive]
+
+            dead = len(cell.present_vultures) - len(alive_vultures)
+
+            if dead > 0:
+                if prints:
+                    print(dead, 'Vultures died')
+
+            # Updates living vultures in cell.
+            cell.present_vultures = alive_vultures
 
     def simulate(self, num_years, vis_years=1, img_years=None, prints=False):
         """
@@ -460,6 +535,16 @@ class BioSim:
                     self.map.array_map[coordinates]. \
                         present_carnivores.append(new_animal)
 
+                if animal_class == 'Vulture':
+                    new_animal = Vulture(animal['age'], animal['weight'])
+
+                    if type(self.map.array_map[coordinates]).__name__ not in \
+                            new_animal.legal_biomes:
+                        raise ValueError('This animal cannot be placed in '
+                                         'this biome')
+                    self.map.array_map[coordinates]. \
+                        present_vultures.append(new_animal)
+
     @property
     def year(self):
         """
@@ -482,6 +567,9 @@ class BioSim:
 
             for _ in cell.present_carnivores:
                 animal_counter += 1
+
+            for _ in cell.present_vultures:
+                animal_counter += 1
         return animal_counter
 
     @property
@@ -494,6 +582,7 @@ class BioSim:
         animal_dictionary = {}
         herbivore_counter = 0
         carnivore_counter = 0
+        vulture_counter = 0
 
         # Counts all animals in all cells
         for cell in self.map.map_iterator():
@@ -503,8 +592,12 @@ class BioSim:
             for carnivore in cell.present_carnivores:
                 carnivore_counter += 1
 
+            for vulture in cell.present_vultures:
+                vulture_counter += 1
+
         animal_dictionary['Herbivore'] = herbivore_counter
         animal_dictionary['Carnivore'] = carnivore_counter
+        animal_dictionary['Vulture'] = vulture_counter
 
         return animal_dictionary
 
@@ -517,21 +610,25 @@ class BioSim:
         """
         list_of_all_herbivores = []
         list_of_all_carnivores = []
+        list_of_all_vultures = []
         list_of_rows = []
         list_of_columns = []
         for cell in self.map.map_iterator():
             list_of_all_herbivores.append(len(cell.present_herbivores))
             list_of_all_carnivores.append(len(cell.present_carnivores))
+            list_of_all_vultures.append(len(cell.present_vultures))
             list_of_rows.append(self.map.y)
             list_of_columns.append(self.map.x)
 
         distribution_dict = {'Herbivore': list_of_all_herbivores,
                              'Carnivore': list_of_all_carnivores,
+                             'Vulture': list_of_all_vultures,
                              'Row': list_of_rows, 'Col': list_of_columns}
         data_frame = pd.DataFrame(distribution_dict, columns=['Row',
                                                               'Col',
                                                               'Carnivore',
-                                                              'Herbivore'])
+                                                              'Herbivore',
+                                                              'Vulture'])
         return data_frame
 
     @property
