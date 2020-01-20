@@ -129,8 +129,8 @@ class Animal:
 
     def ageing(self):
         """
-        Ages the animal by one year.
-        :return:
+        Ages the animal by one year and calls the calculate_fitness method
+        to recalculate the fitness of the animal.
         """
         self.age += 1
         self.calculate_fitness()
@@ -147,8 +147,10 @@ class Animal:
         """
         Calculates the animals fitness, depending on the weight and age of
         the animal. If the weight goes to zero, the fitness goes to zero.
-        Otherwise it is calculated by the following function:
-        :return:
+        Otherwise it is calculated by the following formula:
+
+        :math: # TODO: Write the equations for calculating fitness
+
         """
         if self.weight == 0:
             self.phi = 0
@@ -163,10 +165,15 @@ class Animal:
     def breeding(self, n_animals_in_cell):
         """
         Calculates the probability of animal having an offspring if multiple
-        animals are in the cell. Potentially creates a new animal with
-        weight decided from a gaussian distribution. The mother animal loses
-        weight relative to the wight of the offspring times a constant xi.
-        :return: None if no animal is born, or a newborn class instance of
+        animals are in the cell.
+        The method then potentially creates a new animal, a class instance
+        of the same class as the parent animal, with weight decided
+        from a gaussian distribution and age zero.
+        The mother animal loses weight relative to the weight of the
+        offspring times a constant xi. The mothers fitness is then
+        recalculated with its new weight.
+
+        :return: None if no animal is born, or a class instance of
         same animal species.
         """
 
@@ -195,8 +202,7 @@ class Animal:
     def lose_weight(self):
         """
         Subtracts the yearly weight loss of an animal based on weight loss
-        constant eta.
-        :return:
+        constant eta and recalculates the fitness of the animal.
         """
         self.weight -= self.param_dict['eta'] * self.weight
         self.calculate_fitness()
@@ -205,7 +211,15 @@ class Animal:
         """
         Calculates the probability of an animal dying depending on its
         fitness. Potentially kills the animal.
-        :return:
+
+        If the fitness of the animal is zero the attribute 'alive' is put to
+        False and the animal dies.
+
+        If the fitness is larger than zero a probability of death is
+        calculated from the formula:
+        :math:
+        where 'omega' is defined in the param_dict.
+        The function then possibly kills the animal using a random number.
         """
         if self.phi == 0:
             self.alive = False
@@ -220,7 +234,16 @@ class Animal:
 class Herbivore(Animal):
     """
     Class describing herbivore behaviour.
-    Cannot move into mountain biomes or ocean biomes.
+
+    The herbivore class is a sub-class of the Animal-class and contain mostly
+    the same methods. It however, also defines specific methods for eating and
+    migration.
+    Furthermore the param_dict for a herbivore has different
+    default values for the different parameters and does not contain
+    PhiDeltaMax. The herbivore class also restricts which biome an animal
+    can move into. A herbivore can't move into
+    Ocean biomes or Mountain biomes.
+
     """
 
     param_dict = {
@@ -248,8 +271,8 @@ class Herbivore(Animal):
     def _propensity_herb(self, cell):
         """
         Calculates the propensity an animal has to move to a cell.
-        :param cell:
-        :return:
+        :param cell: A cell next to the cell the animal is in.
+        :return: prop_cell: The propensity to move into a cell
         """
 
         e_cell = cell.available_food / (((len(
@@ -266,11 +289,25 @@ class Herbivore(Animal):
         potentially moves it. The function also calculates the probability
         of direction of movements, either east, west, north or south.
 
-        Herbivores are inclined to move towards the cell with the most of
-        available fodder.
+        The method first calculates the probability of moving using the
+        parameter 'mu' and the fitness of the animal. By default the largest
+        probability is 0.25. It then uses a random generated number to check
+        if the animal moves.
 
-        Herbivores are inclined to move towards the cell with the least
-        amount of herbivores.
+        If the animal moves the propensity to move to each surrounding cell
+        is calculated. The propensity to move to a cell takes into account
+        how many herbivores are present in the cell and how much food is
+        available. Herbivores are inclined to move towards the cell with the
+        most of available food. Herbivores are inclined to move towards the
+        cell with the least amount of herbivores.
+
+        # TODO: maths for migration
+
+        Four probability intervals are created and a randomly generated number
+        chooses which cell the animal moves to according to which interval
+        the random number is in. Lastly the method checks if
+        the chosen cell is a legal biome for the animal and if it is the
+        animal moves, else the animal does not move and remain in the cell.
 
         :param top_cell: The cell north of current cell.
         :param bottom_cell: The cell south of current cell.
@@ -328,8 +365,18 @@ class Herbivore(Animal):
 
     def eat(self, food_available_in_cell):
         """
-        Tries to eat amount of food F, otherwise eats whats left in the
-        cell. Gains weight proportional beta*F, where beta is a constant.
+        The eat method takes the available food in the current cell as
+        input. The amount of available food is defined in the biome class
+        instances.
+        When called the method tries to eat F amount of food, if this is not
+        possible it eats what is left in the cell.
+        After eating the animal gains weight proportional to beta*F, where beta
+        is a parameter defined in the param_dict.
+
+        The amount of food eaten by the animal is then subtracted from the
+        amount of available food. If there is less than F amount of food
+        left in cell before the eat method is called, the eat method returns 0.
+
         :param food_available_in_cell:
         :return: New amount of food left in cell
         """
@@ -347,7 +394,14 @@ class Herbivore(Animal):
 class Carnivore(Animal):
     """
     Class describing carnivore behaviour.
-    Cannot move into mountain biomes or ocean biomes.
+
+    The Carnivore class is a sub-class of the class Animal. Most actions a
+    carnivore can do is inherit from the super-class Animal, however it
+    contains methods for eating(hunt) and migration. Furthermore it contains
+    different default values for each parameter in the param_dict.
+
+    The Carnivore class also restrict which biome an animal can move into or
+    stay in. A carnivore can't move into Ocean biomes or Mountain biomes.
     """
     param_dict = {
         'w_birth': 6.0,
@@ -374,18 +428,48 @@ class Carnivore(Animal):
 
     def hunt(self, sorted_list_of_herbivores):
         """
-        Tries to eat herbivores in cell, starting with herbivore with
-        lowest fitness.
+        The hunt method is the eating method for the Carnivore class. When
+        called for a carnivore it tries to eat the herbivores in cell,
+        starting with the herbivore with the lowest fitness. The carnivore
+        will eat until it has eaten an amount F or it has tried to eat all
+        the herbivores in the cell.
 
-        Carnivores eats until it has eaten an amount F or it has tried to
-        eat all herbivores in cell. Only eats amount needed of killed
-        herbivore.
+        The hunt method has three possible outcomes depending on the
+        difference in fitness between the carnivore and the herbivore it
+        tries to eat.
+        If the herbivore has a greater fitness than the carnivore the
+        probability of successfully eating the herbivore is 0.
 
-        Chance of successful kill increases proportionally with carnivore
-        fitness, and inversely proportionally with herbivore fitness.
+        If the difference in fitness for the carnivore and herbivore is
+        between zero and 'DeltaPhiMax' the probability of successfully
+        eating the herbivore is calculated with the following formula:
+
+        # TODO: Formula for hunt
+
+        where DeltaPhiMax is defined in the param_dict, Phi_carn is the
+        fitness of the carnivore and Phi_herb is the fitness of the herbivore.
+
+        The third scenario is if the difference in fitness between the
+        herbivore and carnivore are larger than DeltaPhiMax the probability
+        of successfully eating the herbivore is 1.
+
+        A random generated number then checks if the carnivore successfully
+        eats a herbivore.
+
+        Thereafter the hunt method modifies the weight of the carnivore,
+        recalculates its fitness and
+        puts the 'alive' attribute of the herbivore to False.
+
+        The weight of the carnivore increases by beta*F if the herbivore's
+        weight is equal or greater than F(50 by default). On the other hand,
+        if the weight of the herbivore is less than F the carnivore eats the
+        herbivore and goes on to try to kill another one. This is repeated
+        until the carnivore either has eaten an amount of F or has tried to
+        kill all the herbivores in the cell.
+        The fitness of the carnivore is recalculated after each kill.
+
         :param sorted_list_of_herbivores: Takes in a list with the
-        herbivores present in the cell.
-        :return:
+        herbivores present in the cell sorted after fitness.
         """
 
         # Saves initial weight for comparison later.
@@ -434,7 +518,7 @@ class Carnivore(Animal):
         """
         Calculates the propensity an animal has to move to a cell.
         :param cell:
-        :return:
+        :return prop_cell:
         """
 
         herb_weight = 0
@@ -454,19 +538,35 @@ class Carnivore(Animal):
         potentially moves it. The function also calculates the probability
         of direction of movements, either east, west, north or south.
 
-        Carnivores are inclined to move towards the cell with the most
-        herbivores measured in weight.
+        The method first calculates the probability of moving using the
+        parameter 'mu' and the fitness of the animal. By default the largest
+        probability is 0.25. It then uses a random generated number to check
+        if the animal moves.
 
-        Carnivores also consider how many other carnivores are in the cells
-        around when it migrates. It is inclined to move towards a cell with
-        the least carnivores.
-        
+        If the animal moves the propensity to move to each surrounding cell
+        is calculated. The propensity to move to a cell takes into account
+        how many carnivores are present in the cell and how much food is
+        available. In the case of carnivores the available food is the list
+        of present_herbivores stored in the class instance in each cell.
+
+        Carnivores are inclined to move towards the cell with the
+        most herbivores. Carnivores are inclined to move towards the
+        cell with the least amount of other carnivores.
+
+        # TODO: maths for migration
+
+        Four probability intervals are created and a randomly generated number
+        chooses which cell the animal moves to according to which interval
+        the random number is in. Lastly the method checks if
+        the chosen cell is a legal biome for the animal and if it is the
+        animal moves, else the animal does not move and remain in the cell.
+
         :param top_cell: The cell north of current cell.
         :param bottom_cell: The cell south of current cell.
         :param left_cell: The cell west of current cell.
         :param right_cell: The cell east of current cell.
-        
-        :return: The cell the animal migrates to (target_cell).
+
+        :return Target_cell: The target cell is the cell the animal moves to.
         """
 
         move_prob = self.param_dict['mu'] * self.phi

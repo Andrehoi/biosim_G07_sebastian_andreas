@@ -22,7 +22,6 @@ Animals
 -------
 
 
-
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
@@ -33,12 +32,6 @@ Animals
 
    geography
 
-   map_iterator
-
    examples
 
    installations
-
-
-
-
