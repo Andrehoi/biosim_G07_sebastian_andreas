@@ -746,7 +746,7 @@ class BioSim:
 
             # Create the legend for the graphics
             if not self.legend_is_set_up:
-                axlg = self._fig.add_axes([0.02, 0.72, 0.08, 0.15])
+                axlg = self._fig.add_axes([0.915, 0.725, 0.08, 0.15])
                 axlg.axis('off')
                 for ix, name in enumerate(('Ocn', 'Mtn', 'Jgl',
                                            'Svn', 'Dst')):
@@ -771,8 +771,12 @@ class BioSim:
 
         # Add right subplot for line graph of mean.
         if self._line_graph_ax is None:
-            self._line_graph_ax = self._fig.add_subplot(2, 2, 4)
+            self._line_graph_ax = plt.subplot2grid((3, 2), (1, 1),
+                                                   rowspan=2, colspan=1)
             self._line_graph_ax.set_ylim(0, self.graph_ymax)
+            self._line_graph_ax.yaxis.tick_right()
+            self._line_graph_ax.title.set_text('Population of species over '
+                                               'time')
 
         # needs updating on subsequent calls to simulate()
         self._line_graph_ax.set_xlim(0, num_years + self.current_year)
@@ -887,7 +891,7 @@ class BioSim:
                                              interpolation='nearest',
                                              vmin=self.color_bar_max_vult,
                                              vmax=5,
-                                             cmap='magma')
+                                             cmap='cividis')
             plt.colorbar(self._heatmap_vult_graphics, ax=self._heatmap_vult_ax,
                          orientation='horizontal')
 
