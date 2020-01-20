@@ -146,10 +146,21 @@ class Animal:
     def calculate_fitness(self):
         """
         Calculates the animals fitness, depending on the weight and age of
-        the animal. If the weight goes to zero, the fitness goes to zero.
+        the animal. If the weight is zero, the fitness is zero.
         Otherwise it is calculated by the following formula:
 
-        :math: # TODO: Write the equations for calculating fitness
+        .. math::
+            \phi = q^{+} (a, a_{1/2}, \phi_{age}) q^{-} (w, w_{1/2},
+            \phi_{weight})
+
+        where ``a`` is the age w is the weight, ``a_{1/2}``, phi_age,
+        ``w_1/2`` and ``phi_weight`` are defined in the param_dict. q^{±} is
+        defined as:
+
+        .. math::
+            q^{±}(x, x_{1/2}, \phi) = 1/(1 + e^{±(x - x_{1/2})})
+
+        where x and phi are random variables.
 
         """
         if self.weight == 0:
@@ -304,7 +315,21 @@ class Herbivore(Animal):
         most of available food. Herbivores are inclined to move towards the
         cell with the least amount of herbivores.
 
-        # TODO: maths for migration
+        The propensity to move to a cell is calculated by the following
+        formula:
+
+        .. math::
+            \pi_{i->j} = e^{(\lambda \epsilon_{j})}
+
+        where ``pi`` is the propensity to move to the cell, ``lambda`` is a
+        paramter defined in the param_dict and ``epsilon`` is defined as:
+
+        .. math::
+            e_{j} = f_{j}/((n_{j} + 1) * F)
+
+        where ``f`` is the amount of available food, ``n`` is the number of a
+        nimals of the same species and `F``` is the appetite of the animal
+        as defined in the param_dict.
 
         Four probability intervals are created and a randomly generated number
         chooses which cell the animal moves to according to which interval
@@ -447,7 +472,8 @@ class Carnivore(Animal):
         between zero and 'DeltaPhiMax' the probability of successfully
         eating the herbivore is calculated with the following formula:
 
-        # TODO: Formula for hunt
+        .. math::
+            p_{kill} = (\phi_{carn} - \phi_{herb})/\Delta\Phi_{max},
 
         where DeltaPhiMax is defined in the param_dict, Phi_carn is the
         fitness of the carnivore and Phi_herb is the fitness of the herbivore.
@@ -553,12 +579,12 @@ class Carnivore(Animal):
         how many carnivores are present in the cell and how much food is
         available. In the case of carnivores the available food is the list
         of present_herbivores stored in the class instance in each cell.
+        The propensity for a carnivore to move to a cell is calculated in
+        the same way as for a herbivore.
 
         Carnivores are inclined to move towards the cell with the
         most herbivores. Carnivores are inclined to move towards the
         cell with the least amount of other carnivores.
-
-        # TODO: maths for migration
 
         Four probability intervals are created and a randomly generated number
         chooses which cell the animal moves to according to which interval
