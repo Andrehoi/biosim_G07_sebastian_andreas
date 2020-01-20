@@ -263,7 +263,6 @@ class Herbivore(Animal):
 
         return prop_cell
 
-
     def migrate(self, top_cell, bottom_cell, left_cell, right_cell):
         """
         Calculates the probability for an animal to move one cell, and
@@ -434,7 +433,7 @@ class Carnivore(Animal):
                     if left_overs >= 0:
                         self.weight = start_weight + self.param_dict['beta']\
                                       * self.param_dict['F']
-                        return
+                        return left_overs
 
     def _propensity_carn(self, cell):
         """
@@ -529,21 +528,21 @@ class Vulture(Animal):
     An animal that can fly and eats left overs from carnivore kills.
     """
     param_dict = {
-        'w_birth': 6.0,
-        'sigma_birth': 1.0,
-        'beta': 0.75,
-        'eta': 0.125,
+        'w_birth': 2.0,
+        'sigma_birth': 0.5,
+        'beta': 0.9,
+        'eta': 0.025,
         'a_half': 60,
         'phi_age': 0.4,
         'w_half': 4.0,
         'phi_weight': 0.4,
         'mu': 0.4,
         'lambda_animal': 1,
-        'gamma': 0.8,
+        'gamma': 0.9,
         'zeta': 3.5,
         'xi': 1.1,
-        'omega': 0.9,
-        'F': 50,
+        'omega': 0.40,
+        'F': 10,
         'DeltaPhiMax': 10
     }
 
