@@ -7,7 +7,7 @@ __email__ = "sebaskih@nmbu.no & andrehoi@nmbu.no"
 Test file for animal properties
 """
 
-from biosim.animals import Herbivore, Carnivore
+from biosim.animals import Herbivore, Carnivore, Vulture
 from biosim.simulation import BioSim
 from biosim.geography import Jungle, Ocean, Mountain
 
@@ -312,7 +312,7 @@ def test_hunting_stops_when_full():
     herb_list = [Herbivore(100, 35), Herbivore(100, 35), Herbivore(4, 35)]
     hunter = Carnivore(3, 50)
     hunter.new_parameters({'DeltaPhiMax': 0.01})
-    hunter.hunt(herb_list)
+    assert hunter.hunt(herb_list) == 20
     assert hunter.param_dict['DeltaPhiMax'] == 0.01
     assert hunter.weight > 50
     herb_list.sort(key=lambda x: x.phi)
@@ -343,3 +343,18 @@ def test_propensity():
 
     assert abs(carn._propensity_carn(jgl) - 1.419) < 0.001
     assert abs(herb._propensity_herb(jgl) - 28.032) < 0.001
+
+
+def test_vulture_breeding():
+    """ Test that the vultures breed with high probability """
+    Vulture.new_parameters({'gamma': 1})
+    vult = Vulture(3, 100)
+    assert vult.breeding(2) is not None
+    Vulture.new_parameters({'gamma': 0.9})
+
+
+def test_vulture_scavange():
+    vult = Vulture(3, 20)
+    assert vult.weight == 20
+    vult.scavenge(20)
+    assert vult.weight > 20

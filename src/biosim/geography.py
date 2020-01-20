@@ -59,6 +59,8 @@ class Biome:
         self.available_food = 0
         self.present_carnivores = []
         self.present_herbivores = []
+        self.present_vultures = []
+        self.left_overs = 0
 
     def regrow(self):
         """

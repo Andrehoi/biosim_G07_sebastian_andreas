@@ -199,6 +199,10 @@ class Animal:
                     self.calculate_fitness()
                     return Carnivore(0, birth_weight)
 
+                if type(self).__name__ == 'Vulture':
+                    self.calculate_fitness()
+                    return Vulture(0, birth_weight)
+
     def lose_weight(self):
         """
         Subtracts the yearly weight loss of an animal based on weight loss
@@ -281,7 +285,6 @@ class Herbivore(Animal):
         prop_cell = exp(self.param_dict['lambda_animal'] * e_cell)
 
         return prop_cell
-
 
     def migrate(self, top_cell, bottom_cell, left_cell, right_cell):
         """
@@ -509,10 +512,12 @@ class Carnivore(Animal):
 
                     weight_of_killed_animals += herbivore.weight
 
-                    if weight_of_killed_animals >= self.param_dict['F']:
+                    left_overs = weight_of_killed_animals - self.param_dict[
+                        'F']
+                    if left_overs >= 0:
                         self.weight = start_weight + self.param_dict['beta']\
                                       * self.param_dict['F']
-                        return
+                        return left_overs
 
     def _propensity_carn(self, cell):
         """
@@ -579,6 +584,129 @@ class Carnivore(Animal):
             prop_bottom = self._propensity_carn(bottom_cell)
             prop_left = self._propensity_carn(left_cell)
             prop_right = self._propensity_carn(right_cell)
+
+            # sum_prop is the probability of the animal migrating when it
+            # migrates and should be 1.
+            sum_prop = prop_top + prop_right + prop_bottom + prop_left
+
+            # Creates 4 intervals of walking to the 4 different cells based
+            # on the probability of walking to the cells.
+            top_prob = prop_top / sum_prop
+            bottom_prob = prop_bottom / sum_prop
+            left_prob = prop_left / sum_prop
+            right_prob = prop_right / sum_prop
+
+            # Checks which direction the animal chooses to move. Returns the
+            # cell in the given direction.
+            number = random.random()
+            if 0 <= number < top_prob:
+                # Checks if the cell in a direction is in the legal biomes
+                # of the animal.
+                if not type(top_cell).__name__ in self.legal_biomes:
+                    return None
+                return top_cell
+
+            if top_prob <= number < top_prob + bottom_prob:
+                if not type(bottom_cell).__name__ in self.legal_biomes:
+                    return None
+                return bottom_cell
+
+            if top_prob + bottom_prob <= number < top_prob + bottom_prob + \
+                    left_prob:
+                if not type(left_cell).__name__ in self.legal_biomes:
+                    return None
+                return left_cell
+
+            if top_prob + bottom_prob + left_prob <= number < 1:
+                if not type(right_cell).__name__ in self.legal_biomes:
+                    return None
+                return right_cell
+
+
+class Vulture(Animal):
+    """
+    An animal that can fly and eats left overs from carnivore kills.
+    """
+    param_dict = {
+        'w_birth': 2.0,
+        'sigma_birth': 0.5,
+        'beta': 0.9,
+        'eta': 0.025,
+        'a_half': 60,
+        'phi_age': 0.4,
+        'w_half': 4.0,
+        'phi_weight': 0.4,
+        'mu': 0.4,
+        'lambda_animal': 1,
+        'gamma': 0.9,
+        'zeta': 3.5,
+        'xi': 1.1,
+        'omega': 0.40,
+        'F': 10,
+        'DeltaPhiMax': 10
+    }
+
+    def __init__(self, age, weight):
+        super().__init__(age, weight)
+        self.legal_biomes = ['Desert', 'Savannah', 'Jungle', 'Mountain']
+
+    def scavenge(self, left_overs):
+
+        if left_overs >= self.param_dict['F']:
+            self.weight += self.param_dict['beta'] * self.param_dict['F']
+            self.calculate_fitness()
+            return left_overs - self.param_dict['F']
+
+        else:
+            self.weight += self.param_dict['beta'] * left_overs
+            self.calculate_fitness()
+            return 0
+
+    def _propensity_vult(self, cell):
+        """
+        Calculates the propensity an animal has to move to a cell.
+        :param cell:
+        :return:
+        """
+
+        e_cell = cell.left_overs / (((len(
+            cell.present_vultures) + 1) * self.param_dict['F']))
+
+        prop_cell = exp(self.param_dict['lambda_animal'] * e_cell)
+
+        return prop_cell
+
+    def migrate(self, top_cell, bottom_cell, left_cell, right_cell):
+        """
+        Calculates the probability for an animal to move one cell, and
+        potentially moves it. The function also calculates the probability
+        of direction of movements, either east, west, north or south.
+
+        Carnivores are inclined to move towards the cell with the most
+        herbivores measured in weight.
+
+        Carnivores also consider how many other carnivores are in the cells
+        around when it migrates. It is inclined to move towards a cell with
+        the least carnivores.
+
+        :param top_cell: The cell north of current cell.
+        :param bottom_cell: The cell south of current cell.
+        :param left_cell: The cell west of current cell.
+        :param right_cell: The cell east of current cell.
+
+        :return: The cell the animal migrates to (target_cell).
+        """
+
+        move_prob = self.param_dict['mu'] * self.phi
+
+        # Checks if the animal moves based on the probability of moving.
+        if move_prob <= random.random():
+
+            # prop_xxx is the propensity to move to cell xxx.
+            prop_top = self._propensity_vult(top_cell)
+            prop_bottom = self._propensity_vult(bottom_cell)
+            prop_left = self._propensity_vult(left_cell)
+            prop_right = self._propensity_vult(right_cell)
 
             # sum_prop is the probability of the animal migrating when it
             # migrates and should be 1.
