@@ -24,21 +24,21 @@ The BioSim interface
 ====================
 The BioSim interface is the main block of the assignment. This runs the
 simulations and visualises the requested years. One may also save image files
-certain years of visualization and compile a movie of them.
+for certain years of the visualization and compile a movie of them.
 
-Initially the island simulated consists of five biomes and two species.
-There is possible to add more biomes and types of animals to the ecosystem
-by creating new classes for them (see ``Animals`` and ``Geography``). At
-this point in time a third species of animal has been added, a vulture. This
-animal is a scavenger and does not affect with the behaviour of the
-other types of animals. Furthermore a biome OutOfBounds is currently in
-development. The purpose of this biome is to make it possible to have
-amphibious animals on the island.
+Initially the island simulated consisted of five biomes and two types of
+animals. There is possible to add more biomes and types of animals to the
+ecosystem by creating new classes for them (see ``Animals`` and
+``Geography``). At this point in time a third species of animal has been
+added, a vulture. This animal is a scavenger and does not affect the
+behaviour of the other types of animals. Furthermore a biome OutOfBounds has
+been added. The purpose of this biome is to make it possible
+to have amphibious animals on the island.
 
 The part of the code that visualizes the results is based on a project
 called randvis(``https://github.com/yngvem/INF200-2019/tree/master/Project
 /SampleProjects/randvis_project``). The code is mostly the same however some
-variable names have substituted to make it easier to read.
+variable names have been substituted to make it easier to read.
 
 BioSim class
 ------------
