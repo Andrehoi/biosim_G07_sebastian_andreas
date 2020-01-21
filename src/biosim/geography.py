@@ -119,14 +119,14 @@ class Savannah(Biome):
         self.available_food = self.param_dict['f_max']
 
     def regrow(self):
-        """
+        r"""
         The regrow method calculates and redefines the amount of available
         food based on the amount of available food left from the previous
         year and the regrowth factor alpha. The amount of available food
         after regrowth is calculated by the following formula:
 
         .. math::
-            f_{new, j} = f_{old, j} + \alpha (f_{max} - f_{old, j})
+            f_{new, j} = f_{old, j} + \alpha \times (f_{max} - f_{old, j})
 
         where f_{available} is the new amount of available food,
         f_{remaining} is the food left after previous year, alpha is the

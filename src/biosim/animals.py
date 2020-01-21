@@ -89,7 +89,8 @@ class Animal:
             F: Maximum food capacity.
 
             DeltaPhiMax: Maximum difference in fitness between carnivore
-            and herbivore
+            and herbivore.
+
         """
 
         for iterator in parameters:
@@ -144,13 +145,13 @@ class Animal:
         return 1 / (1 + exp(-phi * (x - x_half)))
 
     def calculate_fitness(self):
-        """
+        r"""
         Calculates the animals fitness, depending on the weight and age of
         the animal. If the weight is zero, the fitness is zero.
         Otherwise it is calculated by the following formula:
 
         .. math::
-            \phi = q^{+} (a, a_{1/2}, \phi_{age}) q^{-} (w, w_{1/2},
+            \phi = q^{+} (a, a_{1/2}, \phi_{age}) \times q^{-} (w, w_{1/2},
             \phi_{weight})
 
         where ``a`` is the age w is the weight, ``a_{1/2}``, phi_age,
@@ -158,9 +159,9 @@ class Animal:
         defined as:
 
         .. math::
-            q^{±}(x, x_{1/2}, \phi) = 1/(1 + e^{±(x - x_{1/2})})
+            q^{±}(x, x_{1/2}, \phi) = \frac{1}{(1 + e^{±(x - x_{1/2})})}
 
-        where x and phi are random variables.
+        where ``x`` and ``phi`` are random variables.
 
         """
         if self.weight == 0:
@@ -184,8 +185,7 @@ class Animal:
         offspring times a constant xi. The mothers fitness is then
         recalculated with its new weight.
 
-        :return: None if no animal is born, or a class instance of
-        same animal species.
+        :return: None, or a class instance of same species.
         """
 
         if self.weight < self.param_dict['zeta'] * \
@@ -223,7 +223,7 @@ class Animal:
         self.calculate_fitness()
 
     def potential_death(self):
-        """
+        r"""
         Calculates the probability of an animal dying depending on its
         fitness. Potentially kills the animal.
 
@@ -232,8 +232,12 @@ class Animal:
 
         If the fitness is larger than zero a probability of death is
         calculated from the formula:
-        :math:
-        where 'omega' is defined in the param_dict.
+
+        ..:math:
+            p_{death} = \omega \times (1 - \phi}
+
+        where ``omega`` is defined in the param_dict and ``phi`` is the fitness
+        of the animal.
         The function then possibly kills the animal using a random number.
         """
         if self.phi == 0:
@@ -258,7 +262,6 @@ class Herbivore(Animal):
     PhiDeltaMax. The herbivore class also restricts which biome an animal
     can move into. A herbivore can't move into
     Ocean biomes or Mountain biomes.
-
     """
 
     param_dict = {
@@ -298,7 +301,7 @@ class Herbivore(Animal):
         return prop_cell
 
     def migrate(self, top_cell, bottom_cell, left_cell, right_cell):
-        """
+        r"""
         Calculates the probability for an animal to move one cell, and
         potentially moves it. The function also calculates the probability
         of direction of movements, either east, west, north or south.
@@ -325,7 +328,7 @@ class Herbivore(Animal):
         paramter defined in the param_dict and ``epsilon`` is defined as:
 
         .. math::
-            e_{j} = f_{j}/((n_{j} + 1) * F)
+            e_{j} = \frac{f_{j}}{((n_{j} + 1) \times F)}
 
         where ``f`` is the amount of available food, ``n`` is the number of a
         nimals of the same species and `F``` is the appetite of the animal
@@ -342,7 +345,7 @@ class Herbivore(Animal):
         :param left_cell: The cell west of current cell.
         :param right_cell: The cell east of current cell.
 
-        :return: Target_cell. The target cell is the cell the animal moves to.
+        :return Target_cell: The target cell is the cell the animal moves to.
         """
 
         move_prob = self.param_dict['mu'] * self.phi
@@ -455,7 +458,7 @@ class Carnivore(Animal):
         self.legal_biomes = ['Desert', 'Savannah', 'Jungle']
 
     def hunt(self, sorted_list_of_herbivores):
-        """
+        r"""
         The hunt method is the eating method for the Carnivore class. When
         called for a carnivore it tries to eat the herbivores in cell,
         starting with the herbivore with the lowest fitness. The carnivore
@@ -473,10 +476,11 @@ class Carnivore(Animal):
         eating the herbivore is calculated with the following formula:
 
         .. math::
-            p_{kill} = (\phi_{carn} - \phi_{herb})/\Delta\Phi_{max},
+            p_{kill} = \frac{(\phi_{carn} - \phi_{herb})}{\Delta\Phi_{max}},
 
-        where DeltaPhiMax is defined in the param_dict, Phi_carn is the
-        fitness of the carnivore and Phi_herb is the fitness of the herbivore.
+        where ``DeltaPhiMax`` is defined in the param_dict, ``Phi_carn`` is the
+        fitness of the carnivore and ``Phi_herb`` is the fitness of the
+        herbivore.
 
         The third scenario is if the difference in fitness between the
         herbivore and carnivore are larger than DeltaPhiMax the probability
@@ -499,6 +503,7 @@ class Carnivore(Animal):
 
         :param sorted_list_of_herbivores: Takes in a list with the
         herbivores present in the cell sorted after fitness.
+
         """
 
         # Saves initial weight for comparison later.
@@ -751,6 +756,7 @@ class Vulture(Animal):
             top_prob = prop_top / sum_prop
             bottom_prob = prop_bottom / sum_prop
             left_prob = prop_left / sum_prop
+            # local variable right_prob is not used, 1 is ues instead.
             right_prob = prop_right / sum_prop
 
             # Checks which direction the animal chooses to move. Returns the

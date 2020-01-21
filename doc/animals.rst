@@ -61,4 +61,3 @@ Carnivores
 
 .. autoclass:: biosim.animals.Carnivore
     :members: hunt, migrate
-
