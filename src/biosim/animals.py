@@ -671,7 +671,6 @@ class Vulture(Animal):
         'xi': 1.1,
         'omega': 0.40,
         'F': 10,
-        'DeltaPhiMax': 10
     }
 
     def __init__(self, age, weight):
