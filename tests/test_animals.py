@@ -100,7 +100,7 @@ def test_move():
     herbivore = Herbivore(1, 300)
     target_cell = herbivore.migrate(top_cell, bottom_cell, left_cell,
                                     right_cell)
-    assert type(target_cell).__name__ == 'Jungle'
+    assert isinstance(target_cell, Jungle)
     Herbivore.param_dict['mu'] = 0.25
 
 
@@ -126,7 +126,7 @@ def test_move_towards_cell_without_other_herbivores():
 
     right_counter = 0
     top_counter = 0
-    for _ in range(100):
+    for _ in range(10):
         outcome = herb.migrate(top_cell, bottom_cell, left_cell, right_cell)
         if outcome == right_cell:
             right_counter += 1
@@ -155,7 +155,7 @@ def test_carnivore_move():
     right_counter = 0
     top_counter = 0
 
-    for _ in range(100):
+    for _ in range(10):
         outcome = carn.migrate(top_cell, bottom_cell, left_cell, right_cell)
         if outcome == right_cell:
             right_counter += 1

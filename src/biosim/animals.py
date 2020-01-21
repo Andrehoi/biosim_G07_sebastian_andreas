@@ -208,18 +208,18 @@ class Animal:
                     self.calculate_fitness()
                     return Herbivore(0, birth_weight)
 
-                if isinstance(self, Carnivore):
+                elif isinstance(self, Carnivore):
                     self.calculate_fitness()
                     return Carnivore(0, birth_weight)
 
-                if isinstance(self, Vulture):
+                elif isinstance(self, Vulture):
                     self.calculate_fitness()
                     return Vulture(0, birth_weight)
 
     def _choose_direction(self, prop_top, prop_bottom, prop_left, prop_right,
                           top_cell, bottom_cell, left_cell, right_cell):
         """
-        Choses the direction of migration for an animal.
+        Chooses the direction of migration for an animal.
 
         :param prop_top: Propensity for moving to top cell.
         :param prop_bottom: Propensity for moving to bottom cell.
@@ -246,18 +246,18 @@ class Animal:
                 return None
             return top_cell
 
-        if top_prob <= number < top_prob + bottom_prob:
+        elif top_prob <= number < top_prob + bottom_prob:
             if not type(bottom_cell).__name__ in self.legal_biomes:
                 return None
             return bottom_cell
 
-        if top_prob + bottom_prob <= number < top_prob + bottom_prob + \
+        elif top_prob + bottom_prob <= number < top_prob + bottom_prob + \
                 left_prob:
             if not type(left_cell).__name__ in self.legal_biomes:
                 return None
             return left_cell
 
-        if top_prob + bottom_prob + left_prob <= number < 1:
+        else:
             if not type(right_cell).__name__ in self.legal_biomes:
                 return None
             return right_cell
@@ -533,11 +533,11 @@ class Carnivore(Animal):
             if self.phi <= herbivore.phi:
                 kill_probability = 0
 
-            if self.phi - herbivore.phi < self.param_dict['DeltaPhiMax']:
+            elif self.phi - herbivore.phi < self.param_dict['DeltaPhiMax']:
                 kill_probability = (self.phi - herbivore.phi) / \
                                    self.param_dict['DeltaPhiMax']
 
-            if self.phi - herbivore.phi >= self.param_dict['DeltaPhiMax']:
+            else:
                 kill_probability = 1
 
             # Checks if the carnivore kills the herbivore.
@@ -552,7 +552,7 @@ class Carnivore(Animal):
                     return
 
                 # Eats whole herbivore, and checks if its full.
-                if herbivore.weight < self.param_dict['F']:
+                else:
 
                     self.weight += self.param_dict['beta'] * herbivore.weight
                     herbivore.alive = False

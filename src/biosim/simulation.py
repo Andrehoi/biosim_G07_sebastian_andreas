@@ -243,9 +243,9 @@ class BioSim:
                 if target_cell is not None:
                     if isinstance(animal, Herbivore):
                         target_cell.present_herbivores.append(animal)
-                    if isinstance(animal, Carnivore):
+                    elif isinstance(animal, Carnivore):
                         target_cell.present_carnivores.append(animal)
-                    if isinstance(animal, Vulture):
+                    elif isinstance(animal, Vulture):
                         target_cell.present_vultures.append(animal)
 
                     exited_animals.append(animal)
@@ -515,7 +515,7 @@ class BioSim:
                     self.map.array_map[coordinates]. \
                         present_herbivores.append(new_animal)
 
-                if animal_class == 'Carnivore':
+                elif animal_class == 'Carnivore':
                     new_animal = Carnivore(animal['age'], animal['weight'])
                     if type(self.map.array_map[coordinates]).__name__ not in \
                             new_animal.legal_biomes:
@@ -524,7 +524,7 @@ class BioSim:
                     self.map.array_map[coordinates]. \
                         present_carnivores.append(new_animal)
 
-                if animal_class == 'Vulture':
+                elif animal_class == 'Vulture':
                     new_animal = Vulture(animal['age'], animal['weight'])
 
                     if type(self.map.array_map[coordinates]).__name__ not in \
