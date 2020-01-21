@@ -163,7 +163,7 @@ class Animal:
         .. math::
             q^{±}(x, x_{1/2}, \phi) = \frac{1}{(1 + e^{±(x - x_{1/2})})}
 
-        where ``x`` and ``phi`` are random variables.
+        where ``x`` and ``phi`` are input variables.
 
         """
         if self.weight == 0:
@@ -204,15 +204,15 @@ class Animal:
 
                 self.weight -= birth_weight * self.param_dict['xi']
 
-                if type(self).__name__ == 'Herbivore':
+                if isinstance(self, Herbivore):
                     self.calculate_fitness()
                     return Herbivore(0, birth_weight)
 
-                if type(self).__name__ == 'Carnivore':
+                if isinstance(self, Carnivore):
                     self.calculate_fitness()
                     return Carnivore(0, birth_weight)
 
-                if type(self).__name__ == 'Vulture':
+                if isinstance(self, Vulture):
                     self.calculate_fitness()
                     return Vulture(0, birth_weight)
 
@@ -379,8 +379,8 @@ class Herbivore(Animal):
         .. math::
             e_{j} = \frac{f_{j}}{((n_{j} + 1) \times F)}
 
-        where ``f`` is the amount of available food, ``n`` is the number of a
-        nimals of the same species and `F``` is the appetite of the animal
+        where ``f`` is the amount of available food, ``n`` is the number of
+        animals of the same species and `F``` is the appetite of the animal
         as defined in the param_dict.
 
         Four probability intervals are created and a randomly generated number
@@ -570,6 +570,7 @@ class Carnivore(Animal):
     def _propensity_carn(self, cell):
         """
         Calculates the propensity an animal has to move to a cell.
+
         :param cell: A cell next to the cell the animal is in.
         :return: prop_cell: The propensity to move into a cell.
         """
@@ -670,6 +671,7 @@ class Vulture(Animal):
         """
         Eats the left overs from carnivore kills. Left overs stay in a cell
         for a year before they rot away.
+
         :param left_overs: Left overs from kills
         :return: The new amount of left overs in the cell
         """
@@ -687,6 +689,7 @@ class Vulture(Animal):
     def _propensity_vult(self, cell):
         """
         Calculates the propensity an animal has to move to a cell.
+
         :param cell: Cell to calculate propensity for.
         :return: The propensity of the cell.
         """

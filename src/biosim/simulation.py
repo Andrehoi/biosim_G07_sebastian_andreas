@@ -241,11 +241,11 @@ class BioSim:
 
                 # Moves to the target cell unless it is an invalid biome.
                 if target_cell is not None:
-                    if type(animal).__name__ == 'Herbivore':
+                    if isinstance(animal, Herbivore):
                         target_cell.present_herbivores.append(animal)
-                    if type(animal).__name__ == 'Carnivore':
+                    if isinstance(animal, Carnivore):
                         target_cell.present_carnivores.append(animal)
-                    if type(animal).__name__ == 'Vulture':
+                    if isinstance(animal, Vulture):
                         target_cell.present_vultures.append(animal)
 
                     exited_animals.append(animal)
