@@ -170,9 +170,11 @@ class BioSim:
                 cell.left_overs = vulture.scavenge(cell.left_overs)
 
     @staticmethod
-    def breed_one_species(present_animals):
+    def _breed_one_species(present_animals):
         """
-        Breeds all animals of one species in a cell.
+        Breeds all animals of one species in a cell. Creates a list for the
+        newborn animals and appends them to the cell at the end of the cycle
+        for each species.
 
         :param present_animals: Present animals of a species.
         :return: The new list of animals of a species in the cell.
@@ -196,9 +198,7 @@ class BioSim:
         """
         Method for yearly breeding for all animals. All animals breed.
         Animals have no gender, so there only needs to be one other animal
-        of same species in the cell to reproduce. Creates a list for the
-        newborn animals and appends them to the cell at the end of the cycle
-        for each species.
+        of same species in the cell to reproduce.
 
         :param prints: Prints relevant actions if True.
         """
@@ -207,23 +207,61 @@ class BioSim:
             if prints:
                 print('Current cell:', type(cell).__name__, 'Breeding')
 
-            cell.present_herbivores = self.breed_one_species(
+            cell.present_herbivores = self._breed_one_species(
                 cell.present_herbivores)
 
-            cell.present_carnivores = self.breed_one_species(
+            cell.present_carnivores = self._breed_one_species(
                 cell.present_carnivores)
 
-            cell.present_vultures = self.breed_one_species(
+            cell.present_vultures = self._breed_one_species(
                 cell.present_vultures)
+
+    def migrate_one_species(self, present_animals, prints=False):
+        """
+        Migrates all of one species in the current cell. Animals have a
+        parameter that tracks if the animal has moved during the year. This
+        is to keep animals from moving twice. Removes the animals that have
+        left the cell.
+
+        :param present_animals: The list of a species present in the cell.
+        :param prints: prints relevant information if True.
+        :return: The animals that stay in the current cell.
+        """
+        # Herbivores in cell at start of cycle.
+        migrating_animals = present_animals
+
+        # Herbivores that leave the current cell.
+        exited_animals = []
+
+        for animal in migrating_animals:
+            if not animal.has_moved:
+                target_cell = animal.migrate(self.map.top, self.map.bottom,
+                                             self.map.left, self.map.right)
+                animal.has_moved = True
+
+                # Moves to the target cell unless it is an invalid biome.
+                if target_cell is not None:
+                    if type(animal).__name__ == 'Herbivore':
+                        target_cell.present_herbivores.append(animal)
+                    if type(animal).__name__ == 'Carnivore':
+                        target_cell.present_carnivores.append(animal)
+                    if type(animal).__name__ == 'Vulture':
+                        target_cell.present_vultures.append(animal)
+
+                    exited_animals.append(animal)
+                    if prints:
+                        print('An animal moved to ',
+                              type(target_cell).__name__)
+
+        # Updates present herbivores in the cell.
+        return [animal for animal in migrating_animals if animal not in
+                exited_animals]
 
     def migration_cycle(self, prints=False):
         """
-        Migration method that moves all animals on the map. Animals have a
-        parameter that tracks if the animal has moved during the year. This
-        is to keep animals from moving twice. Animals move depending on
-        fitness, where the animal of each species with the highest fitness
-        moves first. Herbivores move first. Removes the animals that have
-        left the cell.
+        Migration method that moves all animals on the map. Animals move
+        depending on fitness, where the animal of each species with the
+        highest fitness moves first. Herbivores move first.
 
         :param prints: Prints relevant actions if True.
         """
@@ -237,86 +275,14 @@ class BioSim:
             cell.present_carnivores.sort(key=lambda x: x.phi, reverse=True)
             cell.present_vultures.sort(key=lambda x: x.phi, reverse=True)
 
-            # Herbivores in cell at start of cycle.
-            migrating_herbivores = cell.present_herbivores
+            cell.present_herbivores = self.migrate_one_species(
+                cell.present_herbivores, prints)
 
-            # Herbivores that leave the current cell.
-            exited_herbivores = []
+            cell.present_carnivores = self.migrate_one_species(
+                cell.present_carnivores, prints)
 
-            for herbivore in migrating_herbivores:
-                if not herbivore.has_moved:
-                    target_cell = herbivore.migrate(self.map.top,
-                                                    self.map.bottom,
-                                                    self.map.left,
-                                                    self.map.right)
-                    herbivore.has_moved = True
-
-                    # Moves to the target cell unless it is an invalid biome.
-                    if target_cell is not None:
-                        target_cell.present_herbivores.append(herbivore)
-                        exited_herbivores.append(herbivore)
-                        if prints:
-                            print('An animal moved to ',
-                                  type(target_cell).__name__)
-
-            # Updates present herbivores in the cell.
-            cell.present_herbivores = [animal for animal in
-                                       migrating_herbivores if animal not in
-                                       exited_herbivores]
-
-            # Carnivores in cell at start of cycle.
-            migrating_carnivores = cell.present_carnivores
-
-            # Carnivores that leave the current cell.
-            exited_carnivores = []
-
-            for carnivore in migrating_carnivores:
-                if not carnivore.has_moved:
-                    target_cell = carnivore.migrate(self.map.top,
-                                                    self.map.bottom,
-                                                    self.map.left,
-                                                    self.map.right)
-                    carnivore.has_moved = True
-
-                    # Moves to target cell unless its an invalid biome.
-                    if target_cell is not None:
-                        target_cell.present_carnivores.append(carnivore)
-                        exited_carnivores.append(carnivore)
-                        if prints:
-                            print('An animal moved to ',
-                                  type(target_cell).__name__)
-
-            # Updates the present carnivores in current cell.
-            cell.present_carnivores = [animal for animal in
-                                       migrating_carnivores if animal not in
-                                       exited_carnivores]
-
-            # Herbivores in cell at start of cycle.
-            migrating_vultures = cell.present_vultures
-
-            # Herbivores that leave the current cell.
-            exited_vultures = []
-
-            for vulture in migrating_vultures:
-                if not vulture.has_moved:
-
-                    target_cell = vulture.migrate(self.map.top,
-                                                  self.map.bottom,
-                                                  self.map.left,
-                                                  self.map.right)
-                    vulture.has_moved = True
-
-                    # Moves to the target cell unless it is an invalid biome.
-                    if target_cell is not None:
-                        target_cell.present_vultures.append(vulture)
-                        exited_vultures.append(vulture)
-                        if prints:
-                            print('An animal moved to ',
-                                  type(target_cell).__name__)
-
-            # Updates present vultures in the cell.
-            cell.present_vultures = [animal for animal in migrating_vultures
-                                     if animal not in exited_vultures]
+            cell.present_vultures = self.migrate_one_species(
+                cell.present_vultures, prints)
 
         # Makes all animals able to move again next year.
         for cell in self.map.map_iterator():
