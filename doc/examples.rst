@@ -1,8 +1,7 @@
 Examples
 ========
-
-Example
--------
+Here is an example of how to run the code. There are in total three example
+codes in the python directory ``examples``.
 
 .. code-block:: python
 

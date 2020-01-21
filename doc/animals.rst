@@ -1,9 +1,9 @@
 Animals
 =======
-
-
-Her står det mer on animal super-class og de forskjellige sub-classene.
-
+The animal class is not used in the simulation, however it contains all
+methods the different types of animals have in common. Animal also contain the
+param_dict, however all parameters within have a value of zero. This
+param_dict is overridden in the classes for the other animals.
 
 .. autoclass:: biosim.animals.Animal
     :inherited-members:
@@ -11,6 +11,7 @@ Her står det mer on animal super-class og de forskjellige sub-classene.
 
 Herbivores
 ----------
+The following code block shows the default param_dict for a herbivore.
 
 .. code-block:: python
 
@@ -37,6 +38,7 @@ Herbivores
 
 Carnivores
 ----------
+The following code-block shows the default param_dict for carnivores.
 
 .. code-block:: python
 
@@ -61,3 +63,9 @@ Carnivores
 
 .. autoclass:: biosim.animals.Carnivore
     :members: hunt, migrate
+
+Additional animals
+------------------
+
+.. autoclass:: biosim.animals.Vulture
+    :members: scavenge, migrate

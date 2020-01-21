@@ -15,8 +15,8 @@ class Animal:
     """
     Class Animal contains characteristics the animals on Rossoya have in
     common as well as actions. Each animal has weight, age and fitness
-    properties. I also keeps track of if the animals has moved this year,
-    if it is alive and what biomes it can stay in.
+    properties. I also keeps track of if the animals has moved, if it is
+    alive and what biomes it can stay in.
 
     The class takes age and weight as input and checks that the value of
     these are not negative. Then based on the value of the age and weight
@@ -55,7 +55,8 @@ class Animal:
         input it raises a raise ValueError. E. g. the parameter eta must be
         between zero and one.
 
-        :param: A dictionary of parameters.
+        :param parameters: A dictionary of parameters.
+
         The different parameters for an animal are the following:
 
             w_birth: Average weight of offspring.
@@ -90,7 +91,6 @@ class Animal:
 
             DeltaPhiMax: Maximum difference in fitness between carnivore
             and herbivore.
-
         """
 
         for iterator in parameters:
@@ -180,12 +180,14 @@ class Animal:
         """
         Calculates the probability of animal having an offspring if multiple
         animals are in the cell.
-        The method then potentially creates a new animal, a class instance
-        of the same class as the parent animal, with weight decided
+
+        The method then potentially creates a new animal. The new animal is
+        of the same class as the parent animal and its weight is decided
         from a gaussian distribution and age zero.
         The mother animal loses weight relative to the weight of the
         offspring times a constant xi. The mothers fitness is then
         recalculated with its new weight.
+        However, if a animal is not born the method returns None.
 
         :return: None, or a class instance of same species.
         """
@@ -267,6 +269,7 @@ class Animal:
         Subtracts the yearly weight loss of an animal based on weight loss
         constant eta and recalculates the fitness of the animal.
         """
+
         self.weight -= self.param_dict['eta'] * self.weight
         self.calculate_fitness()
 
@@ -286,8 +289,9 @@ class Animal:
 
         where ``omega`` is defined in the param_dict and ``phi`` is the fitness
         of the animal.
-        The function then possibly kills the animal using a random number.
+        The function then possibly kills the animal based on p_{death}.
         """
+
         if self.phi == 0:
             self.alive = False
 
@@ -308,8 +312,7 @@ class Herbivore(Animal):
     Furthermore the param_dict for a herbivore has different
     default values for the different parameters and does not contain
     PhiDeltaMax. The herbivore class also restricts which biome an animal
-    can move into. A herbivore can't move into
-    Ocean biomes or Mountain biomes.
+    can move into. A herbivore can't move into Ocean biomes or Mountain biomes.
     """
 
     param_dict = {
@@ -364,7 +367,7 @@ class Herbivore(Animal):
         is calculated. The propensity to move to a cell takes into account
         how many herbivores are present in the cell and how much food is
         available. Herbivores are inclined to move towards the cell with the
-        most of available food. Herbivores are inclined to move towards the
+        most available food. Herbivores are inclined to move towards the
         cell with the least amount of herbivores.
 
         The propensity to move to a cell is calculated by the following
@@ -385,7 +388,7 @@ class Herbivore(Animal):
 
         Four probability intervals are created and a randomly generated number
         chooses which cell the animal moves to according to which interval
-        the random number is in. Lastly the method checks if
+        the random number falls into. Lastly the method checks if
         the chosen cell is a legal biome for the animal and if it is the
         animal moves, else the animal does not move and remain in the cell.
 
@@ -503,9 +506,6 @@ class Carnivore(Animal):
         herbivore and carnivore are larger than DeltaPhiMax the probability
         of successfully eating the herbivore is 1.
 
-        A random generated number then checks if the carnivore successfully
-        eats a herbivore.
-
         Thereafter the hunt method modifies the weight of the carnivore,
         recalculates its fitness and
         puts the 'alive' attribute of the herbivore to False.
@@ -518,9 +518,7 @@ class Carnivore(Animal):
         kill all the herbivores in the cell.
         The fitness of the carnivore is recalculated after each kill.
 
-        :param sorted_list_of_herbivores: Takes in a list with the
-        herbivores present in the cell sorted after fitness.
-
+        :param sorted_list_of_herbivores: present herbivores sorted by fitness
         """
 
         # Saves initial weight for comparison later.

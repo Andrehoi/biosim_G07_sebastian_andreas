@@ -1,12 +1,12 @@
 Geography
 =========
 
-
-Her står det mer om de forskjellige biomene og hvordan øya blir til.
-
 Creating the map of the island
 ------------------------------
-Also includes the iterator
+The island_class class creates the map of the island when called. The map is
+created from a multiline string and converted into a NumPy array with class
+instances in each position. The island_class class also contains the map
+iterator which is used to navigate through each cell of the map.
 
 .. autoclass:: biosim.island_class.Map
     :inherited-members:

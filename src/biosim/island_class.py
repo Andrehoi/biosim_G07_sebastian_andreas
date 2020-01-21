@@ -3,7 +3,7 @@
 __author__ = "Sebastian Kihle & Andreas Hoeimyr"
 __email__ = "sebaskih@nmbu.no & andrehoi@nmbu.no"
 
-from biosim.geography import Mountain, Savannah, Jungle, Desert, Ocean, \
+from .geography import Mountain, Savannah, Jungle, Desert, Ocean, \
     OutOfBounds
 import numpy as np
 import re
@@ -28,7 +28,7 @@ class Map:
     Each row of the multiline string must have the same amount of letters,
     else a ValueError is raised.
     The string can only contain the letters which has corresponding classes.
-    This is checked using regular expression. As of now the only legal
+    This is checked using ``regular expression``. As of now the only legal
     letters are J, D, S, O and M, corresponding to the biomes Jungle,
     Desert, Savannah, Ocean and Mountain. If there are different letters in
     the input string a ValueError is raised.

@@ -4,8 +4,8 @@
 __author__ = "Sebastian Kihle & Andreas Hoeimyr"
 __email__ = "sebaskih@nmbu.no & andrehoi@nmbu.no"
 
-from biosim.animals import Herbivore, Carnivore, Vulture
-from biosim.island_class import Map
+from .animals import Herbivore, Carnivore, Vulture
+from .island_class import Map
 import pandas as pd
 import numpy as np
 
@@ -43,16 +43,21 @@ class BioSim:
         :param seed: Integer used as random number seed.
 
         :param ymax_animals: Number specifying y-axis limit for graph.
+
         Shows the population of each animal species. If ymax_animals is None,
         the y-axis limit is set to a fixed number, e.g., 8000.
 
         :param cmax_animals: Dictionary specifying color-code limits.
+
         If cmax_animals is None, sensible, fixed default values should be
         used. cmax_animals is a dict mapping species names to numbers, e.g.,
         {'Herbivore': 50, 'Carnivore': 20, 'Vulture': 15}
 
         :param img_base: String with beginning of file name for figures.
-        Must include path. If img_base is None, no figures are written to file.
+
+        img_base must include path. If img_base is None, no figures are
+        written to
+        file.
         Filenames are formed as
 
             '{}_{:05d}.{}'.format(img_base, img_no, img_fmt)
@@ -441,8 +446,8 @@ class BioSim:
             self.weight_loss_cycle(prints)
             self.death_cycle(prints)
 
-            if self.current_year % vis_years == 0:
-                self._update_graphics()
+            # if self.current_year % vis_years == 0:
+            # self._update_graphics()
 
             if img_years is not None:
                 if self.current_year % img_years == 0:
