@@ -464,11 +464,26 @@ class BioSim:
         """
         Add a population to the island.
 
+        Takes a list of dictionaries as input. First it unpacks the
+        dictionaries to get the type of animal, e.g. Herbivore or Carnivore
+        and the cell in which you would like to store the animals.
+        The method uses the coordinates to navigate the array_map produced
+        in the Map class and then appends the animal to the present animals
+        lists(present_herbivores, present_carnivores and present_vultures)
+        in each cell(``see geography``). The method also checks that there
+        are only valid inputs in the dictionary and raises a ValueError if
+        there isn't. E. g. weight and age cannot be negative. Furthermore
+        the method raises a ValueError if one tries to place an animal in a
+        biome the animal does not have access to, e. g. if one tries to
+        place a herbivore in the ocean.
+
         :param population: List of dictionaries specifying population and place
-        E. g.
-        ``[{'loc': (y, x),
-        'pop': [{'species': 'Herbivore', 'age': 1, 'weight': 15},
-        {'species': 'Carnivore', 'age': 1, 'weight': 15}]
+
+        An example of a list containing one dictionary:
+        ``[{'loc': (y, x), 'pop': [
+        {'species': 'Herbivore', 'age': 1, 'weight': 15},
+        {'species': 'Carnivore', 'age': 1, 'weight': 15}
+        ]
         }]``
         """
         # Unpacks the coordinates and animals to add.
@@ -581,7 +596,8 @@ class BioSim:
     def animal_distribution(self):
         """
         Creates a Pandas DataFrame with animal count per species for
-        each cell on island.
+        each cell on island. The DataFrame has five columns one for row,
+        one for columns and one for each of the three different animals.
 
         :return: Pandas DataFrame with animal distribution.
         """
@@ -611,10 +627,10 @@ class BioSim:
     @property
     def herb_array(self):
         """
-        Creates an array of the distribution of herbivores on the island.
+        Creates a NumPy array of the distribution of herbivores on the island.
         This is used to create the heatmaps.
 
-        :return: A Numpy array with population of herbivores in each cell.
+        :return: A NumPy array with population of herbivores in each cell.
         """
         x_length = len(self.map.array_map[0])
         y_length = len(self.map.array_map.T[0])
@@ -628,10 +644,10 @@ class BioSim:
     @property
     def carn_array(self):
         """
-        Creates an array of the distribution of carnivores on the island.
+        Creates a NumPy array of the distribution of carnivores on the island.
         This is used to create the heatmap for carnivores.
 
-        :return: A Numpy array with population of herbivores in each cell.
+        :return: A NumPy array with population of herbivores in each cell.
         """
         x_length = len(self.map.array_map[0])
         y_length = len(self.map.array_map.T[0])
@@ -645,10 +661,10 @@ class BioSim:
     @property
     def vult_array(self):
         """
-        Creates an array of the distribution of herbivores on the island.
+        Creates a NumPy array of the distribution of herbivores on the island.
         This is used to create the heatmaps.
 
-        :return: A Numpy array with population of herbivores in each cell.
+        :return: A NumPy array with population of herbivores in each cell.
         """
         x_length = len(self.map.array_map[0])
         y_length = len(self.map.array_map.T[0])
@@ -870,11 +886,11 @@ class BioSim:
     def _update_num_animals_graph(self, num_herbivores, num_carnivores,
                                   num_vultures):
         """
-        Updates the line graph with two lines. One for the number of
-        herbivores on the island and one for the number of carnivores
-        on the island.
+        Updates the lines on the line graph.
+
         :param num_herbivores: Number of herbivores on island.
         :param num_carnivores: Number of carnivores on island.
+        :param num_vultures: Number of vultures on island.
         """
         ydata = self.herbivore_line_graph.get_ydata()
         ydata[self.year] = num_herbivores
@@ -928,7 +944,7 @@ class BioSim:
         Saves the movie in a requested folder:
         E. g. "/Users/User/Documents/inf200_january/biosim/movie"
 
-        where movie will the name of the file in folder biosim.
+        where ``movie`` will be the name of the file in folder biosim.
 
         .. :note:
             Requires ffmpeg

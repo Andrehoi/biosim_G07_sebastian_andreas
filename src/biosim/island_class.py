@@ -36,7 +36,7 @@ class Map:
     if not a ValueError is raised. See ``Examples`` for an example of an
     accepted input string.
 
-    :param : A multiline string with letters J, S, D, O, M
+    :param: A multiline string with letters J, S, D, O, M
     """
     def __init__(self, island_multiline_sting):
         self.island_multiline_sting = island_multiline_sting
