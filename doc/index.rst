@@ -33,7 +33,9 @@ ecosystem by creating new classes for them (see ``Animals`` and
 added, a vulture. This animal is a scavenger and does not affect the
 behaviour of the other types of animals. Furthermore a biome OutOfBounds has
 been added. The purpose of this biome is to make it possible
-to have amphibious animals on the island.
+to add amphibious animals to the simulation. The OutOfBounds biome cannot
+store animals, does not provide any food and should act as a wall around the
+border of the map.
 
 The part of the code that visualizes the results is based on a project
 called randvis(``https://github.com/yngvem/INF200-2019/tree/master/Project
