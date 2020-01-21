@@ -216,7 +216,7 @@ class BioSim:
             cell.present_vultures = self._breed_one_species(
                 cell.present_vultures)
 
-    def migrate_one_species(self, present_animals, prints=False):
+    def _migrate_one_species(self, present_animals, prints=False):
         """
         Migrates all of one species in the current cell. Animals have a
         parameter that tracks if the animal has moved during the year. This
@@ -275,13 +275,13 @@ class BioSim:
             cell.present_carnivores.sort(key=lambda x: x.phi, reverse=True)
             cell.present_vultures.sort(key=lambda x: x.phi, reverse=True)
 
-            cell.present_herbivores = self.migrate_one_species(
+            cell.present_herbivores = self._migrate_one_species(
                 cell.present_herbivores, prints)
 
-            cell.present_carnivores = self.migrate_one_species(
+            cell.present_carnivores = self._migrate_one_species(
                 cell.present_carnivores, prints)
 
-            cell.present_vultures = self.migrate_one_species(
+            cell.present_vultures = self._migrate_one_species(
                 cell.present_vultures, prints)
 
         # Makes all animals able to move again next year.

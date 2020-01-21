@@ -136,11 +136,13 @@ class Animal:
         self.age += 1
         self.calculate_fitness()
 
-    def _sigmodial_plus(self, x, x_half, phi):
+    @staticmethod
+    def _sigmodial_plus(x, x_half, phi):
         """ Used to calculated fitness """
         return 1 / (1 + exp(phi * (x - x_half)))
 
-    def _sigmodial_minus(self, x, x_half, phi):
+    @staticmethod
+    def _sigmodial_minus(x, x_half, phi):
         """ Used to calculate fitness """
         return 1 / (1 + exp(-phi * (x - x_half)))
 
@@ -213,6 +215,52 @@ class Animal:
                 if type(self).__name__ == 'Vulture':
                     self.calculate_fitness()
                     return Vulture(0, birth_weight)
+
+    def _choose_direction(self, prop_top, prop_bottom, prop_left, prop_right,
+                          top_cell, bottom_cell, left_cell, right_cell):
+        """
+        Choses the direction of migration for an animal.
+
+        :param prop_top: Propensity for moving to top cell.
+        :param prop_bottom: Propensity for moving to bottom cell.
+        :param prop_left: Propensity for moving to left cell.
+        :param prop_right: Propensity for moving to right cell.
+        :return: None if cell is illegal, else, the target cell to move to.
+        """
+        # sum_prop is the probability of the animal migrating when it
+        # migrates and should be 1.
+        sum_prop = prop_top + prop_right + prop_bottom + prop_left
+
+        # Creates 4 intervals of walking to the 4 different cells based
+        # on the probability of walking to the cells.
+        top_prob = prop_top / sum_prop
+        bottom_prob = prop_bottom / sum_prop
+        left_prob = prop_left / sum_prop
+
+        # Checks which direction the animal chooses to move. Returns the
+        # cell in the chosen direction.
+        number = random.random()
+        if number < top_prob:
+            # Checks if the cell is in the legal biomes of the animal.
+            if not type(top_cell).__name__ in self.legal_biomes:
+                return None
+            return top_cell
+
+        if top_prob <= number < top_prob + bottom_prob:
+            if not type(bottom_cell).__name__ in self.legal_biomes:
+                return None
+            return bottom_cell
+
+        if top_prob + bottom_prob <= number < top_prob + bottom_prob + \
+                left_prob:
+            if not type(left_cell).__name__ in self.legal_biomes:
+                return None
+            return left_cell
+
+        if top_prob + bottom_prob + left_prob <= number < 1:
+            if not type(right_cell).__name__ in self.legal_biomes:
+                return None
+            return right_cell
 
     def lose_weight(self):
         """
@@ -289,8 +337,9 @@ class Herbivore(Animal):
     def _propensity_herb(self, cell):
         """
         Calculates the propensity an animal has to move to a cell.
+
         :param cell: A cell next to the cell the animal is in.
-        :return: prop_cell: The propensity to move into a cell
+        :return: prop_cell: The propensity to move into a cell.
         """
 
         e_cell = cell.available_food / (((len(
@@ -358,41 +407,9 @@ class Herbivore(Animal):
             prop_left = self._propensity_herb(left_cell)
             prop_right = self._propensity_herb(right_cell)
 
-            # sum_prop is the probability of the animal migrating when it
-            # migrates and should be 1.
-            sum_prop = prop_top + prop_right + prop_bottom + prop_left
-
-            # Creates 4 intervals of walking to the 4 different cells based
-            # on the probability of walking to the cells.
-            top_prob = prop_top / sum_prop
-            bottom_prob = prop_bottom / sum_prop
-            left_prob = prop_left / sum_prop
-            right_prob = prop_right / sum_prop
-
-            # Checks which direction the animal chooses to move. Returns the
-            # cell in the chosen direction.
-            number = random.random()
-            if number < top_prob:
-                # Checks if the cell is in the legal biomes of the animal.
-                if not type(top_cell).__name__ in self.legal_biomes:
-                    return None
-                return top_cell
-
-            if top_prob <= number < top_prob + bottom_prob:
-                if not type(bottom_cell).__name__ in self.legal_biomes:
-                    return None
-                return bottom_cell
-
-            if top_prob + bottom_prob <= number < top_prob + bottom_prob + \
-                    left_prob:
-                if not type(left_cell).__name__ in self.legal_biomes:
-                    return None
-                return left_cell
-
-            if top_prob + bottom_prob + left_prob <= number < 1:
-                if not type(right_cell).__name__ in self.legal_biomes:
-                    return None
-                return right_cell
+            return self._choose_direction(prop_top, prop_bottom, prop_left,
+                                          prop_right, top_cell, bottom_cell,
+                                          left_cell, right_cell)
 
     def eat(self, food_available_in_cell):
         """
@@ -553,8 +570,8 @@ class Carnivore(Animal):
     def _propensity_carn(self, cell):
         """
         Calculates the propensity an animal has to move to a cell.
-        :param cell:
-        :return prop_cell:
+        :param cell: A cell next to the cell the animal is in.
+        :return: prop_cell: The propensity to move into a cell.
         """
 
         herb_weight = 0
@@ -616,42 +633,9 @@ class Carnivore(Animal):
             prop_left = self._propensity_carn(left_cell)
             prop_right = self._propensity_carn(right_cell)
 
-            # sum_prop is the probability of the animal migrating when it
-            # migrates and should be 1.
-            sum_prop = prop_top + prop_right + prop_bottom + prop_left
-
-            # Creates 4 intervals of walking to the 4 different cells based
-            # on the probability of walking to the cells.
-            top_prob = prop_top / sum_prop
-            bottom_prob = prop_bottom / sum_prop
-            left_prob = prop_left / sum_prop
-            right_prob = prop_right / sum_prop
-
-            # Checks which direction the animal chooses to move. Returns the
-            # cell in the given direction.
-            number = random.random()
-            if 0 <= number < top_prob:
-                # Checks if the cell in a direction is in the legal biomes
-                # of the animal.
-                if not type(top_cell).__name__ in self.legal_biomes:
-                    return None
-                return top_cell
-
-            if top_prob <= number < top_prob + bottom_prob:
-                if not type(bottom_cell).__name__ in self.legal_biomes:
-                    return None
-                return bottom_cell
-
-            if top_prob + bottom_prob <= number < top_prob + bottom_prob + \
-                    left_prob:
-                if not type(left_cell).__name__ in self.legal_biomes:
-                    return None
-                return left_cell
-
-            if top_prob + bottom_prob + left_prob <= number < 1:
-                if not type(right_cell).__name__ in self.legal_biomes:
-                    return None
-                return right_cell
+            return self._choose_direction(prop_top, prop_bottom, prop_left,
+                                          prop_right, top_cell, bottom_cell,
+                                          left_cell, right_cell)
 
 
 class Vulture(Animal):
@@ -746,40 +730,6 @@ class Vulture(Animal):
             prop_left = self._propensity_vult(left_cell)
             prop_right = self._propensity_vult(right_cell)
 
-            # sum_prop is the probability of the animal migrating when it
-            # migrates and should be 1.
-            sum_prop = prop_top + prop_right + prop_bottom + prop_left
-
-            # Creates 4 intervals of walking to the 4 different cells based
-            # on the probability of walking to the cells.
-            top_prob = prop_top / sum_prop
-            bottom_prob = prop_bottom / sum_prop
-            left_prob = prop_left / sum_prop
-            # local variable right_prob is not used, 1 is ues instead.
-            right_prob = prop_right / sum_prop
-
-            # Checks which direction the animal chooses to move. Returns the
-            # cell in the given direction.
-            number = random.random()
-            if 0 <= number < top_prob:
-                # Checks if the cell in a direction is in the legal biomes
-                # of the animal.
-                if not type(top_cell).__name__ in self.legal_biomes:
-                    return None
-                return top_cell
-
-            if top_prob <= number < top_prob + bottom_prob:
-                if not type(bottom_cell).__name__ in self.legal_biomes:
-                    return None
-                return bottom_cell
-
-            if top_prob + bottom_prob <= number < top_prob + bottom_prob + \
-                    left_prob:
-                if not type(left_cell).__name__ in self.legal_biomes:
-                    return None
-                return left_cell
-
-            if top_prob + bottom_prob + left_prob <= number < 1:
-                if not type(right_cell).__name__ in self.legal_biomes:
-                    return None
-                return right_cell
+            return self._choose_direction(prop_top, prop_bottom, prop_left,
+                                          prop_right, top_cell, bottom_cell,
+                                          left_cell, right_cell)
