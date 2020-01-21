@@ -344,13 +344,15 @@ class Herbivore(Animal):
         :param cell: A cell next to the cell the animal is in.
         :return: prop_cell: The propensity to move into a cell.
         """
+        if type(cell).__name__ in self.legal_biomes:
 
-        e_cell = cell.available_food / (((len(
-            cell.present_herbivores) + 1) * self.param_dict['F']))
+            e_cell = cell.available_food / (((len(
+                cell.present_herbivores) + 1) * self.param_dict['F']))
 
-        prop_cell = exp(self.param_dict['lambda_animal'] * e_cell)
-
-        return prop_cell
+            prop_cell = exp(self.param_dict['lambda_animal'] * e_cell)
+            return prop_cell
+        else:
+            return 1
 
     def migrate(self, top_cell, bottom_cell, left_cell, right_cell):
         r"""
@@ -574,15 +576,19 @@ class Carnivore(Animal):
         """
 
         herb_weight = 0
-        for herbivore in cell.present_herbivores:
-            herb_weight += herbivore.weight
+        if type(cell).__name__ in self.legal_biomes:
+            for herbivore in cell.present_herbivores:
+                herb_weight += herbivore.weight
 
-        e_cell = herb_weight / (((len(cell.present_carnivores) + 1)
-                                * self.param_dict['F']))
+            e_cell = herb_weight / (((len(cell.present_carnivores) + 1)
+                                     * self.param_dict['F']))
 
-        prop_cell = exp(self.param_dict['lambda_animal'] * e_cell)
+            prop_cell = exp(self.param_dict['lambda_animal'] * e_cell)
 
-        return prop_cell
+            return prop_cell
+
+        else:
+            return 1
 
     def migrate(self, top_cell, bottom_cell, left_cell, right_cell):
         """
@@ -691,13 +697,15 @@ class Vulture(Animal):
         :param cell: Cell to calculate propensity for.
         :return: The propensity of the cell.
         """
+        if type(cell).__name__ in self.legal_biomes:
+            e_cell = cell.left_overs / (((len(
+                cell.present_vultures) + 1) * self.param_dict['F']))
 
-        e_cell = cell.left_overs / (((len(
-            cell.present_vultures) + 1) * self.param_dict['F']))
+            prop_cell = exp(self.param_dict['lambda_animal'] * e_cell)
+            return prop_cell
 
-        prop_cell = exp(self.param_dict['lambda_animal'] * e_cell)
-
-        return prop_cell
+        else:
+            return 1
 
     def migrate(self, top_cell, bottom_cell, left_cell, right_cell):
         """
