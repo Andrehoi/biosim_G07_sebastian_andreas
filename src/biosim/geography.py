@@ -176,7 +176,8 @@ class OutOfBounds:
     The sole purpose of this biome is to trap all types of animals within
     the borders of the map. If one for example creates a fish or an
     amphibious animal it will not be able to swim beyond the borders of the
-    map.
+    map. It will raise 'AttributeError' if you try to move into it or put
+    animals there.
     """
 
     def __init__(self):
