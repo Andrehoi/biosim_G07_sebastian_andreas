@@ -169,6 +169,29 @@ class BioSim:
             for vulture in cell.present_vultures:
                 cell.left_overs = vulture.scavenge(cell.left_overs)
 
+    @staticmethod
+    def breed_one_species(present_animals):
+        """
+        Breeds all animals of one species in a cell.
+
+        :param present_animals: Present animals of a species.
+        :return: The new list of animals of a species in the cell.
+        """
+
+        # Creates new list so that newborns dont breed.
+        current_animals = present_animals
+        newborn_animals = []
+        for animal in present_animals:
+            # Checks if there is born a new animal, and potentially
+            # adds it to a list of newborn animals in the cell.
+            new_animal = animal.breeding(len(
+                current_animals))
+            if new_animal is not None:
+                newborn_animals.append(new_animal)
+
+        # Updates the herbivores present in the cell.
+        return current_animals + newborn_animals
+
     def breeding_cycle(self, prints=False):
         """
         Method for yearly breeding for all animals. All animals breed.
@@ -184,47 +207,14 @@ class BioSim:
             if prints:
                 print('Current cell:', type(cell).__name__, 'Breeding')
 
-            # Creates new list so that newborns dont breed.
-            current_herbivores = cell.present_herbivores
-            newborn_herbivores = []
-            for herbivore in cell.present_herbivores:
-                # Checks if there is born a new animal, and potentially
-                # adds it to a list of newborn animals in the cell.
-                new_herbivore = herbivore.breeding(len(
-                    current_herbivores))
-                if new_herbivore is not None:
-                    newborn_herbivores.append(new_herbivore)
+            cell.present_herbivores = self.breed_one_species(
+                cell.present_herbivores)
 
-            # Updates the herbivores present in the cell.
-            cell.present_herbivores = current_herbivores + newborn_herbivores
+            cell.present_carnivores = self.breed_one_species(
+                cell.present_carnivores)
 
-            # Creates new list so that newborns dont breed.
-            current_carnivores = cell.present_carnivores
-            newborn_carnivores = []
-            for carnivore in cell.present_carnivores:
-                # Checks if there is born a new animal, and potentially
-                # adds it to a list of newborn animals in the cell.
-                new_carnivore = carnivore.breeding((len(
-                    current_carnivores)))
-                if new_carnivore is not None:
-                    newborn_carnivores.append(new_carnivore)
-
-            # Updates the carnivores present in the cell.
-            cell.present_carnivores = current_carnivores + newborn_carnivores
-
-            # Creates new list so that newborns dont breed.
-            current_vultures = cell.present_vultures
-            newborn_vultures = []
-            for vulture in cell.present_vultures:
-                # Checks if there is born a new animal, and potentially
-                # adds it to a list of newborn animals in the cell.
-                new_vulture = vulture.breeding(len(
-                    current_vultures))
-                if new_vulture is not None:
-                    newborn_vultures.append(new_vulture)
-
-            # Updates the herbivores present in the cell.
-            cell.present_vultures = current_vultures + newborn_vultures
+            cell.present_vultures = self.breed_one_species(
+                cell.present_vultures)
 
     def migration_cycle(self, prints=False):
         """

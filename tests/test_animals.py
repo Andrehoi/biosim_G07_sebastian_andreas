@@ -393,8 +393,9 @@ def test_vulture_prefers_left_overs():
 
 def test_vultures_migrate_twice():
     """ Test that a vulture will move twice. It will move right twice,
-    because thats where the left overs are, and it does not consider left
-    overs in current cell """
+    because that's where the left overs are, and it does not consider left
+    overs in current cell. As of now, vultures can only migrate once per
+    year """
     test_map = 'OOOOO\nOJJJO\nOOOOO'
     sim = BioSim(island_map=test_map, ini_pop=[], seed=1)
     sim.map.array_map[1, 2].left_overs = 100
