@@ -4,8 +4,8 @@
 __author__ = "Sebastian Kihle & Andreas Hoeimyr"
 __email__ = "sebaskih@nmbu.no & andrehoi@nmbu.no"
 
-from biosim.animals import Herbivore, Carnivore, Vulture
-from biosim.island_class import Map
+from .animals import Herbivore, Carnivore, Vulture
+from .island_class import Map
 import pandas as pd
 import numpy as np
 

@@ -3,7 +3,7 @@
 __author__ = "Sebastian Kihle & Andreas Hoeimyr"
 __email__ = "sebaskih@nmbu.no & andrehoi@nmbu.no"
 
-from biosim.geography import Mountain, Savannah, Jungle, Desert, Ocean, \
+from .geography import Mountain, Savannah, Jungle, Desert, Ocean, \
     OutOfBounds
 import numpy as np
 import re
