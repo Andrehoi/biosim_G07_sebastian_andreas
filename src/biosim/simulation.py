@@ -446,8 +446,8 @@ class BioSim:
             self.weight_loss_cycle(prints)
             self.death_cycle(prints)
 
-            # if self.current_year % vis_years == 0:
-            # self._update_graphics()
+            if self.current_year % vis_years == 0:
+                self._update_graphics()
 
             if img_years is not None:
                 if self.current_year % img_years == 0:
