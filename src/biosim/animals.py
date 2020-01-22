@@ -52,7 +52,7 @@ class Animal:
         """
         Takes a dictionary of parameters as input. It overrides the default
         parameter values. If illegal parameters or parameter values are
-        input it raises a raise ValueError. E. g. the parameter eta must be
+        input it raises a ValueError. E. g. the parameter eta must be
         between zero and one.
 
         :param parameters: A dictionary of parameters.
@@ -156,7 +156,7 @@ class Animal:
             \phi = q^{+} (a, a_{1/2}, \phi_{age}) \times q^{-} (w, w_{1/2},
             \phi_{weight})
 
-        where ``a`` is the age w is the weight, ``a_{1/2}``, phi_age,
+        where ``a`` is the age ``w`` is the weight, ``a_{1/2}``, ``phi_age``,
         ``w_1/2`` and ``phi_weight`` are defined in the param_dict. q^{±} is
         defined as:
 
@@ -284,7 +284,7 @@ class Animal:
         If the fitness is larger than zero a probability of death is
         calculated from the formula:
 
-        ..:math:
+        .. math::
             p_{death} = \omega \times (1 - \phi}
 
         where ``omega`` is defined in the param_dict and ``phi`` is the fitness
@@ -361,11 +361,11 @@ class Herbivore(Animal):
         of direction of movements, either east, west, north or south.
 
         The method first calculates the probability of moving using the
-        parameter 'mu' and the fitness of the animal. By default the largest
+        parameter ￿￿``mu`` and the fitness of the animal. By default the largest
         probability is 0.25. It then uses a random generated number to check
         if the animal moves.
 
-        If the animal moves the propensity to move to each surrounding cell
+        If the animal moves, the propensity to move to each surrounding cell
         is calculated. The propensity to move to a cell takes into account
         how many herbivores are present in the cell and how much food is
         available. Herbivores are inclined to move towards the cell with the
@@ -385,7 +385,7 @@ class Herbivore(Animal):
             e_{j} = \frac{f_{j}}{((n_{j} + 1) \times F)}
 
         where ``f`` is the amount of available food, ``n`` is the number of
-        animals of the same species and `F``` is the appetite of the animal
+        animals of the same species and ￿``F`` is the appetite of the animal
         as defined in the param_dict.
 
         Four probability intervals are created and a randomly generated number
@@ -399,7 +399,7 @@ class Herbivore(Animal):
         :param left_cell: The cell west of current cell.
         :param right_cell: The cell east of current cell.
 
-        :return Target_cell: The target cell is the cell the animal moves to.
+        :return: target_cell, the cell the animal moves to.
         """
 
         move_prob = self.param_dict['mu'] * self.phi
@@ -430,7 +430,7 @@ class Herbivore(Animal):
         amount of available food. If there is less than F amount of food
         left in cell before the eat method is called, the eat method returns 0.
 
-        :param food_available_in_cell:
+        :param food_available_in_cell: Amount of food available in cell.
         :return: New amount of food left in cell
         """
         if food_available_in_cell >= self.param_dict['F']:
@@ -449,12 +449,11 @@ class Carnivore(Animal):
     Class describing carnivore behaviour.
 
     The Carnivore class is a sub-class of the class Animal. Most actions a
-    carnivore can do is inherit from the super-class Animal, however it
+    carnivore can do are inherited from the super-class Animal, however it
     contains methods for eating(hunt) and migration. Furthermore it contains
     different default values for each parameter in the param_dict.
 
-    The Carnivore class also restrict which biome an animal can move into or
-    stay in. A carnivore can't move into Ocean biomes or Mountain biomes.
+    A carnivore can't move into Ocean biomes or Mountain biomes.
     """
     param_dict = {
         'w_birth': 6.0,
@@ -484,7 +483,7 @@ class Carnivore(Animal):
         The hunt method is the eating method for the Carnivore class. When
         called for a carnivore it tries to eat the herbivores in cell,
         starting with the herbivore with the lowest fitness. The carnivore
-        will eat until it has eaten an amount F or it has tried to eat all
+        will eat until it has eaten an amount ``F`` or it has tried to eat all
         the herbivores in the cell.
 
         The hunt method has three possible outcomes depending on the
@@ -494,7 +493,7 @@ class Carnivore(Animal):
         probability of successfully eating the herbivore is 0.
 
         If the difference in fitness for the carnivore and herbivore is
-        between zero and 'DeltaPhiMax' the probability of successfully
+        between zero and ``DeltaPhiMax`` the probability of successfully
         eating the herbivore is calculated with the following formula:
 
         .. math::
@@ -513,10 +512,10 @@ class Carnivore(Animal):
         puts the 'alive' attribute of the herbivore to False.
 
         The weight of the carnivore increases by beta*F if the herbivore's
-        weight is equal or greater than F(50 by default). On the other hand,
+        weight is equal or greater than F (50 by default). On the other hand,
         if the weight of the herbivore is less than F the carnivore eats the
         herbivore and goes on to try to kill another one. This is repeated
-        until the carnivore either has eaten an amount of F or has tried to
+        until the carnivore either has eaten an amount F or has tried to
         kill all the herbivores in the cell.
         The fitness of the carnivore is recalculated after each kill.
 
@@ -597,8 +596,8 @@ class Carnivore(Animal):
         of direction of movements, either east, west, north or south.
 
         The method first calculates the probability of moving using the
-        parameter 'mu' and the fitness of the animal. By default the largest
-        probability is 0.25. It then uses a random generated number to check
+        parameter ``mu`` and the fitness of the animal. By default the largest
+        probability is 0.40. It then uses a random generated number to check
         if the animal moves.
 
         If the animal moves the propensity to move to each surrounding cell
@@ -624,7 +623,7 @@ class Carnivore(Animal):
         :param left_cell: The cell west of current cell.
         :param right_cell: The cell east of current cell.
 
-        :return Target_cell: The target cell is the cell the animal moves to.
+        :return: target_cell, the cell the animal moves to.
         """
 
         move_prob = self.param_dict['mu'] * self.phi

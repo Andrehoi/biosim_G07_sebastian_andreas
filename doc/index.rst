@@ -24,13 +24,13 @@ The BioSim interface
 ====================
 The BioSim interface is the main block of the assignment. This runs the
 simulations and visualises the requested years. One may also save image files
-for certain years of the visualization and compile a movie of them.
+for certain years of the visualization and compile a movie from them.
 
 Initially the island simulated consisted of five biomes and two types of
 animals. There is possible to add more biomes and types of animals to the
 ecosystem by creating new classes for them (see ``Animals`` and
 ``Geography``). At this point in time a third species of animal has been
-added, a vulture. This animal is a scavenger and does not affect the
+added, the vulture. This animal is a scavenger and does not affect the
 behaviour of the other types of animals. Furthermore a biome OutOfBounds has
 been added. The purpose of this biome is to make it possible
 to add amphibious animals to the simulation. The OutOfBounds biome cannot

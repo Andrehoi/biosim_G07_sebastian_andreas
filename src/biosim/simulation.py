@@ -29,8 +29,8 @@ class BioSim:
         The BioSim class will simulate an ecosystem on an island. You need
         to input a string with the map geography and add animals such as
         herbivores and carnivores to simulate. The class will display an
-        interface with a colored map of the island, a heatmap for the
-        herbivores, a heatmap for the carnivores and a population graph.
+        interface with a colored map of the island, a population graph and
+        three heatmaps, one for each of the three respective animals.
         This interface will be updated every year by default, but these
         parameters can be changed. You will also have the option to save
         frames(pictures) of the simulation, and be able to construct a video
@@ -51,7 +51,8 @@ class BioSim:
 
         If cmax_animals is None, sensible, fixed default values should be
         used. cmax_animals is a dict mapping species names to numbers, e.g.,
-        {'Herbivore': 50, 'Carnivore': 20, 'Vulture': 15}
+        {'Herbivore': 50, 'Carnivore': 20, 'Vulture': 15}. cmax_animals must
+        redefine for all animals.
 
         :param img_base: String with beginning of file name for figures.
 
@@ -100,7 +101,7 @@ class BioSim:
         else:
             self.color_bar_max_herb = cmax_animals['Herbivore']
             self.color_bar_max_carn = cmax_animals['Carnivore']
-            self.color_bar_max_carn = cmax_animals['Vulture']
+            self.color_bar_max_vult = cmax_animals['Vulture']
 
     @staticmethod
     def set_animal_parameters(species, params):
@@ -357,8 +358,8 @@ class BioSim:
 
     def death_cycle(self, prints=False):
         """
-        Each animal has a chance of dying. Probability is depending on the
-        fitness. The lower the fitness, the higher the chances of dying.
+        Each animal has a chance of dying. The probability depends
+        on fitness. The lower the fitness, the higher the chances of dying.
         Removes dead animals.
 
         :param prints: Prints relevant actions if True.
@@ -630,7 +631,7 @@ class BioSim:
         return data_frame
 
     @property
-    def herb_array(self):
+    def _herb_array(self):
         """
         Creates a NumPy array of the distribution of herbivores on the island.
         This is used to create the heatmaps.
@@ -647,7 +648,7 @@ class BioSim:
         return herb_array
 
     @property
-    def carn_array(self):
+    def _carn_array(self):
         """
         Creates a NumPy array of the distribution of carnivores on the island.
         This is used to create the heatmap for carnivores.
@@ -664,7 +665,7 @@ class BioSim:
         return carn_array
 
     @property
-    def vult_array(self):
+    def _vult_array(self):
         """
         Creates a NumPy array of the distribution of herbivores on the island.
         This is used to create the heatmaps.
@@ -882,8 +883,8 @@ class BioSim:
             self._heatmap_vult_graphics = \
                 self._heatmap_vult_ax.imshow(animal_array,
                                              interpolation='nearest',
-                                             vmin=self.color_bar_max_vult,
-                                             vmax=5,
+                                             vmin=0,
+                                             vmax=self.color_bar_max_vult,
                                              cmap='cividis')
             plt.colorbar(self._heatmap_vult_graphics, ax=self._heatmap_vult_ax,
                          orientation='horizontal')
@@ -916,11 +917,11 @@ class BioSim:
         _update_system_map_carnivore and _update_system_map_herbivore methods.
         """
 
-        self._update_system_map_herbivore(self.herb_array)
+        self._update_system_map_herbivore(self._herb_array)
 
-        self._update_system_map_carnivore(self.carn_array)
+        self._update_system_map_carnivore(self._carn_array)
 
-        self._update_system_map_vulture(self.vult_array)
+        self._update_system_map_vulture(self._vult_array)
 
         self._update_num_animals_graph(
 

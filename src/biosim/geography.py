@@ -20,8 +20,8 @@ class Biome:
 
     The global variables for the biomes are stored in a dictionary named
     param_dict. The global variables are,
-    f_max: Maximum amount of available food. f_max cannot be negative.
-    alpha: The regrowth constant which describes how much food a biome is
+    ``f_max``: Maximum amount of available food. ``f_max`` cannot be negative.
+    ``alpha``: The regrowth constant which describes how much food a biome is
     able to regrow each year.
     """
 
@@ -62,8 +62,8 @@ class Biome:
 
     def regrow(self):
         """
-        The regrow method updates the amount of available food
-        self.avialable_food for the biome. The default regrowth of a biome
+        The regrow method updates the amount of available food,
+        ``available_food``, for the biome. The default regrowth of a biome
         is given as zero, however this varies from biome to biome.
         """
         self.available_food += 0
@@ -128,9 +128,9 @@ class Savannah(Biome):
         .. math::
             f_{new, j} = f_{old, j} + \alpha \times (f_{max} - f_{old, j})
 
-        where f_{available} is the new amount of available food,
-        f_{remaining} is the food left after previous year, alpha is the
-        regrowth constant and f_{max} is the maximum available food in the
+        where ``f_{new}`` is the new amount of available food,
+        ``f_{old}`` is the food left after previous year, ``alpha`` is the
+        regrowth constant and ``f_{max}`` is the maximum available food in the
         Savannah.
 
         """
