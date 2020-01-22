@@ -89,7 +89,7 @@ if __name__ == '__main__':
             ],
         },
     ])
-    print('Added Vultures to simulation')
+    print('Added vultures to simulation')
     k.simulate(130)
     print(k.num_animals, 'live animals at year', k.year)
     plt.show()
