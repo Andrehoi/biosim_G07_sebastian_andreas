@@ -502,3 +502,13 @@ def test_death_cycle(plain_sim):
     assert len(plain_sim.map.array_map[1, 1].present_herbivores) == 1
     Herbivore.new_parameters({'omega': 0.40})
     Carnivore.new_parameters({'omega': 0.90})
+
+
+def test_cannot_move_of_of_map():
+    """ Test that you don't raise any errors when trying to leave the map """
+    test_map = 'O'
+    sim = BioSim(island_map=test_map, ini_pop=[], seed=3)
+    sim.map.array_map[0, 0].present_herbivores.append(Herbivore(3, 20))
+    sim.migration_cycle()
+
+    assert len(sim.map.array_map[0, 0].present_herbivores) == 1
