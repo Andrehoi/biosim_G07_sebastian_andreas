@@ -630,7 +630,6 @@ class BioSim:
                                                               'Vulture'])
         return data_frame
 
-    @property
     def _herb_array(self):
         """
         Creates a NumPy array of the distribution of herbivores on the island.
@@ -647,7 +646,6 @@ class BioSim:
             herb_array[self.map.y, self.map.x] = len(cell.present_herbivores)
         return herb_array
 
-    @property
     def _carn_array(self):
         """
         Creates a NumPy array of the distribution of carnivores on the island.
@@ -664,7 +662,6 @@ class BioSim:
             carn_array[self.map.y, self.map.x] = len(cell.present_carnivores)
         return carn_array
 
-    @property
     def _vult_array(self):
         """
         Creates a NumPy array of the distribution of herbivores on the island.
@@ -917,11 +914,11 @@ class BioSim:
         _update_system_map_carnivore and _update_system_map_herbivore methods.
         """
 
-        self._update_system_map_herbivore(self._herb_array)
+        self._update_system_map_herbivore(self._herb_array())
 
-        self._update_system_map_carnivore(self._carn_array)
+        self._update_system_map_carnivore(self._carn_array())
 
-        self._update_system_map_vulture(self._vult_array)
+        self._update_system_map_vulture(self._vult_array())
 
         self._update_num_animals_graph(
 
