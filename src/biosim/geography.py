@@ -134,8 +134,7 @@ class Savannah(Biome):
         Savannah.
 
         """
-        self.available_food += self.param_dict['alpha'] \
-                               * (self.param_dict[
+        self.available_food += self.param_dict['alpha'] * (self.param_dict[
                                       'f_max'] - self.available_food)
 
         if self.available_food > self.param_dict['f_max']:
