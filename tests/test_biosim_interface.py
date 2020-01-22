@@ -505,6 +505,7 @@ def test_death_cycle(plain_sim):
 
 
 def test_cannot_move_of_of_map():
+    """ Test that you don't raise any errors when trying to leave the map """
     test_map = 'O'
     sim = BioSim(island_map=test_map, ini_pop=[], seed=3)
     sim.map.array_map[0, 0].present_herbivores.append(Herbivore(3, 20))
