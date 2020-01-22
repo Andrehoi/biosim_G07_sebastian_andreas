@@ -384,10 +384,10 @@ def test_feeding_cycle(plain_sim):
         assert herbivores.weight > 40
 
 
-def test_breeding_cycle(plain_sim):
-    """ Test that the animals have multiplied during breeding cycle. """
-    plain_sim.add_population(
-        [
+@pytest.fixture
+def population():
+    """ Returns a population """
+    return [
             {"loc": (1, 1),
              "pop": [{"species": "Herbivore", "age": 7,
                       "weight": 100.0},
@@ -404,8 +404,12 @@ def test_breeding_cycle(plain_sim):
                      {"species": "Carnivore", "age": 7,
                       "weight": 100.0},
                      ]}
-        ]
-    )
+           ]
+
+
+def test_breeding_cycle(plain_sim, population):
+    """ Test that the animals have multiplied during breeding cycle. """
+    plain_sim.add_population(population)
     plain_sim.breeding_cycle()
     plain_sim.breeding_cycle()
     plain_sim.breeding_cycle()
@@ -413,28 +417,9 @@ def test_breeding_cycle(plain_sim):
     assert len(plain_sim.map.array_map[1, 2].present_carnivores) > 3
 
 
-def test_aging_cycle(plain_sim):
+def test_aging_cycle(plain_sim, population):
     """ Test that all animals age by one year after aging cycle """
-    plain_sim.add_population(
-        [
-            {"loc": (1, 1),
-             "pop": [{"species": "Herbivore", "age": 7,
-                      "weight": 100.0},
-                     {"species": "Herbivore", "age": 7,
-                      "weight": 100.0},
-                     {"species": "Herbivore", "age": 7,
-                      "weight": 100.0},
-                     ]},
-            {"loc": (1, 2),
-             "pop": [{"species": "Carnivore", "age": 7,
-                      "weight": 100.0},
-                     {"species": "Carnivore", "age": 7,
-                      "weight": 100.0},
-                     {"species": "Carnivore", "age": 7,
-                      "weight": 100.0},
-                     ]}
-        ]
-    )
+    plain_sim.add_population(population)
     plain_sim.ageing_cycle()
     for herbivore in plain_sim.map.array_map[1, 1].present_herbivores:
         assert herbivore.age == 8
@@ -442,28 +427,9 @@ def test_aging_cycle(plain_sim):
         assert carnivore.age == 8
 
 
-def test_weight_loss_cycle(plain_sim):
+def test_weight_loss_cycle(plain_sim, population):
     """ Test that all animals lose weight during weight loss cycle """
-    plain_sim.add_population(
-        [
-            {"loc": (1, 1),
-             "pop": [{"species": "Herbivore", "age": 7,
-                      "weight": 100.0},
-                     {"species": "Herbivore", "age": 7,
-                      "weight": 100.0},
-                     {"species": "Herbivore", "age": 7,
-                      "weight": 100.0},
-                     ]},
-            {"loc": (1, 2),
-             "pop": [{"species": "Carnivore", "age": 7,
-                      "weight": 100.0},
-                     {"species": "Carnivore", "age": 7,
-                      "weight": 100.0},
-                     {"species": "Carnivore", "age": 7,
-                      "weight": 100.0},
-                     ]}
-        ]
-    )
+    plain_sim.add_population(population)
     plain_sim.weight_loss_cycle()
     for herbivore in plain_sim.map.array_map[1, 1].present_herbivores:
         assert herbivore.weight == 95
